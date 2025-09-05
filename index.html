@@ -11,11 +11,129 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --header-color: white;
+            --main-text-color: #333;
+            --container-bg: rgba(255, 255, 255, 0.95);
+            --section-title-color: #4a5568;
+            --section-border-color: #e2e8f0;
+            --upload-area-bg: #f8fafc;
+            --upload-area-border: #cbd5e0;
+            --upload-area-text: #a0aec0;
+            --input-border: #e2e8f0;
+            --input-focus-border: #667eea;
+            --input-focus-shadow: rgba(102, 126, 234, 0.1);
+            --btn-primary-bg: linear-gradient(45deg, #667eea, #764ba2);
+            --btn-secondary-bg: #e2e8f0;
+            --btn-secondary-text: #4a5568;
+            --card-bg: white;
+            --card-shadow: rgba(0,0,0,0.1);
+            --tag-sinav-bg: #fed7d7;
+            --tag-sinav-text: #c53030;
+            --tag-brans-bg: #c6f6d5;
+            --tag-brans-text: #22543d;
+            --tag-konu-bg: #bee3f8;
+            --tag-konu-text: #2a69ac;
+            --tag-durum-bg: #fbb6ce;
+            --tag-durum-text: #97266d;
+            --tag-durum-cozuldu-bg: #c6f6d5;
+            --tag-durum-cozuldu-text: #22543d;
+            --tag-durum-yarim-bg: #faf089;
+            --tag-durum-yarim-text: #744210;
+            --tag-zorluk-bg: #e9d8fd;
+            --tag-zorluk-text: #553c9a;
+            --question-comment-bg: #f0f8ff;
+            --question-comment-text: #2d3748;
+            --question-comment-border: #4299e1;
+            --question-source-text: #718096;
+            --modal-bg: rgba(0,0,0,0.9);
+            --modal-content-bg: white;
+            --modal-header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --modal-header-text: white;
+            --modal-body-bg: #f8fafc;
+            --modal-details-bg: white;
+            --detail-content-bg: #f8fafc;
+            --detail-content-border: #667eea;
+            --nav-menu-bg: rgba(255, 255, 255, 0.95);
+            --nav-menu-item-bg: #e2e8f0;
+            --nav-menu-item-text: #4a5568;
+            --nav-menu-item-hover-bg: #cbd5e0;
+            --test-results-bg: #f8fafc;
+            --test-results-net-color: #667eea;
+            --test-list-item-bg: #f8fafc;
+            --test-net-color: #764ba2;
+            --empty-state-text: #718096;
+            --sun-moon-color: #FFD700;
+        }
+
+        .dark-mode {
+            --bg-color: #1a202c;
+            --header-color: #e2e8f0;
+            --main-text-color: #e2e8f0;
+            --container-bg: #2d3748;
+            --section-title-color: #e2e8f0;
+            --section-border-color: #4a5568;
+            --upload-area-bg: #2d3748;
+            --upload-area-border: #4a5568;
+            --upload-area-text: #a0aec0;
+            --input-border: #4a5568;
+            --input-focus-border: #9f7aea;
+            --input-focus-shadow: rgba(159, 122, 234, 0.2);
+            --btn-primary-bg: linear-gradient(45deg, #9f7aea, #d6bcfa);
+            --btn-secondary-bg: #4a5568;
+            --btn-secondary-text: #e2e8f0;
+            --card-bg: #2d3748;
+            --card-shadow: rgba(0,0,0,0.4);
+            --tag-sinav-bg: #c53030;
+            --tag-sinav-text: #fed7d7;
+            --tag-brans-bg: #22543d;
+            --tag-brans-text: #c6f6d5;
+            --tag-konu-bg: #2a69ac;
+            --tag-konu-text: #bee3f8;
+            --tag-durum-bg: #97266d;
+            --tag-durum-text: #fbb6ce;
+            --tag-durum-cozuldu-bg: #22543d;
+            --tag-durum-cozuldu-text: #c6f6d5;
+            --tag-durum-yarim-bg: #744210;
+            --tag-durum-yarim-text: #faf089;
+            --tag-zorluk-bg: #553c9a;
+            --tag-zorluk-text: #e9d8fd;
+            --question-comment-bg: #2a4365;
+            --question-comment-text: #e2e8f0;
+            --question-comment-border: #4299e1;
+            --question-source-text: #a0aec0;
+            --modal-bg: rgba(0,0,0,0.9);
+            --modal-content-bg: #2d3748;
+            --modal-header-bg: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            --modal-header-text: #e2e8f0;
+            --modal-body-bg: #1a202c;
+            --modal-details-bg: #2d3748;
+            --detail-content-bg: #4a5568;
+            --detail-content-border: #9f7aea;
+            --nav-menu-bg: #2d3748;
+            --nav-menu-item-bg: #4a5568;
+            --nav-menu-item-text: #e2e8f0;
+            --nav-menu-item-hover-bg: #6a7483;
+            --test-results-bg: #2d3748;
+            --test-results-net-color: #9f7aea;
+            --test-list-item-bg: #2d3748;
+            --test-net-color: #d6bcfa;
+            --empty-state-text: #a0aec0;
+            --sun-moon-color: #FFD700;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-color);
             min-height: 100vh;
-            color: #333;
+            color: var(--main-text-color);
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+        
+        input, select, textarea {
+            background-color: var(--card-bg);
+            color: var(--main-text-color);
         }
 
         .container {
@@ -27,7 +145,7 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
-            color: white;
+            color: var(--header-color);
             position: relative;
         }
 
@@ -47,18 +165,28 @@
             top: 20px;
             left: 20px;
             font-size: 2rem;
-            color: white;
+            color: var(--header-color);
             cursor: pointer;
             z-index: 20;
         }
         
+        .dark-mode-toggle {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 20;
+            color: var(--sun-moon-color);
+        }
+
         .nav-menu {
             position: fixed;
             top: 0;
             left: -300px;
             width: 250px;
             height: 100%;
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--nav-menu-bg);
             padding: 20px;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
@@ -74,16 +202,16 @@
             display: block;
             padding: 15px;
             margin-bottom: 10px;
-            background: #e2e8f0;
+            background: var(--nav-menu-item-bg);
             border-radius: 10px;
             text-decoration: none;
-            color: #4a5568;
+            color: var(--nav-menu-item-text);
             font-weight: 600;
             transition: all 0.2s ease;
         }
         
         .nav-menu a:hover {
-            background: #cbd5e0;
+            background: var(--nav-menu-item-hover-bg);
             transform: translateX(5px);
         }
 
@@ -95,39 +223,43 @@
         }
 
         .upload-section, .filter-section, .test-section {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--container-bg);
             border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px var(--card-shadow);
             backdrop-filter: blur(10px);
         }
 
         .section-title {
             font-size: 1.3rem;
             margin-bottom: 20px;
-            color: #4a5568;
-            border-bottom: 2px solid #e2e8f0;
+            color: var(--section-title-color);
+            border-bottom: 2px solid var(--section-border-color);
             padding-bottom: 10px;
         }
 
         .upload-area {
-            border: 3px dashed #cbd5e0;
+            border: 3px dashed var(--upload-area-border);
             border-radius: 15px;
             padding: 40px 20px;
             text-align: center;
             transition: all 0.3s ease;
             cursor: pointer;
-            background: #f8fafc;
+            background: var(--upload-area-bg);
         }
 
         .upload-area:hover {
-            border-color: #667eea;
-            background: #edf2f7;
+            border-color: var(--input-focus-border);
+            background: var(--section-border-color);
             transform: translateY(-2px);
+        }
+        
+        .dark-mode .upload-area:hover {
+            background: var(--nav-menu-item-bg);
         }
 
         .upload-area.dragover {
-            border-color: #667eea;
+            border-color: var(--input-focus-border);
             background: #e6fffa;
             transform: scale(1.02);
         }
@@ -135,7 +267,7 @@
         .upload-icon {
             font-size: 3rem;
             margin-bottom: 15px;
-            color: #a0aec0;
+            color: var(--upload-area-text);
         }
 
         .form-row {
@@ -153,12 +285,12 @@
         label {
             font-weight: 600;
             margin-bottom: 5px;
-            color: #4a5568;
+            color: var(--section-title-color);
         }
 
         select, input, textarea {
             padding: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--input-border);
             border-radius: 10px;
             font-size: 1rem;
             transition: border-color 0.3s ease;
@@ -167,8 +299,8 @@
 
         select:focus, input:focus, textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px var(--input-focus-shadow);
         }
 
         .btn {
@@ -183,7 +315,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: var(--btn-primary-bg);
             color: white;
         }
 
@@ -193,19 +325,19 @@
         }
 
         .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
+            background: var(--btn-secondary-bg);
+            color: var(--btn-secondary-text);
         }
 
         .btn-secondary:hover {
-            background: #cbd5e0;
+            background: var(--nav-menu-item-hover-bg);
         }
 
         .gallery {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--container-bg);
             border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px var(--card-shadow);
             backdrop-filter: blur(10px);
         }
 
@@ -217,24 +349,24 @@
         }
 
         .question-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px var(--card-shadow);
             transition: all 0.3s ease;
             cursor: pointer;
         }
 
         .question-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px var(--card-shadow);
         }
 
         .question-image {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            background: #f8fafc;
+            background: var(--upload-area-bg);
         }
 
         .question-info {
@@ -243,13 +375,13 @@
         }
 
         .question-comment {
-            background: #f0f8ff;
+            background: var(--question-comment-bg);
             padding: 12px;
             margin: 10px 0;
             border-radius: 10px;
             font-size: 0.9rem;
-            color: #2d3748;
-            border-left: 4px solid #4299e1;
+            color: var(--question-comment-text);
+            border-left: 4px solid var(--question-comment-border);
             line-height: 1.4;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
@@ -261,7 +393,7 @@
 
         .question-source {
             font-size: 0.8rem;
-            color: #718096;
+            color: var(--question-source-text);
             margin-top: 8px;
         }
 
@@ -270,8 +402,8 @@
         }
 
         .question-solution-indicator {
-            background: #c6f6d5;
-            color: #22543d;
+            background: var(--tag-durum-cozuldu-bg);
+            color: var(--tag-durum-cozuldu-text);
             padding: 4px 8px;
             border-radius: 12px;
             font-size: 0.7rem;
@@ -299,58 +431,58 @@
         }
 
         .tag-sinav {
-            background: #fed7d7;
-            color: #c53030;
+            background: var(--tag-sinav-bg);
+            color: var(--tag-sinav-text);
         }
 
         .tag-brans {
-            background: #c6f6d5;
-            color: #22543d;
+            background: var(--tag-brans-bg);
+            color: var(--tag-brans-text);
         }
 
         .tag-konu {
-            background: #bee3f8;
-            color: #2a69ac;
+            background: var(--tag-konu-bg);
+            color: var(--tag-konu-text);
         }
 
         .tag-durum {
-            background: #fbb6ce;
-            color: #97266d;
+            background: var(--tag-durum-bg);
+            color: var(--tag-durum-text);
         }
 
         .tag-durum.cozuldu {
-            background: #c6f6d5;
-            color: #22543d;
+            background: var(--tag-durum-cozuldu-bg);
+            color: var(--tag-durum-cozuldu-text);
         }
 
         .tag-durum.yarim {
-            background: #faf089;
-            color: #744210;
+            background: var(--tag-durum-yarim-bg);
+            color: var(--tag-durum-yarim-text);
         }
 
         .tag-zorluk {
-            background: #e9d8fd;
-            color: #553c9a;
+            background: var(--tag-zorluk-bg);
+            color: var(--tag-zorluk-text);
         }
 
         .tag-zorluk.kolay {
-            background: #c6f6d5;
-            color: #22543d;
+            background: var(--tag-durum-cozuldu-bg);
+            color: var(--tag-durum-cozuldu-text);
         }
 
         .tag-zorluk.orta {
-            background: #fbb6ce;
-            color: #97266d;
+            background: var(--tag-durum-bg);
+            color: var(--tag-durum-text);
         }
 
         .tag-zorluk.zor {
-            background: #fed7d7;
-            color: #c53030;
+            background: var(--tag-sinav-bg);
+            color: var(--tag-sinav-text);
         }
 
         .question-date {
             font-size: 0.9rem;
-            color: #718096;
+            color: var(--question-source-text);
             margin-top: 10px;
         }
 
@@ -402,21 +534,21 @@
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--container-bg);
             padding: 20px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px var(--card-shadow);
         }
 
         .stat-number {
             font-size: 2rem;
             font-weight: bold;
-            color: #667eea;
+            color: var(--test-results-net-color);
         }
 
         .stat-label {
-            color: #718096;
+            color: var(--question-source-text);
             margin-top: 5px;
         }
 
@@ -428,7 +560,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: var(--modal-bg);
             backdrop-filter: blur(5px);
             overflow-y: auto;
         }
@@ -437,15 +569,15 @@
             position: relative;
             margin: 20px auto;
             max-width: 95%;
-            background: white;
+            background: var(--modal-content-bg);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             overflow: hidden;
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--modal-header-bg);
+            color: var(--modal-header-text);
             padding: 20px;
             position: relative;
         }
@@ -466,7 +598,7 @@
             position: absolute;
             top: 15px;
             right: 20px;
-            color: white;
+            color: var(--modal-header-text);
             font-size: 30px;
             font-weight: bold;
             cursor: pointer;
@@ -497,7 +629,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f8fafc;
+            background: var(--modal-body-bg);
         }
 
         .modal-image {
@@ -509,9 +641,9 @@
         }
 
         .modal-details {
-            background: white;
+            background: var(--modal-details-bg);
             padding: 30px;
-            border-left: 2px solid #e2e8f0;
+            border-left: 2px solid var(--section-border-color);
             overflow-y: auto;
             max-height: 70vh;
         }
@@ -523,7 +655,7 @@
         .detail-title {
             font-size: 1rem;
             font-weight: 600;
-            color: #4a5568;
+            color: var(--section-title-color);
             margin-bottom: 10px;
             display: flex;
             align-items: center;
@@ -531,12 +663,12 @@
         }
 
         .detail-content {
-            background: #f8fafc;
+            background: var(--detail-content-bg);
             padding: 12px;
             border-radius: 8px;
             font-size: 0.9rem;
-            color: #2d3748;
-            border-left: 4px solid #667eea;
+            color: var(--main-text-color);
+            border-left: 4px solid var(--detail-content-border);
         }
 
         .modal-tags {
@@ -564,7 +696,7 @@
         }
 
         .btn-status {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: var(--btn-primary-bg);
             color: white;
         }
 
@@ -585,7 +717,7 @@
             
             .modal-details {
                 border-left: none;
-                border-top: 2px solid #e2e8f0;
+                border-top: 2px solid var(--section-border-color);
                 max-height: none;
             }
             
@@ -624,7 +756,7 @@
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: #718096;
+            color: var(--empty-state-text);
         }
 
         .empty-state-icon {
@@ -676,7 +808,7 @@
             margin-top: 20px;
             display: grid;
             gap: 10px;
-            background: #f8fafc;
+            background: var(--test-results-bg);
             padding: 15px;
             border-radius: 10px;
         }
@@ -690,7 +822,7 @@
         
         .test-results-item span:last-child {
             font-weight: 700;
-            color: #667eea;
+            color: var(--test-results-net-color);
         }
 
         .test-list-item {
@@ -698,7 +830,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            background: #f8fafc;
+            background: var(--test-list-item-bg);
             border-radius: 10px;
             margin-bottom: 10px;
             transition: all 0.3s ease;
@@ -713,29 +845,34 @@
         
         .test-info {
             font-size: 1rem;
-            color: #4a5568;
+            color: var(--section-title-color);
         }
         
         .test-info .date {
             font-size: 0.8rem;
-            color: #718096;
+            color: var(--question-source-text);
             margin-top: 5px;
         }
         
         .test-net {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #764ba2;
+            color: var(--test-net-color);
         }
         
-        #tytChartContainer, #aytChartContainer {
+        #tytChartContainer, #aytChartContainer, .chart-container {
             margin-top: 30px;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 5px 15px var(--card-shadow);
         }
         
     </style>
 </head>
 <body>
     <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="dark-mode-toggle" id="darkModeToggle">☀️</div>
     <div class="nav-menu" id="navMenu">
         <a href="#" onclick="showPage('questionPage')">📚 Soru Defterim</a>
         <a href="#" onclick="showPage('testPage')">📈 Deneme Takip Sistemi</a>
@@ -927,6 +1064,18 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="chart-container">
+                <h3 style="text-align: center; margin-bottom: 20px; color: var(--section-title-color);">Soru Dağılımları</h3>
+                <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="bransChart"></canvas>
+                    </div>
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="zorlukChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="testPage" class="tab-content">
@@ -946,7 +1095,7 @@
                     <input type="text" id="testName" placeholder="Örn: 3D Yayınları Deneme 5">
                 </div>
                 
-                <hr style="margin: 20px 0; border: none; border-top: 1px dashed #e2e8f0;">
+                <hr style="margin: 20px 0; border: none; border-top: 1px dashed var(--section-border-color);">
 
                 <div id="tytTestInputs" class="test-inputs">
                     <h3>TYT Dersleri</h3>
@@ -1037,12 +1186,12 @@
                     </div>
                 </div>
                 
-                <h3 style="text-align: center; margin-top: 20px; color: #4a5568;">TYT Net Gelişimi</h3>
+                <h3 style="text-align: center; margin-top: 20px; color: var(--section-title-color);">TYT Net Gelişimi</h3>
                 <div id="tytChartContainer">
                     <canvas id="tytNetChart"></canvas>
                 </div>
 
-                <h3 style="text-align: center; margin-top: 40px; color: #4a5568;">AYT Net Gelişimi</h3>
+                <h3 style="text-align: center; margin-top: 40px; color: var(--section-title-color);">AYT Net Gelişimi</h3>
                 <div id="aytChartContainer">
                     <canvas id="aytNetChart"></canvas>
                 </div>
@@ -1089,7 +1238,7 @@
                             <div id="noSolutionMessage">
                                 <p style="color: #718096; font-style: italic; margin: 0 0 10px 0;">Henüz çözüm yüklenmedi</p>
                                 <input type="file" id="solutionFileInput" accept="image/*" style="display: none;" onchange="uploadSolution(event)">
-                                <button onclick="document.getElementById('solutionFileInput').click()" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; cursor: pointer;">
+                                <button onclick="document.getElementById('solutionFileInput').click()" style="background: var(--btn-primary-bg); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; cursor: pointer;">
                                     📤 Çözüm Yükle
                                 </button>
                             </div>
@@ -1122,6 +1271,9 @@
         let filteredQuestions = [];
         let tytChart = null;
         let aytChart = null;
+        let bransChart = null;
+        let zorlukChart = null;
+        const darkModeToggle = document.getElementById('darkModeToggle');
 
         const testSubjectLimits = {
             'TYT': {
@@ -1141,11 +1293,37 @@
             }
         };
 
+        // Dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            darkModeToggle.textContent = isDarkMode ? '🌙' : '☀️';
+            if (bransChart) bransChart.destroy();
+            if (zorlukChart) zorlukChart.destroy();
+            if (tytChart) tytChart.destroy();
+            if (aytChart) aytChart.destroy();
+            drawCharts();
+        }
+        
+        darkModeToggle.addEventListener('click', toggleDarkMode);
+        
+        function loadDarkModePreference() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.textContent = '🌙';
+            } else {
+                darkModeToggle.textContent = '☀️';
+            }
+        }
+
         // Local storage'dan verileri yükle
         function loadData() {
             questions = JSON.parse(localStorage.getItem('yksQuestions') || '[]');
             tests = JSON.parse(localStorage.getItem('yksTests') || '[]');
             filteredQuestions = [...questions];
+            loadDarkModePreference();
             updateUI();
             updateTestUI();
         }
@@ -1346,6 +1524,9 @@
         function drawTestCharts() {
             const tytTests = tests.filter(t => t.type === 'TYT');
             const aytTests = tests.filter(t => t.type === 'AYT');
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--main-text-color');
+            const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--section-border-color');
+
 
             // TYT Grafiği
             if (tytChart) { tytChart.destroy(); }
@@ -1374,20 +1555,22 @@
                             display: true,
                             text: 'TYT Toplam Net Gelişimi',
                             font: { size: 16 },
-                            color: '#4a5568'
+                            color: textColor
                         }
                     },
                     scales: {
                         x: {
                             display: true,
-                            title: { display: true, text: 'Deneme Tarihi', color: '#718096' },
-                            grid: { color: '#e2e8f0' }
+                            title: { display: true, text: 'Deneme Tarihi', color: gridColor },
+                            grid: { color: gridColor },
+                            ticks: { color: textColor }
                         },
                         y: {
                             display: true,
-                            title: { display: true, text: 'Toplam Net', color: '#718096' },
-                            grid: { color: '#e2e8f0' },
-                            beginAtZero: false
+                            title: { display: true, text: 'Toplam Net', color: gridColor },
+                            grid: { color: gridColor },
+                            beginAtZero: false,
+                            ticks: { color: textColor }
                         }
                     }
                 }
@@ -1420,20 +1603,22 @@
                             display: true,
                             text: 'AYT Toplam Net Gelişimi',
                             font: { size: 16 },
-                            color: '#4a5568'
+                            color: textColor
                         }
                     },
                     scales: {
                         x: {
                             display: true,
-                            title: { display: true, text: 'Deneme Tarihi', color: '#718096' },
-                            grid: { color: '#e2e8f0' }
+                            title: { display: true, text: 'Deneme Tarihi', color: gridColor },
+                            grid: { color: gridColor },
+                            ticks: { color: textColor }
                         },
                         y: {
                             display: true,
-                            title: { display: true, text: 'Toplam Net', color: '#718096' },
-                            grid: { color: '#e2e8f0' },
-                            beginAtZero: false
+                            title: { display: true, text: 'Toplam Net', color: gridColor },
+                            grid: { color: gridColor },
+                            beginAtZero: false,
+                            ticks: { color: textColor }
                         }
                     }
                 }
@@ -1441,7 +1626,7 @@
         }
 
 
-        // SORU DEFTERİ KODLARI (DEĞİŞİKLİK YAPILMADI)
+        // SORU DEFTERİ KODLARI
         const uploadArea = document.querySelector('.upload-area');
         const fileInput = document.getElementById('fileInput');
 
@@ -1559,6 +1744,7 @@
             updateStats();
             updateBransFilter();
             displayQuestions();
+            drawCharts();
         }
 
         function updateStats() {
@@ -1585,7 +1771,7 @@
 
         function updateBransFilter() {
             const filterBrans = document.getElementById('filterBrans');
-            const uniqueBrans = [...new Set(questions.map(q => q.brans))];
+            const uniqueBrans = [...new Set(questions.map(q => q.brans))].sort();
             
             filterBrans.innerHTML = '<option value="">Tümü</option>';
             uniqueBrans.forEach(brans => {
@@ -1626,7 +1812,7 @@
                 return `
                     <div class="question-card">
                         <button class="delete-btn" onclick="deleteQuestion(event, ${question.id})">✕</button>
-                        <img src="${question.image}" alt="Soru" class="question-image" onclick="openModal(${question.id})">>
+                        <img src="${question.image}" alt="Soru" class="question-image" onclick="openModal(${question.id})">
                         <div class="question-info">
                             <div class="question-tags">
                                 <span class="tag tag-sinav">${question.sinav}</span>
@@ -1646,6 +1832,80 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        function drawCharts() {
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--main-text-color');
+            const bransData = {};
+            const zorlukData = {};
+            
+            questions.forEach(q => {
+                bransData[q.brans] = (bransData[q.brans] || 0) + 1;
+                zorlukData[q.zorluk] = (zorlukData[q.zorluk] || 0) + 1;
+            });
+            
+            const bransLabels = Object.keys(bransData);
+            const bransValues = Object.values(bransData);
+            const zorlukLabels = Object.keys(zorlukData).map(label => {
+                switch(label) {
+                    case 'kolay': return '🟢 Kolay';
+                    case 'orta': return '🟡 Orta';
+                    case 'zor': return '🔴 Zor';
+                    default: return label;
+                }
+            });
+            const zorlukValues = Object.values(zorlukData);
+            
+            // Branş Grafiği
+            if (bransChart) bransChart.destroy();
+            const bransCtx = document.getElementById('bransChart').getContext('2d');
+            bransChart = new Chart(bransCtx, {
+                type: 'pie',
+                data: {
+                    labels: bransLabels,
+                    datasets: [{
+                        data: bransValues,
+                        backgroundColor: [
+                            '#4299e1', '#e53e3e', '#38b2ac', '#d69e2e', '#9f7aea', 
+                            '#f6ad55', '#48bb78', '#a0aec0', '#d53f8c', '#68d391'
+                        ],
+                        borderColor: textColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: textColor } },
+                        title: { display: true, text: 'Branşlara Göre Soru Dağılımı', color: textColor, font: { size: 16 } }
+                    }
+                }
+            });
+            
+            // Zorluk Grafiği
+            if (zorlukChart) zorlukChart.destroy();
+            const zorlukCtx = document.getElementById('zorlukChart').getContext('2d');
+            zorlukChart = new Chart(zorlukCtx, {
+                type: 'pie',
+                data: {
+                    labels: zorlukLabels,
+                    datasets: [{
+                        data: zorlukValues,
+                        backgroundColor: [
+                            '#48bb78', '#f6e05e', '#e53e3e'
+                        ],
+                        borderColor: textColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: textColor } },
+                        title: { display: true, text: 'Zorluk Seviyelerine Göre Dağılım', color: textColor, font: { size: 16 } }
+                    }
+                }
+            });
         }
 
         function applyFilters() {
