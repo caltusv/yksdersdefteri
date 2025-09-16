@@ -216,7 +216,6 @@
             transform: translateX(5px);
         }
 
-        /* YENİ ANA SAYFA DÜZENİ STILLERİ */
         .summary-container {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -236,7 +235,6 @@
             flex-direction: column;
             gap: 30px;
         }
-        /* ESKİ .main-content ARTIK KULLANILMIYOR */
 
         .upload-section, .filter-section, .test-section, .goals-section, .repeat-section, .gallery, .chart-container {
             background: var(--container-bg);
@@ -548,7 +546,7 @@
         }
 
         .stat-card {
-            background: var(--card-bg); /* Stat kartları kendi içinde farklı renkte olabilir */
+            background: var(--card-bg);
             padding: 20px;
             border-radius: 15px;
             text-align: center;
@@ -577,14 +575,15 @@
             background: var(--modal-bg);
             backdrop-filter: blur(5px);
             overflow-y: auto;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* --- IYILEŞTIRME: MODAL PENCERE BÜYÜTÜLDÜ --- */
         .modal-content {
             position: relative;
             margin: 20px auto;
-            width: 90vw; /* Ekran genişliğinin %90'ını kapla */
-            max-width: 1400px; /* Ama en fazla 1400px olsun */
+            width: 90vw;
+            max-width: 1400px;
             background: var(--modal-content-bg);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
@@ -633,10 +632,9 @@
             transform: scale(1.1);
         }
 
-        /* --- IYILEŞTIRME: MODAL İÇİ YERLEŞİM DÜZENLENDİ --- */
         .modal-body {
             display: grid;
-            grid-template-columns: 2fr 1fr; /* Soru görseline daha çok, detaylara daha az alan */
+            grid-template-columns: 2fr 1fr;
             gap: 0;
             min-height: 500px;
         }
@@ -662,7 +660,7 @@
             padding: 30px;
             border-left: 2px solid var(--section-border-color);
             overflow-y: auto;
-            max-height: 80vh; /* Yüksekliği biraz artırıldı */
+            max-height: 80vh;
         }
 
         .detail-section {
@@ -727,7 +725,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         
-        /* RESPONSIVE DÜZENLEMELERİ */
         @media (max-width: 1024px) {
             .summary-container, .main-page-content {
                 grid-template-columns: 1fr;
@@ -888,11 +885,10 @@
             box-shadow: 0 5px 15px var(--card-shadow);
         }
         
-        /* --- IYILEŞTIRME: ÇÖZÜM GÖRSELİNİN SIĞMASI SAĞLANDI --- */
         #solutionImage {
             cursor: zoom-in;
             transition: transform 0.3s ease;
-            max-width: 100%; /* Bu satır eklendi */
+            max-width: 100%;
         }
         
         #solutionImage:hover {
@@ -938,11 +934,6 @@
             text-decoration: none;
             cursor: pointer;
         }
-
-        .modal {
-            display: none;
-        }
-        
     </style>
 </head>
 <body>
@@ -1361,7 +1352,7 @@
         function loadData() {
             questions = JSON.parse(localStorage.getItem('yksQuestions')) || [];
             tests = JSON.parse(localStorage.getItem('yksTests')) || [];
-            updateUI();
+            updateUI(); // İlk yüklemede her şeyi güncelle
             checkDailyStreak();
             updateWeeklyGoalStatus();
         }
@@ -1371,6 +1362,7 @@
             localStorage.setItem('yksTests', JSON.stringify(tests));
         }
 
+        // Genel güncelleme fonksiyonu, sadece ilk yükleme için
         function updateUI() {
             updateQuestionGrid();
             updateStats();
@@ -1394,7 +1386,7 @@
                 return;
             }
 
-            filteredQuestions.sort((a, b) => new Date(b.date) - new Date(a.date)); // Soruları en yeniden eskiye sırala
+            filteredQuestions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             filteredQuestions.forEach(q => {
                 const card = document.createElement('div');
@@ -1542,7 +1534,13 @@
 
                     questions.push(newQuestion);
                     saveToStorage();
-                    updateUI();
+                    
+                    // Sadece soru sayfası elemanlarını güncelle
+                    updateQuestionGrid();
+                    updateStats();
+                    updateFilterOptions();
+                    drawCharts();
+                    updateRepeatQuestions();
                     
                     document.getElementById('konu').value = '';
                     document.getElementById('yorum').value = '';
@@ -1659,7 +1657,7 @@
             reader.onload = function(e) {
                 question.solution = e.target.result;
                 saveToStorage();
-                updateUI();
+                updateQuestionGrid();
                 closeModal();
             };
             reader.readAsDataURL(image);
@@ -1672,7 +1670,8 @@
 
             question.durum = newStatus;
             saveToStorage();
-            updateUI();
+            updateQuestionGrid();
+            updateStats();
             closeModal();
         }
 
@@ -1680,7 +1679,9 @@
             if (confirm('Bu soruyu silmek istediğinizden emin misiniz?')) {
                 questions = questions.filter(q => q.id !== currentQuestionId);
                 saveToStorage();
-                updateUI();
+                updateQuestionGrid();
+                updateStats();
+                drawCharts();
                 closeModal();
             }
         }
@@ -1689,8 +1690,9 @@
             if (confirm('Bu soruyu kalıcı olarak silmek istediğinizden emin misiniz?')) {
                 questions = questions.filter(q => q.id !== id);
                 saveToStorage();
-                updateUI();
-                closeModal();
+                updateQuestionGrid();
+                updateStats();
+                drawCharts();
             }
         }
 
@@ -1699,12 +1701,24 @@
             navMenu.classList.toggle('active');
         }
 
+        // *** DEĞİŞİKLİK: BU FONKSİYON GÜNCELLENDİ ***
         function showPage(pageId) {
             document.querySelectorAll('.tab-content').forEach(page => {
                 page.classList.remove('active');
             });
             document.getElementById(pageId).classList.add('active');
-            updateUI();
+            toggleMenu(); // Menüyü kapat
+
+            // Artık sadece aktif olan sayfanın verileri güncelleniyor
+            if (pageId === 'questionPage') {
+                updateQuestionGrid();
+                updateStats();
+                updateFilterOptions();
+                drawCharts();
+                updateRepeatQuestions();
+            } else if (pageId === 'testPage') {
+                updateTestUI();
+            }
         }
 
         function saveTestResult() {
@@ -1865,10 +1879,10 @@
 
             const tytMatData = tytTests.map(t => t.results.tytMat.net.toFixed(2));
             const tytTurkceData = tytTests.map(t => t.results.tytTurkce.net.toFixed(2));
-            const aytMatData = aytTests.map(t => t.results.aytMat.net.toFixed(2));
-            const aytFizikData = aytTests.map(t => t.results.aytFizik.net.toFixed(2));
-            const aytKimyaData = aytTests.map(t => t.results.aytKimya.net.toFixed(2));
-            const aytBiyolojiData = aytTests.map(t => t.results.aytBiyoloji.net.toFixed(2));
+            const aytMatData = aytTests.map(t => t.results.aytMat ? t.results.aytMat.net.toFixed(2) : 0);
+            const aytFizikData = aytTests.map(t => t.results.aytFizik ? t.results.aytFizik.net.toFixed(2) : 0);
+            const aytKimyaData = aytTests.map(t => t.results.aytKimya ? t.results.aytKimya.net.toFixed(2) : 0);
+            const aytBiyolojiData = aytTests.map(t => t.results.aytBiyoloji ? t.results.aytBiyoloji.net.toFixed(2) : 0);
 
             const datasets = (data, label, color) => [{
                 label: label,
@@ -1984,9 +1998,6 @@
                 const percentage = Math.min((weeklyQuestions / goal) * 100, 100);
                 statusText.innerHTML = `Hedef: ${goal} | Bu Hafta: ${weeklyQuestions} <br>
                     <progress value="${weeklyQuestions}" max="${goal}" style="width: 100%; margin-top: 5px;"></progress>`;
-                if (weeklyQuestions >= goal) {
-                    //Hedefe ulaşıldığında özel bir mesaj gösterilebilir.
-                }
             } else {
                 statusText.innerText = 'Henüz haftalık hedef belirlenmedi.';
             }
