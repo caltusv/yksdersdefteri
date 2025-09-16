@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YKS Dijital Hata Defteri & Deneme Takip</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -215,14 +216,29 @@
             transform: translateX(5px);
         }
 
-        .main-content {
+        /* YENİ ANA SAYFA DÜZENİ STILLERİ */
+        .summary-container {
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 2fr 1fr;
             gap: 30px;
             margin-bottom: 30px;
         }
 
-        .upload-section, .filter-section, .test-section {
+        .main-page-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .left-column, .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        /* ESKİ .main-content ARTIK KULLANILMIYOR */
+
+        .upload-section, .filter-section, .test-section, .goals-section, .repeat-section, .gallery, .chart-container {
             background: var(--container-bg);
             border-radius: 20px;
             padding: 25px;
@@ -331,14 +347,6 @@
 
         .btn-secondary:hover {
             background: var(--nav-menu-item-hover-bg);
-        }
-
-        .gallery {
-            background: var(--container-bg);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 30px var(--card-shadow);
-            backdrop-filter: blur(10px);
         }
 
         .question-grid {
@@ -479,6 +487,15 @@
             background: var(--tag-sinav-bg);
             color: var(--tag-sinav-text);
         }
+        
+        .tag-tekrar {
+            background: #d4f7dc;
+            color: #2f855a;
+        }
+        .dark-mode .tag-tekrar {
+            background: #2f855a;
+            color: #d4f7dc;
+        }
 
         .question-date {
             font-size: 0.9rem;
@@ -516,12 +533,6 @@
             opacity: 1;
         }
 
-        @media (max-width: 768px) {
-            .delete-btn {
-                opacity: 0.8;
-            }
-        }
-
         .question-card {
             position: relative;
         }
@@ -530,11 +541,14 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
-            margin-bottom: 30px;
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px var(--card-shadow);
         }
 
         .stat-card {
-            background: var(--container-bg);
+            background: var(--card-bg); /* Stat kartları kendi içinde farklı renkte olabilir */
             padding: 20px;
             border-radius: 15px;
             text-align: center;
@@ -565,10 +579,12 @@
             overflow-y: auto;
         }
 
+        /* --- IYILEŞTIRME: MODAL PENCERE BÜYÜTÜLDÜ --- */
         .modal-content {
             position: relative;
             margin: 20px auto;
-            max-width: 95%;
+            width: 90vw; /* Ekran genişliğinin %90'ını kapla */
+            max-width: 1400px; /* Ama en fazla 1400px olsun */
             background: var(--modal-content-bg);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
@@ -617,9 +633,10 @@
             transform: scale(1.1);
         }
 
+        /* --- IYILEŞTIRME: MODAL İÇİ YERLEŞİM DÜZENLENDİ --- */
         .modal-body {
             display: grid;
-            grid-template-columns: 1fr 300px;
+            grid-template-columns: 2fr 1fr; /* Soru görseline daha çok, detaylara daha az alan */
             gap: 0;
             min-height: 500px;
         }
@@ -645,7 +662,7 @@
             padding: 30px;
             border-left: 2px solid var(--section-border-color);
             overflow-y: auto;
-            max-height: 70vh;
+            max-height: 80vh; /* Yüksekliği biraz artırıldı */
         }
 
         .detail-section {
@@ -709,6 +726,13 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
+        
+        /* RESPONSIVE DÜZENLEMELERİ */
+        @media (max-width: 1024px) {
+            .summary-container, .main-page-content {
+                grid-template-columns: 1fr;
+            }
+        }
 
         @media (max-width: 1024px) {
             .modal-body {
@@ -729,27 +753,23 @@
         @media (max-width: 768px) {
             .modal-content {
                 margin: 10px;
+                width: calc(100% - 20px);
                 max-width: none;
             }
-            
             .modal-header {
                 padding: 15px;
             }
-            
             .modal-details {
                 padding: 20px;
             }
-            
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
             .header h1 {
                 font-size: 2rem;
             }
-            
             .question-grid {
                 grid-template-columns: 1fr;
+            }
+             .delete-btn {
+                opacity: 0.8;
             }
         }
 
@@ -860,12 +880,67 @@
             color: var(--test-net-color);
         }
         
-        #tytChartContainer, #aytChartContainer, .chart-container {
+        #tytChartContainer, #aytChartContainer {
             margin-top: 30px;
             padding: 20px;
             background: var(--card-bg);
             border-radius: 20px;
             box-shadow: 0 5px 15px var(--card-shadow);
+        }
+        
+        /* --- IYILEŞTIRME: ÇÖZÜM GÖRSELİNİN SIĞMASI SAĞLANDI --- */
+        #solutionImage {
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+            max-width: 100%; /* Bu satır eklendi */
+        }
+        
+        #solutionImage:hover {
+            transform: scale(1.05);
+        }
+
+        #fullscreenModal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #fullscreenModalContent {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            border-radius: 10px;
+        }
+        
+        .fullscreen-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .fullscreen-close:hover,
+        .fullscreen-close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
         }
         
     </style>
@@ -885,194 +960,202 @@
         </div>
         
         <div id="questionPage" class="tab-content active">
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalQuestions">0</div>
-                    <div class="stat-label">Toplam Soru</div>
+            <div class="summary-container">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalQuestions">0</div>
+                        <div class="stat-label">Toplam Soru</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="tytQuestions">0</div>
+                        <div class="stat-label">TYT Soruları</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="aytQuestions">0</div>
+                        <div class="stat-label">AYT Soruları</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="solvedQuestions">0</div>
+                        <div class="stat-label">Çözülmüş</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="todayQuestions">0</div>
+                        <div class="stat-label">Bugün Eklenen</div>
+                    </div>
+                     <div class="stat-card">
+                        <div class="stat-number" id="hardQuestions">0</div>
+                        <div class="stat-label">Zor Sorular</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="tytQuestions">0</div>
-                    <div class="stat-label">TYT Soruları</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="aytQuestions">0</div>
-                    <div class="stat-label">AYT Soruları</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="todayQuestions">0</div>
-                    <div class="stat-label">Bugün Eklenen</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="solvedQuestions">0</div>
-                    <div class="stat-label">Çözülmüş</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="hardQuestions">0</div>
-                    <div class="stat-label">Zor Sorular</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="weeklyQuestions">0</div>
-                    <div class="stat-label">Bu Hafta</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="solvedWithSolution">0</div>
-                    <div class="stat-label">Çözümü Olan</div>
+                 <div class="goals-section">
+                    <h2 class="section-title">🎯 Haftalık Hedefler & Seriler</h2>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <label for="weeklyGoalInput">Haftalık Soru Hedefi</label>
+                            <input type="number" id="weeklyGoalInput" placeholder="50" style="width: 100px;">
+                            <button class="btn btn-primary" onclick="setWeeklyGoal()">Belirle</button>
+                        </div>
+                        <div>
+                            <p id="weeklyGoalStatus">Hedef: Belirlenmedi</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="margin-top: 20px;">
+                        <div class="stat-number" id="streakCounter">0</div>
+                        <div class="stat-label">🔥 Günlük Soru Ekleme Serin</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="main-content">
-                <div class="upload-section">
-                    <h2 class="section-title">➕ Yeni Soru Ekle</h2>
-                    
-                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                        <div class="upload-icon">📁</div>
-                        <p>Soru görselini buraya sürükleyin veya tıklayın</p>
-                        <p style="font-size: 0.9rem; color: #718096; margin-top: 10px;">
-                            JPG, PNG, GIF formatları desteklenir
-                        </p>
-                    </div>
-                    
-                    <input type="file" id="fileInput" accept="image/*" multiple>
-                    
-                    <div class="form-row">
+            <div class="main-page-content">
+                <div class="left-column">
+                    <div class="upload-section">
+                        <h2 class="section-title">➕ Yeni Soru Ekle</h2>
+                        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                            <div class="upload-icon">📁</div>
+                            <p>Soru görselini buraya sürükleyin veya tıklayın</p>
+                            <p style="font-size: 0.9rem; color: #718096; margin-top: 10px;">
+                                <span style="font-weight: bold;">İpucu:</span> Mobil cihazlarda bu işlem telefon kamerasını açabilir.
+                            </p>
+                        </div>
+                        <input type="file" id="fileInput" accept="image/*" multiple>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sinavOturumu">Sınav Oturumu</label>
+                                <select id="sinavOturumu">
+                                    <option value="TYT">TYT</option>
+                                    <option value="AYT">AYT</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="brans">Branş</label>
+                                <select id="brans">
+                                    <option value="Matematik">Matematik</option>
+                                    <option value="Fizik">Fizik</option>
+                                    <option value="Kimya">Kimya</option>
+                                    <option value="Biyoloji">Biyoloji</option>
+                                    <option value="Türkçe">Türkçe</option>
+                                    <option value="Tarih">Tarih</option>
+                                    <option value="Coğrafya">Coğrafya</option>
+                                    <option value="Felsefe">Felsefe</option>
+                                    <option value="Edebiyat">Edebiyat</option>
+                                    <option value="Geometri">Geometri</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group">
-                            <label for="sinavOturumu">Sınav Oturumu</label>
-                            <select id="sinavOturumu">
-                                <option value="TYT">TYT</option>
-                                <option value="AYT">AYT</option>
+                            <label for="konu">Konu</label>
+                            <input type="text" id="konu" placeholder="Örn: Limit, Denge, Mol Kavramı...">
+                        </div>
+                        <div class="form-group">
+                            <label for="durum">Durum</label>
+                            <select id="durum">
+                                <option value="cozulmedi">❌ Çözülmedi</option>
+                                <option value="yarim">⚠️ Yarım Anladım</option>
+                                <option value="cozuldu">✅ Çözüldü</option>
                             </select>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="brans">Branş</label>
-                            <select id="brans">
-                                <option value="Matematik">Matematik</option>
-                                <option value="Fizik">Fizik</option>
-                                <option value="Kimya">Kimya</option>
-                                <option value="Biyoloji">Biyoloji</option>
-                                <option value="Türkçe">Türkçe</option>
-                                <option value="Tarih">Tarih</option>
-                                <option value="Coğrafya">Coğrafya</option>
-                                <option value="Felsefe">Felsefe</option>
-                                <option value="Edebiyat">Edebiyat</option>
-                                <option value="Geometri">Geometri</option>
+                            <label for="zorluk">Zorluk Seviyesi</label>
+                            <select id="zorluk">
+                                <option value="kolay">🟢 Kolay</option>
+                                <option value="orta">🟡 Orta</option>
+                                <option value="zor">🔴 Zor</option>
                             </select>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="konu">Konu</label>
-                        <input type="text" id="konu" placeholder="Örn: Limit, Denge, Mol Kavramı...">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="durum">Durum</label>
-                        <select id="durum">
-                            <option value="cozulmedi">❌ Çözülmedi</option>
-                            <option value="yarim">⚠️ Yarım Anladım</option>
-                            <option value="cozuldu">✅ Çözüldü</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="zorluk">Zorluk Seviyesi</label>
-                        <select id="zorluk">
-                            <option value="kolay">🟢 Kolay</option>
-                            <option value="orta">🟡 Orta</option>
-                            <option value="zor">🔴 Zor</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="yorum">Kişisel Notlarım</label>
-                        <textarea id="yorum" placeholder="Bu soruyu neden ekledim? Hangi kısmı zorlandım? Çözüm ipucu..." rows="3" style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem; resize: vertical; font-family: inherit;"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="kaynak">Kaynak (Opsiyonel)</label>
-                        <input type="text" id="kaynak" placeholder="Örn: TYT 2023 Deneme 5, AYT Matematik Soru Bankası...">
-                    </div>
-                    
-                    <button class="btn btn-primary" onclick="saveQuestions()">💾 Soruları Kaydet</button>
-                </div>
-
-                <div class="filter-section">
-                    <h2 class="section-title">🔍 Filtreleme</h2>
-                    
-                    <div class="form-row">
                         <div class="form-group">
-                            <label>Sınav Oturumu</label>
-                            <select id="filterSinav" onchange="applyFilters()">
+                            <label for="repeatDate">Tekrar Tarihi (Opsiyonel)</label>
+                            <input type="date" id="repeatDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="yorum">Kişisel Notlarım</label>
+                            <textarea id="yorum" placeholder="Bu soruyu neden ekledim? Hangi kısmı zorlandım? Çözüm ipucu..." rows="3" style="resize: vertical;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="kaynak">Kaynak (Opsiyonel)</label>
+                            <input type="text" id="kaynak" placeholder="Örn: TYT 2023 Deneme 5...">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveQuestions()">💾 Soruları Kaydet</button>
+                    </div>
+
+                    <div class="filter-section">
+                        <h2 class="section-title">🔍 Filtreleme</h2>
+                        <div class="form-group">
+                            <label for="filterSearchText">Genel Arama</label>
+                            <input type="text" id="filterSearchText" placeholder="Konu, yorum veya kaynakta ara..." oninput="applyFilters()">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Sınav Oturumu</label>
+                                <select id="filterSinav" onchange="applyFilters()">
+                                    <option value="">Tümü</option>
+                                    <option value="TYT">TYT</option>
+                                    <option value="AYT">AYT</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Branş</label>
+                                <select id="filterBrans" onchange="applyFilters()">
+                                    <option value="">Tümü</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Durum</label>
+                            <select id="filterDurum" onchange="applyFilters()">
+                                    <option value="">Tümü</option>
+                                <option value="cozulmedi">❌ Çözülmedi</option>
+                                <option value="yarim">⚠️ Yarım Anladım</option>
+                                <option value="cozuldu">✅ Çözüldü</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Zorluk Seviyesi</label>
+                            <select id="filterZorluk" onchange="applyFilters()">
                                 <option value="">Tümü</option>
-                                <option value="TYT">TYT</option>
-                                <option value="AYT">AYT</option>
+                                <option value="kolay">🟢 Kolay</option>
+                                <option value="orta">🟡 Orta</option>
+                                <option value="zor">🔴 Zor</option>
                             </select>
                         </div>
-                        
-                        <div class="form-group">
-                            <label>Branş</label>
-                            <select id="filterBrans" onchange="applyFilters()">
-                                <option value="">Tümü</option>
-                            </select>
+                        <button class="btn btn-secondary" onclick="clearFilters()">🗑️ Filtreleri Temizle</button>
+                        <button class="btn btn-secondary" onclick="exportData()" style="margin-left: 10px;">📤 Dışa Aktar</button>
+                        <button class="btn btn-secondary" onclick="importData()" style="margin-left: 10px;">📥 İçe Aktar</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="text-align: center; margin-bottom: 20px; color: var(--section-title-color);">Soru Dağılımları</h3>
+                        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+                            <div style="width: 100%; max-width: 400px; height: 400px;">
+                                <canvas id="bransChart"></canvas>
+                            </div>
+                            <div style="width: 100%; max-width: 400px; height: 400px;">
+                                <canvas id="zorlukChart"></canvas>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label>Konu Ara</label>
-                        <input type="text" id="filterKonu" placeholder="Konu adı yazın..." oninput="applyFilters()">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Durum</label>
-                        <select id="filterDurum" onchange="applyFilters()">
-                            <option value="">Tümü</option>
-                            <option value="cozulmedi">❌ Çözülmedi</option>
-                            <option value="yarim">⚠️ Yarım Anladım</option>
-                            <option value="cozuldu">✅ Çözüldü</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Zorluk Seviyesi</label>
-                        <select id="filterZorluk" onchange="applyFilters()">
-                            <option value="">Tümü</option>
-                            <option value="kolay">🟢 Kolay</option>
-                            <option value="orta">🟡 Orta</option>
-                            <option value="zor">🔴 Zor</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Kaynak</label>
-                        <input type="text" id="filterKaynak" placeholder="Kaynak ara..." oninput="applyFilters()">
-                    </div>
-                    
-                    <button class="btn btn-secondary" onclick="clearFilters()">🗑️ Filtreleri Temizle</button>
-                    <button class="btn btn-secondary" onclick="exportData()" style="margin-left: 10px;">📤 Verileri Dışa Aktar</button>
-                    <button class="btn btn-secondary" onclick="importData()" style="margin-left: 10px;">📥 Verileri İçe Aktar</button>
-                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
                 </div>
-            </div>
 
-            <div class="gallery">
-                <h2 class="section-title">📖 Soru Galerim</h2>
-                <div class="question-grid" id="questionGrid">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📝</div>
-                        <h3>Henüz soru eklenmedi</h3>
-                        <p>Yukarıdan soru görseli yükleyerek başlayın!</p>
+                <div class="right-column">
+                    <div class="repeat-section">
+                        <h2 class="section-title">🗓️ Bugün Tekrar Etmen Gereken Sorular</h2>
+                        <div class="question-grid" id="repeatQuestionGrid">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🎉</div>
+                                <h3>Bugün tekrar etmen gereken soru yok!</h3>
+                                <p>Tekrar tarihi belirlediğin sorular burada görünecek.</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <h3 style="text-align: center; margin-bottom: 20px; color: var(--section-title-color);">Soru Dağılımları</h3>
-                <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="bransChart"></canvas>
-                    </div>
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="zorlukChart"></canvas>
+                    <div class="gallery">
+                        <h2 class="section-title">📖 Soru Galerim</h2>
+                        <div class="question-grid" id="questionGrid">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📝</div>
+                                <h3>Henüz soru eklenmedi</h3>
+                                <p>Yukarıdan soru görseli yükleyerek başlayın!</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1081,7 +1164,6 @@
         <div id="testPage" class="tab-content">
             <div class="test-section">
                 <h2 class="section-title">📝 Yeni Deneme Sonucu Ekle</h2>
-
                 <div class="form-group">
                     <label for="testType">Sınav Oturumu</label>
                     <select id="testType">
@@ -1089,14 +1171,11 @@
                         <option value="AYT">AYT</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="testName">Deneme Adı</label>
                     <input type="text" id="testName" placeholder="Örn: 3D Yayınları Deneme 5">
                 </div>
-                
                 <hr style="margin: 20px 0; border: none; border-top: 1px dashed var(--section-border-color);">
-
                 <div id="tytTestInputs" class="test-inputs">
                     <h3>TYT Dersleri</h3>
                     <div class="test-input-grid">
@@ -1122,7 +1201,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div id="aytTestInputs" class="test-inputs" style="display: none;">
                     <h3>AYT Dersleri</h3>
                     <div class="test-input-grid">
@@ -1151,195 +1229,474 @@
                             <input type="number" id="aytEdebiyatDogru" placeholder="Doğru">
                             <input type="number" id="aytEdebiyatYanlis" placeholder="Yanlış">
                         </div>
-                        <label>Tarih-1</label>
+                        <label>Coğrafya</label>
                         <div class="input-group">
-                            <input type="number" id="aytTarih1Dogru" placeholder="Doğru">
-                            <input type="number" id="aytTarih1Yanlis" placeholder="Yanlış">
-                        </div>
-                        <label>Coğrafya-1</label>
-                        <div class="input-group">
-                            <input type="number" id="aytCografya1Dogru" placeholder="Doğru">
-                            <input type="number" id="aytCografya1Yanlis" placeholder="Yanlış">
+                            <input type="number" id="aytCografyaDogru" placeholder="Doğru">
+                            <input type="number" id="aytCografyaYanlis" placeholder="Yanlış">
                         </div>
                     </div>
                 </div>
-
-                <div class="test-results">
-                    <h3 style="text-align: center;">Netleriniz</h3>
-                    <div id="testNets"></div>
-                    <div class="test-results-item">
-                        <span>Toplam Net:</span>
-                        <span id="totalTestNet">0</span>
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" onclick="saveTestResult()">💾 Sonucu Kaydet</button>
+                <button class="btn btn-primary" onclick="saveTestResult()">💾 Deneme Sonucunu Kaydet</button>
             </div>
-            
-            <div class="gallery" style="margin-top: 20px;">
+            <div class="test-section" style="margin-top: 30px;">
                 <h2 class="section-title">📊 Deneme Sonuçlarım</h2>
-                <div id="testList">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <h3>Henüz deneme sonucu eklenmedi</h3>
-                        <p>Yukarıdan ilk deneme sonucunuzu ekleyin!</p>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="tytAverageNet">0</div>
+                        <div class="stat-label">TYT Ortalama Net</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="tytBestNet">0</div>
+                        <div class="stat-label">TYT En İyi Net</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="aytAverageNet">0</div>
+                        <div class="stat-label">AYT Ortalama Net</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="aytBestNet">0</div>
+                        <div class="stat-label">AYT En İyi Net</div>
                     </div>
                 </div>
-                
-                <h3 style="text-align: center; margin-top: 20px; color: var(--section-title-color);">TYT Net Gelişimi</h3>
-                <div id="tytChartContainer">
-                    <canvas id="tytNetChart"></canvas>
-                </div>
-
-                <h3 style="text-align: center; margin-top: 40px; color: var(--section-title-color);">AYT Net Gelişimi</h3>
-                <div id="aytChartContainer">
-                    <canvas id="aytNetChart"></canvas>
+                <div class="test-list-container" id="testListContainer">
+                    </div>
+            </div>
+            <div class="chart-container" style="margin-top: 30px;">
+                <h3 style="text-align: center; margin-bottom: 20px; color: var(--section-title-color);">Deneme Netlerinin Değişimi</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="tytTotalChart"></canvas>
+                    </div>
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="aytTotalChart"></canvas>
+                    </div>
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="tytMatChart"></canvas>
+                    </div>
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="tytTurkceChart"></canvas>
+                    </div>
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="aytMatChart"></canvas>
+                    </div>
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="aytFizikChart"></canvas>
+                    </div>
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="aytKimyaChart"></canvas>
+                    </div>
+                    <div style="width: 400px; height: 400px;">
+                        <canvas id="aytBiyolojiChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="imageModal" class="modal" onclick="closeModal(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
+    <div id="myModal" class="modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Soru Detayları</h2>
-                <div class="modal-subtitle" id="modalSubtitle"></div>
                 <span class="close" onclick="closeModal()">&times;</span>
+                <h2 class="modal-title" id="modalTitle">Soru Detayları</h2>
+                <p class="modal-subtitle" id="modalDate"></p>
             </div>
             <div class="modal-body">
                 <div class="modal-image-container">
-                    <img class="modal-image" id="modalImage">
+                    <img class="modal-image" id="modalImage" src="" alt="Soru Görseli">
                 </div>
                 <div class="modal-details">
                     <div class="modal-tags" id="modalTags"></div>
-                    
                     <div class="detail-section">
-                        <div class="detail-title">📚 Konu</div>
-                        <div class="detail-content" id="modalKonu"></div>
+                        <div class="detail-title">📚 Kaynak</div>
+                        <div class="detail-content" id="modalSource"></div>
                     </div>
-                    
-                    <div class="detail-section" id="modalYorumSection">
+                    <div class="detail-section">
                         <div class="detail-title">💭 Kişisel Notlarım</div>
-                        <div class="detail-content" id="modalYorum"></div>
+                        <div class="detail-content" id="modalComment"></div>
                     </div>
-                    
-                    <div class="detail-section" id="modalKaynakSection">
-                        <div class="detail-title">📖 Kaynak</div>
-                        <div class="detail-content" id="modalKaynak"></div>
-                    </div>
-                    
-                    <div class="detail-section" id="modalCozumSection">
-                        <div class="detail-title">✅ Çözüm</div>
-                        <div class="detail-content" id="modalCozum">
-                            <div id="solutionImageContainer" style="display: none; margin-bottom: 10px;">
-                                <img id="solutionImage" style="max-width: 100%; border-radius: 5px; margin-bottom: 10px;">
-                                <button onclick="removeSolution()" style="background: #e53e3e; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; cursor: pointer;">🗑️ Çözümü Kaldır</button>
-                            </div>
-                            <div id="noSolutionMessage">
-                                <p style="color: #718096; font-style: italic; margin: 0 0 10px 0;">Henüz çözüm yüklenmedi</p>
-                                <input type="file" id="solutionFileInput" accept="image/*" style="display: none;" onchange="uploadSolution(event)">
-                                <button onclick="document.getElementById('solutionFileInput').click()" style="background: var(--btn-primary-bg); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; cursor: pointer;">
-                                    📤 Çözüm Yükle
-                                </button>
-                            </div>
+                    <div class="detail-section">
+                        <div class="detail-title">🖼️ Çözüm Görseli</div>
+                        <div class="detail-content">
+                            <img id="solutionImage" src="" alt="Çözüm Görseli">
+                            <p id="noSolutionText" style="font-style: italic; color: #718096; display: none;">Çözüm görseli eklenmemiş.</p>
+                            <input type="file" id="solutionInput" accept="image/*" style="margin-top: 10px;">
+                            <button class="btn btn-primary" onclick="saveSolutionImage()">Çözümü Kaydet</button>
                         </div>
                     </div>
-
                     <div class="detail-section">
-                        <div class="detail-title">📅 Eklenme Tarihi</div>
-                        <div class="detail-content" id="modalDate"></div>
+                        <div class="detail-title">🔄 Durumu Güncelle</div>
+                        <div class="status-changer">
+                            <select id="modalDurumSelect">
+                                <option value="cozulmedi">❌ Çözülmedi</option>
+                                <option value="yarim">⚠️ Yarım Anladım</option>
+                                <option value="cozuldu">✅ Çözüldü</option>
+                            </select>
+                            <button class="btn-status" onclick="updateQuestionStatus()">Durumu Güncelle</button>
+                        </div>
                     </div>
-                    
-                    <div class="status-changer">
-                        <button class="modal-btn btn-status" id="modalStatusBtn" onclick="toggleStatusFromModal()">
-                            Durumu Değiştir
-                        </button>
-                        <button class="modal-btn btn-delete" onclick="deleteFromModal()">
-                            🗑️ Sil
-                        </button>
+                    <div class="detail-section">
+                        <button class="btn-delete" onclick="deleteQuestion()">❌ Soruyu Sil</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <div id="fullscreenModal" class="modal">
+        <span class="fullscreen-close" onclick="closeFullscreenModal()">&times;</span>
+        <img id="fullscreenModalContent">
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const bransList = ['Matematik', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe', 'Tarih', 'Coğrafya', 'Felsefe', 'Edebiyat', 'Geometri'];
         let questions = [];
         let tests = [];
-        let selectedFiles = [];
-        let filteredQuestions = [];
-        let tytChart = null;
-        let aytChart = null;
-        let bransChart = null;
-        let zorlukChart = null;
-        const darkModeToggle = document.getElementById('darkModeToggle');
+        let currentQuestionId = null;
 
-        const testSubjectLimits = {
-            'TYT': {
-                'Türkçe': 40,
-                'Matematik': 40,
-                'Sosyal': 20,
-                'Fen': 20
-            },
-            'AYT': {
-                'Matematik': 40,
-                'Fizik': 14,
-                'Kimya': 13,
-                'Biyoloji': 13,
-                'Edebiyat': 24,
-                'Tarih-1': 10,
-                'Coğrafya-1': 6
-            }
-        };
+        const bransChartConfig = { type: 'pie', data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] }, options: { responsive: true, maintainAspectRatio: false } };
+        const zorlukChartConfig = { type: 'pie', data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] }, options: { responsive: true, maintainAspectRatio: false } };
+        let bransChart, zorlukChart, tytTotalChart, aytTotalChart;
+        let tytMatChart, tytTurkceChart, aytMatChart, aytFizikChart, aytKimyaChart, aytBiyolojiChart;
 
-        // Dark mode
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDarkMode);
-            darkModeToggle.textContent = isDarkMode ? '🌙' : '☀️';
-            if (bransChart) bransChart.destroy();
-            if (zorlukChart) zorlukChart.destroy();
-            if (tytChart) tytChart.destroy();
-            if (aytChart) aytChart.destroy();
-            drawCharts();
-        }
-        
-        darkModeToggle.addEventListener('click', toggleDarkMode);
-        
-        function loadDarkModePreference() {
-            const isDarkMode = localStorage.getItem('darkMode') === 'true';
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                darkModeToggle.textContent = '🌙';
-            } else {
-                darkModeToggle.textContent = '☀️';
-            }
-        }
-
-        // Local storage'dan verileri yükle
         function loadData() {
-            questions = JSON.parse(localStorage.getItem('yksQuestions') || '[]');
-            tests = JSON.parse(localStorage.getItem('yksTests') || '[]');
-            filteredQuestions = [...questions];
-            loadDarkModePreference();
+            questions = JSON.parse(localStorage.getItem('yksQuestions')) || [];
+            tests = JSON.parse(localStorage.getItem('yksTests')) || [];
             updateUI();
-            updateTestUI();
+            checkDailyStreak();
+            updateWeeklyGoalStatus();
         }
 
-        // Verileri local storage'a kaydet
         function saveToStorage() {
             localStorage.setItem('yksQuestions', JSON.stringify(questions));
-        }
-
-        function saveTestsToStorage() {
             localStorage.setItem('yksTests', JSON.stringify(tests));
         }
+
+        function updateUI() {
+            updateQuestionGrid();
+            updateStats();
+            updateFilterOptions();
+            drawCharts();
+            updateTestUI();
+            updateRepeatQuestions();
+        }
+
+        function updateQuestionGrid(filteredQuestions = questions) {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            if (filteredQuestions.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <h3>${questions.length === 0 ? 'Henüz soru eklenmedi' : 'Filtrelemeye uyan soru bulunamadı'}</h3>
+                        <p>${questions.length === 0 ? 'Yukarıdan soru görseli yükleyerek başlayın!' : 'Filtreleri değiştirerek yeniden deneyin.'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredQuestions.sort((a, b) => new Date(b.date) - new Date(a.date)); // Soruları en yeniden eskiye sırala
+
+            filteredQuestions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.onclick = () => openModal(q.id);
+
+                let solutionIndicator = '';
+                if (q.solution) {
+                    solutionIndicator = `<span class="question-solution-indicator">Çözüm Var</span>`;
+                }
+
+                let repeatTag = '';
+                if (q.repeatDate) {
+                    const today = new Date().toISOString().split('T')[0];
+                    if (q.repeatDate <= today) {
+                        repeatTag = `<span class="tag tag-tekrar">Bugün Tekrar Et!</span>`;
+                    }
+                }
+
+                card.innerHTML = `
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteQuestionFromCard('${q.id}')">&times;</button>
+                    <img src="${q.image}" alt="Soru görseli" class="question-image">
+                    <div class="question-info">
+                        <div class="question-tags">
+                            <span class="tag tag-sinav">${q.sinav}</span>
+                            <span class="tag tag-brans">${q.brans}</span>
+                            <span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span>
+                            <span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>
+                            ${repeatTag}
+                        </div>
+                        <p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>
+                        ${solutionIndicator}
+                        <div class="question-comment">${q.yorum || 'Not yok.'}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateRepeatQuestions() {
+            const repeatGrid = document.getElementById('repeatQuestionGrid');
+            const today = new Date().toISOString().split('T')[0];
+            const repeatQuestions = questions.filter(q => q.repeatDate && q.repeatDate <= today);
+
+            repeatGrid.innerHTML = '';
+            if (repeatQuestions.length === 0) {
+                repeatGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎉</div>
+                        <h3>Bugün tekrar etmen gereken soru yok!</h3>
+                        <p>Tekrar tarihi belirlediğin sorular burada görünecek.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            repeatQuestions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.onclick = () => openModal(q.id);
+
+                let solutionIndicator = '';
+                if (q.solution) {
+                    solutionIndicator = `<span class="question-solution-indicator">Çözüm Var</span>`;
+                }
+
+                card.innerHTML = `
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteQuestionFromCard('${q.id}')">&times;</button>
+                    <img src="${q.image}" alt="Soru görseli" class="question-image">
+                    <div class="question-info">
+                        <div class="question-tags">
+                            <span class="tag tag-sinav">${q.sinav}</span>
+                            <span class="tag tag-brans">${q.brans}</span>
+                            <span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span>
+                            <span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>
+                            <span class="tag tag-tekrar">Bugün Tekrar Et!</span>
+                        </div>
+                        <p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>
+                        ${solutionIndicator}
+                        <div class="question-comment">${q.yorum || 'Not yok.'}</div>
+                    </div>
+                `;
+                repeatGrid.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            const tytQuestionsCount = questions.filter(q => q.sinav === 'TYT').length;
+            const aytQuestionsCount = questions.filter(q => q.sinav === 'AYT').length;
+            const todayQuestionsCount = questions.filter(q => {
+                const today = new Date().toISOString().split('T')[0];
+                return q.date.split('T')[0] === today;
+            }).length;
+            const solvedQuestionsCount = questions.filter(q => q.durum === 'cozuldu').length;
+            const hardQuestionsCount = questions.filter(q => q.zorluk === 'zor').length;
+
+            document.getElementById('totalQuestions').innerText = questions.length;
+            document.getElementById('tytQuestions').innerText = tytQuestionsCount;
+            document.getElementById('aytQuestions').innerText = aytQuestionsCount;
+            document.getElementById('todayQuestions').innerText = todayQuestionsCount;
+            document.getElementById('solvedQuestions').innerText = solvedQuestionsCount;
+            document.getElementById('hardQuestions').innerText = hardQuestionsCount;
+        }
+
+        function updateFilterOptions() {
+            const filterBrans = document.getElementById('filterBrans');
+            const currentFilter = filterBrans.value;
+            filterBrans.innerHTML = '<option value="">Tümü</option>';
+            const uniqueBrans = [...new Set(questions.map(q => q.brans))].sort();
+            uniqueBrans.forEach(brans => {
+                const option = document.createElement('option');
+                option.value = brans;
+                option.text = brans;
+                filterBrans.appendChild(option);
+            });
+            filterBrans.value = currentFilter;
+        }
+
+        async function saveQuestions() {
+            const fileInput = document.getElementById('fileInput');
+            const images = fileInput.files;
+
+            if (images.length === 0) {
+                alert('Lütfen bir görsel seçin.');
+                return;
+            }
+
+            for (const image of images) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const newQuestion = {
+                        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                        image: e.target.result,
+                        sinav: document.getElementById('sinavOturumu').value,
+                        brans: document.getElementById('brans').value,
+                        konu: document.getElementById('konu').value,
+                        durum: document.getElementById('durum').value,
+                        zorluk: document.getElementById('zorluk').value,
+                        yorum: document.getElementById('yorum').value,
+                        kaynak: document.getElementById('kaynak').value,
+                        repeatDate: document.getElementById('repeatDate').value,
+                        date: new Date().toISOString(),
+                        solution: null
+                    };
+
+                    questions.push(newQuestion);
+                    saveToStorage();
+                    updateUI();
+                    
+                    document.getElementById('konu').value = '';
+                    document.getElementById('yorum').value = '';
+                    document.getElementById('kaynak').value = '';
+                    document.getElementById('repeatDate').value = '';
+                    fileInput.value = '';
+
+                    checkDailyStreak(true);
+                    updateWeeklyGoalStatus();
+                };
+                reader.readAsDataURL(image);
+            }
+        }
+
+        function applyFilters() {
+            const filterSinav = document.getElementById('filterSinav').value;
+            const filterBrans = document.getElementById('filterBrans').value;
+            const filterDurum = document.getElementById('filterDurum').value;
+            const filterZorluk = document.getElementById('filterZorluk').value;
+            const filterSearchText = document.getElementById('filterSearchText').value.toLowerCase();
+
+            const filtered = questions.filter(q => {
+                const matchesSinav = !filterSinav || q.sinav === filterSinav;
+                const matchesBrans = !filterBrans || q.brans === filterBrans;
+                const matchesDurum = !filterDurum || q.durum === filterDurum;
+                const matchesZorluk = !filterZorluk || q.zorluk === filterZorluk;
+                const matchesSearch = !filterSearchText ||
+                    q.konu.toLowerCase().includes(filterSearchText) ||
+                    q.yorum.toLowerCase().includes(filterSearchText) ||
+                    q.kaynak.toLowerCase().includes(filterSearchText);
+                
+                return matchesSinav && matchesBrans && matchesDurum && matchesZorluk && matchesSearch;
+            });
+
+            updateQuestionGrid(filtered);
+        }
+
+        function clearFilters() {
+            document.getElementById('filterSinav').value = '';
+            document.getElementById('filterBrans').value = '';
+            document.getElementById('filterDurum').value = '';
+            document.getElementById('filterZorluk').value = '';
+            document.getElementById('filterSearchText').value = '';
+            applyFilters();
+        }
+
+        function openModal(id) {
+            const question = questions.find(q => q.id === id);
+            if (!question) return;
+
+            currentQuestionId = id;
+            document.getElementById('modalTitle').innerText = `${question.brans} - ${question.konu}`;
+            document.getElementById('modalDate').innerText = `Eklenme Tarihi: ${new Date(question.date).toLocaleDateString()}`;
+            document.getElementById('modalImage').src = question.image;
+            document.getElementById('modalImage').onclick = () => openFullscreenModal(question.image);
+
+            document.getElementById('modalSource').innerText = question.kaynak || 'Belirtilmemiş';
+            document.getElementById('modalComment').innerText = question.yorum || 'Not yok.';
+            document.getElementById('modalDurumSelect').value = question.durum;
+
+            const solutionImage = document.getElementById('solutionImage');
+            const noSolutionText = document.getElementById('noSolutionText');
+            if (question.solution) {
+                solutionImage.src = question.solution;
+                solutionImage.style.display = 'block';
+                noSolutionText.style.display = 'none';
+                solutionImage.onclick = () => openFullscreenModal(question.solution);
+            } else {
+                solutionImage.style.display = 'none';
+                noSolutionText.style.display = 'block';
+            }
+
+            const modalTags = document.getElementById('modalTags');
+            modalTags.innerHTML = `
+                <span class="tag tag-sinav">${question.sinav}</span>
+                <span class="tag tag-brans">${question.brans}</span>
+                <span class="tag tag-zorluk ${question.zorluk}">${question.zorluk}</span>
+                <span class="tag tag-durum ${question.durum}">${question.durum === 'cozulmedi' ? 'Çözülmedi' : (question.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>
+            `;
+            if (question.repeatDate) {
+                modalTags.innerHTML += `<span class="tag tag-tekrar">Tekrar Tarihi: ${question.repeatDate}</span>`;
+            }
+
+            document.getElementById('myModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
+
+        function openFullscreenModal(imageSrc) {
+            const fullscreenModal = document.getElementById('fullscreenModal');
+            const fullscreenImage = document.getElementById('fullscreenModalContent');
+            fullscreenImage.src = imageSrc;
+            fullscreenModal.style.display = 'flex';
+        }
         
-        // Navigasyon ve Menü İşlemleri
+        function closeFullscreenModal() {
+            document.getElementById('fullscreenModal').style.display = 'none';
+        }
+
+        async function saveSolutionImage() {
+            const solutionInput = document.getElementById('solutionInput');
+            const image = solutionInput.files[0];
+            if (!image) {
+                alert('Lütfen bir çözüm görseli seçin.');
+                return;
+            }
+
+            const question = questions.find(q => q.id === currentQuestionId);
+            if (!question) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                question.solution = e.target.result;
+                saveToStorage();
+                updateUI();
+                closeModal();
+            };
+            reader.readAsDataURL(image);
+        }
+
+        function updateQuestionStatus() {
+            const newStatus = document.getElementById('modalDurumSelect').value;
+            const question = questions.find(q => q.id === currentQuestionId);
+            if (!question) return;
+
+            question.durum = newStatus;
+            saveToStorage();
+            updateUI();
+            closeModal();
+        }
+
+        function deleteQuestion() {
+            if (confirm('Bu soruyu silmek istediğinizden emin misiniz?')) {
+                questions = questions.filter(q => q.id !== currentQuestionId);
+                saveToStorage();
+                updateUI();
+                closeModal();
+            }
+        }
+        
+        function deleteQuestionFromCard(id) {
+            if (confirm('Bu soruyu kalıcı olarak silmek istediğinizden emin misiniz?')) {
+                questions = questions.filter(q => q.id !== id);
+                saveToStorage();
+                updateUI();
+                closeModal();
+            }
+        }
+
         function toggleMenu() {
-            document.getElementById('navMenu').classList.toggle('active');
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('active');
         }
 
         function showPage(pageId) {
@@ -1347,495 +1704,112 @@
                 page.classList.remove('active');
             });
             document.getElementById(pageId).classList.add('active');
-            toggleMenu();
-
-            const headerText = document.getElementById('sub-header-text');
-            if (pageId === 'questionPage') {
-                headerText.textContent = 'Çözümünü anlayamadığınız soruları organize edin ve tekrar edin';
-                updateUI();
-            } else {
-                headerText.textContent = 'Deneme netlerinizi takip edin ve gelişiminizi izleyin';
-                updateTestUI();
-            }
-        }
-        
-        // Deneme Takip İşlevleri
-        const testTypeSelect = document.getElementById('testType');
-        const tytTestInputs = document.getElementById('tytTestInputs');
-        const aytTestInputs = document.getElementById('aytTestInputs');
-        const testInputs = document.querySelectorAll('#testPage input[type="number"]');
-
-        testTypeSelect.addEventListener('change', function() {
-            if (this.value === 'TYT') {
-                tytTestInputs.style.display = 'block';
-                aytTestInputs.style.display = 'none';
-            } else {
-                tytTestInputs.style.display = 'none';
-                aytTestInputs.style.display = 'block';
-            }
-            calculateTestNets();
-        });
-
-        testInputs.forEach(input => {
-            input.addEventListener('input', calculateTestNets);
-        });
-
-        function calculateTestNets() {
-            const testType = document.getElementById('testType').value;
-            const testNetsDiv = document.getElementById('testNets');
-            let totalNet = 0;
-            testNetsDiv.innerHTML = '';
-            
-            const calculateNet = (dogruId, yanlisId, label) => {
-                const dogru = parseFloat(document.getElementById(dogruId).value) || 0;
-                const yanlis = parseFloat(document.getElementById(yanlisId).value) || 0;
-                const net = dogru - (yanlis * 0.25);
-                totalNet += net;
-                testNetsDiv.innerHTML += `<div class="test-results-item"><span>${label} Net:</span><span>${net.toFixed(2)}</span></div>`;
-            };
-
-            if (testType === 'TYT') {
-                calculateNet('tytMatDogru', 'tytMatYanlis', 'Matematik');
-                calculateNet('tytTurkceDogru', 'tytTurkceYanlis', 'Türkçe');
-                calculateNet('tytSosyalDogru', 'tytSosyalYanlis', 'Sosyal');
-                calculateNet('tytFenDogru', 'tytFenYanlis', 'Fen');
-            } else {
-                calculateNet('aytMatDogru', 'aytMatYanlis', 'Matematik');
-                calculateNet('aytFizikDogru', 'aytFizikYanlis', 'Fizik');
-                calculateNet('aytKimyaDogru', 'aytKimyaYanlis', 'Kimya');
-                calculateNet('aytBiyolojiDogru', 'aytBiyolojiYanlis', 'Biyoloji');
-                calculateNet('aytEdebiyatDogru', 'aytEdebiyatYanlis', 'Edebiyat');
-                calculateNet('aytTarih1Dogru', 'aytTarih1Yanlis', 'Tarih-1');
-                calculateNet('aytCografya1Dogru', 'aytCografya1Yanlis', 'Coğrafya-1');
-            }
-            document.getElementById('totalTestNet').textContent = totalNet.toFixed(2);
+            updateUI();
         }
 
         function saveTestResult() {
             const testType = document.getElementById('testType').value;
-            const testName = document.getElementById('testName').value.trim();
-            const totalNet = parseFloat(document.getElementById('totalTestNet').textContent);
+            const testName = document.getElementById('testName').value;
 
             if (!testName) {
-                alert('Lütfen deneme adını girin!');
+                alert('Lütfen deneme adını girin.');
                 return;
             }
-            
-            const getResults = (type) => {
-                const results = {};
-                const subjects = type === 'TYT' ? ['tytMat', 'tytTurkce', 'tytSosyal', 'tytFen'] : ['aytMat', 'aytFizik', 'aytKimya', 'aytBiyoloji', 'aytEdebiyat', 'aytTarih1', 'aytCografya1'];
-                const subjectLabels = {
-                    'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
-                    'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji',
-                    'aytEdebiyat': 'Edebiyat', 'aytTarih1': 'Tarih-1', 'aytCografya1': 'Coğrafya-1'
-                };
-                
-                let isValid = true;
-                subjects.forEach(subject => {
-                    const label = subjectLabels[subject];
-                    const limit = testSubjectLimits[type][label];
-                    const dogru = parseFloat(document.getElementById(`${subject}Dogru`).value) || 0;
-                    const yanlis = parseFloat(document.getElementById(`${subject}Yanlis`).value) || 0;
-                    
-                    if (dogru + yanlis > limit) {
-                        alert(`Hata: ${label} için girdiğiniz doğru ve yanlış sayısı toplamı (${dogru + yanlis}), maksimum soru sayısını (${limit}) aşıyor.`);
-                        isValid = false;
-                    }
-                    results[label] = { dogru, yanlis, net: dogru - (yanlis * 0.25) };
-                });
-                
-                if (!isValid) return null;
-                return results;
-            };
 
-            const results = getResults(testType);
-            if (!results) return;
-
-            const testResult = {
-                id: Date.now() + Math.random(),
+            let testResult = {
+                id: Date.now().toString(),
+                date: new Date().toISOString().split('T')[0],
                 type: testType,
                 name: testName,
-                date: new Date().toLocaleDateString('tr-TR'),
-                timestamp: Date.now(),
-                results: results,
-                totalNet: totalNet
+                results: {}
             };
 
+            const sections = {
+                'TYT': ['tytMat', 'tytTurkce', 'tytSosyal', 'tytFen'],
+                'AYT': ['aytMat', 'aytFizik', 'aytKimya', 'aytBiyoloji', 'aytEdebiyat', 'aytCografya']
+            };
+
+            let totalNet = 0;
+            let isValid = true;
+
+            sections[testType].forEach(section => {
+                const dogru = parseFloat(document.getElementById(`${section}Dogru`).value) || 0;
+                const yanlis = parseFloat(document.getElementById(`${section}Yanlis`).value) || 0;
+                const net = dogru - (yanlis / 4);
+
+                if (isNaN(dogru) || isNaN(yanlis)) {
+                    isValid = false;
+                }
+
+                testResult.results[section] = { dogru, yanlis, net };
+                totalNet += net;
+            });
+
+            if (!isValid) {
+                alert('Lütfen doğru ve yanlış sayılarını geçerli bir şekilde girin.');
+                return;
+            }
+
+            testResult.totalNet = totalNet;
             tests.push(testResult);
-            saveTestsToStorage();
+            saveToStorage();
             updateTestUI();
-            
-            // Formu sıfırla
+
             document.getElementById('testName').value = '';
-            document.getElementById('totalTestNet').textContent = '0';
-            document.querySelectorAll('#testPage input[type="number"]').forEach(input => input.value = '');
-            document.getElementById('testNets').innerHTML = '';
-            alert('Deneme sonucu başarıyla kaydedildi!');
+            sections[testType].forEach(section => {
+                document.getElementById(`${section}Dogru`).value = '';
+                document.getElementById(`${section}Yanlis`).value = '';
+            });
         }
 
         function updateTestUI() {
-            displayTestList();
-            drawTestCharts();
-        }
-
-        function displayTestList() {
-            const listContainer = document.getElementById('testList');
+            const testListContainer = document.getElementById('testListContainer');
+            testListContainer.innerHTML = '';
             if (tests.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <h3>Henüz deneme sonucu eklenmedi</h3>
-                        <p>Yukarıdan ilk deneme sonucunuzu ekleyin!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            listContainer.innerHTML = tests.map(test => {
-                let details = `**${test.name} (${test.type})**\n`;
-                for (const subject in test.results) {
-                    const r = test.results[subject];
-                    details += `${subject}: ${r.dogru} Doğru, ${r.yanlis} Yanlış, ${r.net.toFixed(2)} Net\n`;
-                }
-                details += `Toplam Net: ${test.totalNet.toFixed(2)}`;
-
-                return `
-                    <div class="test-list-item" title="${details}">
+                 testListContainer.innerHTML = `<div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <h3>Henüz deneme sonucu eklenmedi</h3>
+                    <p>Yukarıdan deneme sonucunu ekleyerek başlayın!</p>
+                </div>`;
+            } else {
+                 tests.sort((a,b) => new Date(b.date) - new Date(a.date));
+                 tests.forEach(test => {
+                    const listItem = document.createElement('div');
+                    listItem.className = 'test-list-item';
+                    listItem.innerHTML = `
                         <div class="test-info">
-                            <strong>${test.name} (${test.type})</strong><br>
-                            <span class="date">${test.date}</span>
+                            <strong>${test.name}</strong> (${test.type})
+                            <div class="date">${new Date(test.date).toLocaleDateString()}</div>
                         </div>
-                        <div class="test-net">${test.totalNet.toFixed(2)}</div>
-                        <button class="delete-btn" style="position: static; opacity: 1;" onclick="deleteTest(event, ${test.id})">✕</button>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function deleteTest(event, id) {
-            event.stopPropagation();
-            if (confirm('Bu deneme sonucunu silmek istediğinizden emin misiniz?')) {
-                tests = tests.filter(test => test.id !== id);
-                saveTestsToStorage();
-                updateTestUI();
+                        <div class="test-net">${test.totalNet.toFixed(2)} Net</div>
+                    `;
+                    testListContainer.appendChild(listItem);
+                 });
             }
+            drawTestCharts();
+            updateTestStats();
         }
 
-        function drawTestCharts() {
+        function updateTestStats() {
             const tytTests = tests.filter(t => t.type === 'TYT');
             const aytTests = tests.filter(t => t.type === 'AYT');
-            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--main-text-color');
-            const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--section-border-color');
 
-
-            // TYT Grafiği
-            if (tytChart) { tytChart.destroy(); }
-            const tytCtx = document.getElementById('tytNetChart').getContext('2d');
-            tytChart = new Chart(tytCtx, {
-                type: 'line',
-                data: {
-                    labels: tytTests.map(t => `${t.date} (${t.name})`),
-                    datasets: [{
-                        label: 'TYT Toplam Net',
-                        data: tytTests.map(t => t.totalNet),
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                        borderWidth: 2,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#764ba2',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        title: {
-                            display: true,
-                            text: 'TYT Toplam Net Gelişimi',
-                            font: { size: 16 },
-                            color: textColor
-                        }
-                    },
-                    scales: {
-                        x: {
-                            display: true,
-                            title: { display: true, text: 'Deneme Tarihi', color: gridColor },
-                            grid: { color: gridColor },
-                            ticks: { color: textColor }
-                        },
-                        y: {
-                            display: true,
-                            title: { display: true, text: 'Toplam Net', color: gridColor },
-                            grid: { color: gridColor },
-                            beginAtZero: false,
-                            ticks: { color: textColor }
-                        }
-                    }
-                }
-            });
-
-            // AYT Grafiği
-            if (aytChart) { aytChart.destroy(); }
-            const aytCtx = document.getElementById('aytNetChart').getContext('2d');
-            aytChart = new Chart(aytCtx, {
-                type: 'line',
-                data: {
-                    labels: aytTests.map(t => `${t.date} (${t.name})`),
-                    datasets: [{
-                        label: 'AYT Toplam Net',
-                        data: aytTests.map(t => t.totalNet),
-                        borderColor: '#e53e3e',
-                        backgroundColor: 'rgba(229, 62, 62, 0.2)',
-                        borderWidth: 2,
-                        pointRadius: 5,
-                        pointBackgroundColor: '#c53030',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        title: {
-                            display: true,
-                            text: 'AYT Toplam Net Gelişimi',
-                            font: { size: 16 },
-                            color: textColor
-                        }
-                    },
-                    scales: {
-                        x: {
-                            display: true,
-                            title: { display: true, text: 'Deneme Tarihi', color: gridColor },
-                            grid: { color: gridColor },
-                            ticks: { color: textColor }
-                        },
-                        y: {
-                            display: true,
-                            title: { display: true, text: 'Toplam Net', color: gridColor },
-                            grid: { color: gridColor },
-                            beginAtZero: false,
-                            ticks: { color: textColor }
-                        }
-                    }
-                }
-            });
-        }
-
-
-        // SORU DEFTERİ KODLARI
-        const uploadArea = document.querySelector('.upload-area');
-        const fileInput = document.getElementById('fileInput');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight(e) {
-            uploadArea.classList.add('dragover');
-        }
-
-        function unhighlight(e) {
-            uploadArea.classList.remove('dragover');
-        }
-
-        uploadArea.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-
-        fileInput.addEventListener('change', function(e) {
-            handleFiles(e.target.files);
-        });
-
-        function handleFiles(files) {
-            selectedFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+            const tytNets = tytTests.map(t => t.totalNet);
+            const aytNets = aytTests.map(t => t.totalNet);
             
-            if (selectedFiles.length > 0) {
-                uploadArea.innerHTML = `
-                    <div class="upload-icon">✅</div>
-                    <p>${selectedFiles.length} görsel seçildi</p>
-                    <p style="font-size: 0.9rem; color: #718096; margin-top: 10px;">
-                        Bilgileri doldurun ve kaydedin
-                    </p>
-                `;
-            }
-        }
-
-        function saveQuestions() {
-            if (selectedFiles.length === 0) {
-                alert('Lütfen önce görsel seçin!');
-                return;
-            }
-
-            const sinav = document.getElementById('sinavOturumu').value;
-            const brans = document.getElementById('brans').value;
-            const konu = document.getElementById('konu').value.trim();
-            const durum = document.getElementById('durum').value;
-            const zorluk = document.getElementById('zorluk').value;
-            const yorum = document.getElementById('yorum').value.trim();
-            const kaynak = document.getElementById('kaynak').value.trim();
-
-            if (!konu) {
-                alert('Lütfen konu bilgisini girin!');
-                return;
-            }
-
-            selectedFiles.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const question = {
-                        id: Date.now() + Math.random(),
-                        image: e.target.result,
-                        sinav: sinav,
-                        brans: brans,
-                        konu: konu,
-                        durum: durum,
-                        zorluk: zorluk,
-                        yorum: yorum,
-                        kaynak: kaynak,
-                        date: new Date().toLocaleDateString('tr-TR'),
-                        timestamp: Date.now()
-                    };
-                    
-                    questions.push(question);
-                    saveToStorage();
-                    updateUI();
-                };
-                reader.readAsDataURL(file);
-            });
-
-            selectedFiles = [];
-            document.getElementById('konu').value = '';
-            document.getElementById('durum').value = 'cozulmedi';
-            document.getElementById('zorluk').value = 'kolay';
-            document.getElementById('yorum').value = '';
-            document.getElementById('kaynak').value = '';
-            fileInput.value = '';
-            uploadArea.innerHTML = `
-                <div class="upload-icon">📁</div>
-                <p>Soru görselini buraya sürükleyin veya tıklayın</p>
-                <p style="font-size: 0.9rem; color: #718096; margin-top: 10px;">
-                    JPG, PNG, GIF formatları desteklenir
-                </p>
-            `;
-        }
-
-        function updateUI() {
-            updateStats();
-            updateBransFilter();
-            displayQuestions();
-            drawCharts();
-        }
-
-        function updateStats() {
-            const total = questions.length;
-            const tyt = questions.filter(q => q.sinav === 'TYT').length;
-            const ayt = questions.filter(q => q.sinav === 'AYT').length;
-            const solved = questions.filter(q => q.durum === 'cozuldu').length;
-            const hard = questions.filter(q => q.zorluk === 'zor').length;
-            const today = new Date().toLocaleDateString('tr-TR');
-            const todayCount = questions.filter(q => q.date === today).length;
-            const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-            const weeklyCount = questions.filter(q => q.timestamp >= oneWeekAgo).length;
-            const solvedWithSolutionCount = questions.filter(q => q.solution && q.solution.trim() !== '').length;
-
-            document.getElementById('totalQuestions').textContent = total;
-            document.getElementById('tytQuestions').textContent = tyt;
-            document.getElementById('aytQuestions').textContent = ayt;
-            document.getElementById('todayQuestions').textContent = todayCount;
-            document.getElementById('solvedQuestions').textContent = solved;
-            document.getElementById('hardQuestions').textContent = hard;
-            document.getElementById('weeklyQuestions').textContent = weeklyCount;
-            document.getElementById('solvedWithSolution').textContent = solvedWithSolutionCount;
-        }
-
-        function updateBransFilter() {
-            const filterBrans = document.getElementById('filterBrans');
-            const uniqueBrans = [...new Set(questions.map(q => q.brans))].sort();
+            const tytAverageNet = tytNets.length > 0 ? (tytNets.reduce((sum, net) => sum + net, 0) / tytNets.length).toFixed(2) : 0;
+            const tytBestNet = tytNets.length > 0 ? Math.max(...tytNets).toFixed(2) : 0;
             
-            filterBrans.innerHTML = '<option value="">Tümü</option>';
-            uniqueBrans.forEach(brans => {
-                filterBrans.innerHTML += `<option value="${brans}">${brans}</option>`;
-            });
-        }
+            const aytAverageNet = aytNets.length > 0 ? (aytNets.reduce((sum, net) => sum + net, 0) / aytNets.length).toFixed(2) : 0;
+            const aytBestNet = aytNets.length > 0 ? Math.max(...aytNets).toFixed(2) : 0;
 
-        function displayQuestions() {
-            const grid = document.getElementById('questionGrid');
-            if (filteredQuestions.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📝</div>
-                        <h3>Gösterilecek soru bulunamadı</h3>
-                        <p>Filtreleri değiştirin veya yeni soru ekleyin!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = filteredQuestions.map(question => {
-                let durumText = '';
-                let durumClass = '';
-                switch(question.durum) {
-                    case 'cozuldu': durumText = '✅ Çözüldü'; durumClass = 'cozuldu'; break;
-                    case 'yarim': durumText = '⚠️ Yarım'; durumClass = 'yarim'; break;
-                    default: durumText = '❌ Çözülmedi'; durumClass = '';
-                }
-
-                let zorlukText = '';
-                let zorlukClass = '';
-                switch(question.zorluk || 'kolay') {
-                    case 'kolay': zorlukText = '🟢 Kolay'; zorlukClass = 'kolay'; break;
-                    case 'orta': zorlukText = '🟡 Orta'; zorlukClass = 'orta'; break;
-                    case 'zor': zorlukText = '🔴 Zor'; zorlukClass = 'zor'; break;
-                }
-                
-                return `
-                    <div class="question-card">
-                        <button class="delete-btn" onclick="deleteQuestion(event, ${question.id})">✕</button>
-                        <img src="${question.image}" alt="Soru" class="question-image" onclick="openModal(${question.id})">
-                        <div class="question-info">
-                            <div class="question-tags">
-                                <span class="tag tag-sinav">${question.sinav}</span>
-                                <span class="tag tag-brans">${question.brans}</span>
-                                <span class="tag tag-konu">${question.konu}</span>
-                                <span class="tag tag-durum ${durumClass}">${durumText}</span>
-                                <span class="tag tag-zorluk ${zorlukClass}">${zorlukText}</span>
-                            </div>
-                            ${question.yorum ? `<div class="question-comment">${question.yorum}</div>` : ''}
-                            ${question.kaynak ? `<div class="question-source">${question.kaynak}</div>` : ''}
-                            ${question.solution ? `<div class="question-solution-indicator">Çözümü Var</div>` : ''}
-                            <div class="question-date">${question.date}</div>
-                            <button class="btn btn-secondary" style="margin-top: 10px; padding: 5px 10px; font-size: 0.8rem;" onclick="toggleStatus(event, ${question.id})">
-                                Durumu Değiştir
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            document.getElementById('tytAverageNet').innerText = tytAverageNet;
+            document.getElementById('tytBestNet').innerText = tytBestNet;
+            document.getElementById('aytAverageNet').innerText = aytAverageNet;
+            document.getElementById('aytBestNet').innerText = aytBestNet;
         }
 
         function drawCharts() {
-            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--main-text-color');
             const bransData = {};
             const zorlukData = {};
             
@@ -1846,257 +1820,228 @@
             
             const bransLabels = Object.keys(bransData);
             const bransValues = Object.values(bransData);
-            const zorlukLabels = Object.keys(zorlukData).map(label => {
-                switch(label) {
-                    case 'kolay': return '🟢 Kolay';
-                    case 'orta': return '🟡 Orta';
-                    case 'zor': return '🔴 Zor';
-                    default: return label;
-                }
-            });
+            const zorlukLabels = Object.keys(zorlukData);
             const zorlukValues = Object.values(zorlukData);
             
-            // Branş Grafiği
+            const bransColors = ['#4299e1', '#48bb78', '#f6ad55', '#e53e3e', '#ecc94b', '#9f7aea', '#ed64a6', '#4fd1c5', '#718096', '#38b2ac'];
+            const zorlukColors = ['#48bb78', '#f6ad55', '#e53e3e'];
+
             if (bransChart) bransChart.destroy();
-            const bransCtx = document.getElementById('bransChart').getContext('2d');
-            bransChart = new Chart(bransCtx, {
+            if (zorlukChart) zorlukChart.destroy();
+            
+            bransChart = new Chart(document.getElementById('bransChart').getContext('2d'), {
                 type: 'pie',
                 data: {
                     labels: bransLabels,
                     datasets: [{
                         data: bransValues,
-                        backgroundColor: [
-                            '#4299e1', '#e53e3e', '#38b2ac', '#d69e2e', '#9f7aea', 
-                            '#f6ad55', '#48bb78', '#a0aec0', '#d53f8c', '#68d391'
-                        ],
-                        borderColor: textColor,
-                        borderWidth: 1
+                        backgroundColor: bransColors.slice(0, bransLabels.length)
                     }]
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'top', labels: { color: textColor } },
-                        title: { display: true, text: 'Branşlara Göre Soru Dağılımı', color: textColor, font: { size: 16 } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
-            
-            // Zorluk Grafiği
-            if (zorlukChart) zorlukChart.destroy();
-            const zorlukCtx = document.getElementById('zorlukChart').getContext('2d');
-            zorlukChart = new Chart(zorlukCtx, {
+
+            zorlukChart = new Chart(document.getElementById('zorlukChart').getContext('2d'), {
                 type: 'pie',
                 data: {
                     labels: zorlukLabels,
                     datasets: [{
                         data: zorlukValues,
-                        backgroundColor: [
-                            '#48bb78', '#f6e05e', '#e53e3e'
-                        ],
-                        borderColor: textColor,
-                        borderWidth: 1
+                        backgroundColor: zorlukColors.slice(0, zorlukLabels.length)
                     }]
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'top', labels: { color: textColor } },
-                        title: { display: true, text: 'Zorluk Seviyelerine Göre Dağılım', color: textColor, font: { size: 16 } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
-        function applyFilters() {
-            const sinavFilter = document.getElementById('filterSinav').value;
-            const bransFilter = document.getElementById('filterBrans').value;
-            const konuFilter = document.getElementById('filterKonu').value.toLowerCase();
-            const durumFilter = document.getElementById('filterDurum').value;
-            const zorlukFilter = document.getElementById('filterZorluk').value;
-            const kaynakFilter = document.getElementById('filterKaynak').value.toLowerCase();
+        function drawTestCharts() {
+            const tytTests = tests.filter(t => t.type === 'TYT').sort((a, b) => new Date(a.date) - new Date(b.date));
+            const aytTests = tests.filter(t => t.type === 'AYT').sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            filteredQuestions = questions.filter(question => {
-                const sinavMatch = !sinavFilter || question.sinav === sinavFilter;
-                const bransMatch = !bransFilter || question.brans === bransFilter;
-                const konuMatch = !konuFilter || question.konu.toLowerCase().includes(konuFilter);
-                const durumMatch = !durumFilter || question.durum === durumFilter;
-                const zorlukMatch = !zorlukFilter || (question.zorluk || 'kolay') === zorlukFilter;
-                const kaynakMatch = !kaynakFilter || (question.kaynak && question.kaynak.toLowerCase().includes(kaynakFilter)) || (question.yorum && question.yorum.toLowerCase().includes(kaynakFilter));
-                
-                return sinavMatch && bransMatch && konuMatch && durumMatch && zorlukMatch && kaynakMatch;
+            const tytLabels = tytTests.map(t => t.name);
+            const tytTotalData = tytTests.map(t => t.totalNet.toFixed(2));
+            const aytLabels = aytTests.map(t => t.name);
+            const aytTotalData = aytTests.map(t => t.totalNet.toFixed(2));
+
+            const tytMatData = tytTests.map(t => t.results.tytMat.net.toFixed(2));
+            const tytTurkceData = tytTests.map(t => t.results.tytTurkce.net.toFixed(2));
+            const aytMatData = aytTests.map(t => t.results.aytMat.net.toFixed(2));
+            const aytFizikData = aytTests.map(t => t.results.aytFizik.net.toFixed(2));
+            const aytKimyaData = aytTests.map(t => t.results.aytKimya.net.toFixed(2));
+            const aytBiyolojiData = aytTests.map(t => t.results.aytBiyoloji.net.toFixed(2));
+
+            const datasets = (data, label, color) => [{
+                label: label,
+                data: data,
+                borderColor: color,
+                backgroundColor: 'rgba(0, 0, 0, 0)',
+                tension: 0.3
+            }];
+
+            const chartOptions = { responsive: true, maintainAspectRatio: false };
+            
+            if (tytTotalChart) tytTotalChart.destroy();
+            tytTotalChart = new Chart(document.getElementById('tytTotalChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: tytLabels, datasets: datasets(tytTotalData, 'TYT Toplam Net', '#667eea') },
+                options: chartOptions
             });
 
-            displayQuestions();
+            if (aytTotalChart) aytTotalChart.destroy();
+            aytTotalChart = new Chart(document.getElementById('aytTotalChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: aytLabels, datasets: datasets(aytTotalData, 'AYT Toplam Net', '#764ba2') },
+                options: chartOptions
+            });
+
+            if (tytMatChart) tytMatChart.destroy();
+            tytMatChart = new Chart(document.getElementById('tytMatChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: tytLabels, datasets: datasets(tytMatData, 'TYT Matematik Net', '#4a5568') },
+                options: chartOptions
+            });
+
+            if (tytTurkceChart) tytTurkceChart.destroy();
+            tytTurkceChart = new Chart(document.getElementById('tytTurkceChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: tytLabels, datasets: datasets(tytTurkceData, 'TYT Türkçe Net', '#e53e3e') },
+                options: chartOptions
+            });
+            
+            if (aytMatChart) aytMatChart.destroy();
+            aytMatChart = new Chart(document.getElementById('aytMatChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: aytLabels, datasets: datasets(aytMatData, 'AYT Matematik Net', '#4a5568') },
+                options: chartOptions
+            });
+            
+            if (aytFizikChart) aytFizikChart.destroy();
+            aytFizikChart = new Chart(document.getElementById('aytFizikChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: aytLabels, datasets: datasets(aytFizikData, 'AYT Fizik Net', '#4299e1') },
+                options: chartOptions
+            });
+            
+            if (aytKimyaChart) aytKimyaChart.destroy();
+            aytKimyaChart = new Chart(document.getElementById('aytKimyaChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: aytLabels, datasets: datasets(aytKimyaData, 'AYT Kimya Net', '#f6ad55') },
+                options: chartOptions
+            });
+            
+            if (aytBiyolojiChart) aytBiyolojiChart.destroy();
+            aytBiyolojiChart = new Chart(document.getElementById('aytBiyolojiChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: aytLabels, datasets: datasets(aytBiyolojiData, 'AYT Biyoloji Net', '#48bb78') },
+                options: chartOptions
+            });
+
         }
 
-        function clearFilters() {
-            document.getElementById('filterSinav').value = '';
-            document.getElementById('filterBrans').value = '';
-            document.getElementById('filterKonu').value = '';
-            document.getElementById('filterDurum').value = '';
-            document.getElementById('filterZorluk').value = '';
-            document.getElementById('filterKaynak').value = '';
-            filteredQuestions = [...questions];
-            displayQuestions();
-        }
-
-        function deleteQuestion(event, id) {
-            event.stopPropagation();
-            if (confirm('Bu soruyu silmek istediğinizden emin misiniz?')) {
-                questions = questions.filter(q => q.id !== id);
-                filteredQuestions = filteredQuestions.filter(q => q.id !== id);
-                saveToStorage();
-                updateUI();
-            }
-        }
-
-        let currentModalQuestion = null;
-        
-        function openModal(questionId) {
-            const question = questions.find(q => q.id === questionId);
-            if (!question) return;
-            
-            currentModalQuestion = question;
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            
-            document.getElementById('modalTitle').textContent = `${question.brans} - ${question.konu}`;
-            document.getElementById('modalSubtitle').textContent = `${question.sinav} • ${question.date}`;
-            modalImg.src = question.image;
-            
-            const modalTags = document.getElementById('modalTags');
-            let durumText = '', durumClass = '';
-            switch(question.durum) {
-                case 'cozuldu': durumText = '✅ Çözüldü'; durumClass = 'cozuldu'; break;
-                case 'yarim': durumText = '⚠️ Yarım'; durumClass = 'yarim'; break;
-                default: durumText = '❌ Çözülmedi'; durumClass = '';
-            }
-            
-            let zorlukText = '', zorlukClass = '';
-            switch(question.zorluk || 'kolay') {
-                case 'kolay': zorlukText = '🟢 Kolay'; zorlukClass = 'kolay'; break;
-                case 'orta': zorlukText = '🟡 Orta'; zorlukClass = 'orta'; break;
-                case 'zor': zorlukText = '🔴 Zor'; zorlukClass = 'zor'; break;
-            }
-            
-            modalTags.innerHTML = `
-                <span class="tag tag-sinav">${question.sinav}</span>
-                <span class="tag tag-brans">${question.brans}</span>
-                <span class="tag tag-durum ${durumClass}">${durumText}</span>
-                <span class="tag tag-zorluk ${zorlukClass}">${zorlukText}</span>
-            `;
-            
-            document.getElementById('modalKonu').textContent = question.konu;
-            document.getElementById('modalDate').textContent = question.date;
-            
-            const yorumSection = document.getElementById('modalYorumSection');
-            const yorumContent = document.getElementById('modalYorum');
-            if (question.yorum && question.yorum.trim()) {
-                yorumSection.style.display = 'block';
-                yorumContent.textContent = question.yorum;
-            } else {
-                yorumSection.style.display = 'none';
-            }
-            
-            const kaynakSection = document.getElementById('modalKaynakSection');
-            const kaynakContent = document.getElementById('modalKaynak');
-            if (question.kaynak && question.kaynak.trim()) {
-                kaynakSection.style.display = 'block';
-                kaynakContent.textContent = question.kaynak;
-            } else {
-                kaynakSection.style.display = 'none';
-            }
-            
-            const solutionImageContainer = document.getElementById('solutionImageContainer');
-            const noSolutionMessage = document.getElementById('noSolutionMessage');
-            const solutionImage = document.getElementById('solutionImage');
-            
-            if (question.solution) {
-                solutionImageContainer.style.display = 'block';
-                noSolutionMessage.style.display = 'none';
-                solutionImage.src = question.solution;
-            } else {
-                solutionImageContainer.style.display = 'none';
-                noSolutionMessage.style.display = 'block';
-            }
-            
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function uploadSolution(event) {
-            const file = event.target.files[0];
-            if (!file || !currentModalQuestion) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const questionIndex = questions.findIndex(q => q.id === currentModalQuestion.id);
-                if (questionIndex !== -1) {
-                    questions[questionIndex].solution = e.target.result;
-                    saveToStorage();
-                    openModal(currentModalQuestion.id);
-                    applyFilters();
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeSolution() {
-            if (!currentModalQuestion) return;
-            if (confirm('Çözümü kaldırmak istediğinizden emin misiniz?')) {
-                const questionIndex = questions.findIndex(q => q.id === currentModalQuestion.id);
-                if (questionIndex !== -1) {
-                    delete questions[questionIndex].solution;
-                    saveToStorage();
-                    openModal(currentModalQuestion.id);
-                    applyFilters();
-                }
-            }
-        }
-
-        function closeModal(event) {
-            if (event && event.target !== event.currentTarget) return;
-            document.getElementById('imageModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            currentModalQuestion = null;
-        }
-        
-        function toggleStatusFromModal() {
-            if (!currentModalQuestion) return;
-            toggleStatus(new Event('click'), currentModalQuestion.id);
-            setTimeout(() => {
-                if (currentModalQuestion) {
-                    openModal(currentModalQuestion.id);
-                }
-            }, 100);
-        }
-        
-        function deleteFromModal() {
-            if (!currentModalQuestion) return;
-            if (confirm('Bu soruyu silmek istediğinizden emin misiniz?')) {
-                deleteQuestion(new Event('click'), currentModalQuestion.id);
-                closeModal();
-            }
-        }
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeModal();
-            }
+        document.getElementById('testType').addEventListener('change', (e) => {
+            document.getElementById('tytTestInputs').style.display = 'none';
+            document.getElementById('aytTestInputs').style.display = 'none';
+            document.getElementById(e.target.value === 'TYT' ? 'tytTestInputs' : 'aytTestInputs').style.display = 'block';
         });
 
-        function toggleStatus(event, id) {
-            event.stopPropagation();
-            const question = questions.find(q => q.id === id);
-            if (!question) return;
-            const statusCycle = ['cozulmedi', 'yarim', 'cozuldu'];
-            const currentIndex = statusCycle.indexOf(question.durum);
-            const nextIndex = (currentIndex + 1) % statusCycle.length;
-            question.durum = statusCycle[nextIndex];
-            saveToStorage();
-            applyFilters();
-            updateUI();
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            document.getElementById('darkModeToggle').innerText = isDarkMode ? '🌙' : '☀️';
+            drawCharts();
+            drawTestCharts();
+        });
+
+        function loadTheme() {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').innerText = '🌙';
+            }
+        }
+        
+        function setWeeklyGoal() {
+            const goal = parseInt(document.getElementById('weeklyGoalInput').value);
+            if (isNaN(goal) || goal <= 0) {
+                alert('Lütfen geçerli bir hedef girin.');
+                return;
+            }
+            localStorage.setItem('weeklyQuestionGoal', goal);
+            alert(`Haftalık soru hedefiniz ${goal} olarak belirlendi!`);
+            updateWeeklyGoalStatus();
+        }
+
+        function updateWeeklyGoalStatus() {
+            const goal = parseInt(localStorage.getItem('weeklyQuestionGoal') || 0);
+            const startOfWeek = new Date();
+            startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() + 6) % 7);
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            const weeklyQuestions = questions.filter(q => new Date(q.date) >= startOfWeek).length;
+            const statusText = document.getElementById('weeklyGoalStatus');
+
+            if (goal > 0) {
+                const percentage = Math.min((weeklyQuestions / goal) * 100, 100);
+                statusText.innerHTML = `Hedef: ${goal} | Bu Hafta: ${weeklyQuestions} <br>
+                    <progress value="${weeklyQuestions}" max="${goal}" style="width: 100%; margin-top: 5px;"></progress>`;
+                if (weeklyQuestions >= goal) {
+                    //Hedefe ulaşıldığında özel bir mesaj gösterilebilir.
+                }
+            } else {
+                statusText.innerText = 'Henüz haftalık hedef belirlenmedi.';
+            }
+        }
+
+        function checkDailyStreak(questionAdded = false) {
+            const today = new Date().toISOString().split('T')[0];
+            let streak = parseInt(localStorage.getItem('streak') || 0);
+            const lastActiveDay = localStorage.getItem('lastActiveDay');
+
+            if (questionAdded) {
+                if (lastActiveDay === today) {
+                } else if (lastActiveDay) {
+                    const lastDay = new Date(lastActiveDay);
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayString = yesterday.toISOString().split('T')[0];
+                    if (lastActiveDay === yesterdayString) {
+                        streak++;
+                    } else {
+                        streak = 1;
+                    }
+                    localStorage.setItem('streak', streak);
+                    localStorage.setItem('lastActiveDay', today);
+                } else {
+                    streak = 1;
+                    localStorage.setItem('streak', streak);
+                    localStorage.setItem('lastActiveDay', today);
+                }
+            }
+            
+            document.getElementById('streakCounter').innerText = streak;
+        }
+
+
+        function exportData() {
+            if (questions.length === 0 && tests.length === 0) {
+                alert('Dışa aktarılacak veri yok!');
+                return;
+            }
+            
+            const dataToExport = {
+                questions: questions,
+                tests: tests
+            };
+
+            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `yks-hata-defteri-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            alert('Veriler başarıyla JSON dosyası olarak dışa aktarıldı. Bu dosyayı yedek olarak saklayabilirsiniz.');
         }
 
         function importData() {
@@ -2105,49 +2050,47 @@
 
         function handleImport(event) {
             const file = event.target.files[0];
-            if (!file) return;
+            if (!file) {
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    if (confirm(`${importedData.length} soru içe aktarılacak. Mevcut verilerle birleştirilecek. Devam edilsin mi?`)) {
-                        importedData.forEach(question => {
-                            question.id = Date.now() + Math.random();
-                            if (!question.durum) { question.durum = 'cozulmedi'; }
-                            if (!question.zorluk) { question.zorluk = 'kolay'; }
-                            if (!question.yorum) { question.yorum = ''; }
-                            if (!question.kaynak) { question.kaynak = ''; }
-                            if (!question.solution) { question.solution = ''; }
+                    let importedQuestions = [];
+                    let importedTests = [];
+
+                    if (Array.isArray(importedData)) {
+                        importedQuestions = importedData;
+                        importedQuestions.forEach(q => {
+                            if (!q.id) { q.id = Date.now().toString() + Math.random(); }
                         });
-                        questions = [...questions, ...importedData];
+                    } else if (importedData.questions || importedData.tests) {
+                        importedQuestions = importedData.questions || [];
+                        importedTests = importedData.tests || [];
+                    } else {
+                        alert('Dosya formatı hatalı! Lütfen geçerli bir JSON dosyası seçin.');
+                        return;
+                    }
+                    
+                    if (confirm('Mevcut verileriniz silinecek ve yeni verilerle değiştirilecek. Emin misiniz?')) {
+                        questions = importedQuestions;
+                        tests = importedTests;
                         saveToStorage();
                         updateUI();
                         alert('Veriler başarıyla içe aktarıldı!');
                     }
                 } catch (error) {
+                    console.error("İçe aktarma hatası:", error);
                     alert('Dosya formatı hatalı! Lütfen geçerli bir JSON dosyası seçin.');
                 }
             };
             reader.readAsText(file);
         }
 
-        function exportData() {
-            if (questions.length === 0) {
-                alert('Dışa aktarılacak veri yok!');
-                return;
-            }
-
-            const dataStr = JSON.stringify(questions, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = `yks-hata-defteri-${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-        }
-
         window.addEventListener('load', function() {
+            loadTheme();
             loadData();
         });
     </script>
