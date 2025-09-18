@@ -937,11 +937,11 @@
     </style>
 </head>
 <body>
-    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="hamburger" id="hamburgerMenu">☰</div>
     <div class="dark-mode-toggle" id="darkModeToggle">☀️</div>
     <div class="nav-menu" id="navMenu">
-        <a href="#" onclick="showPage('questionPage')">📚 Soru Defterim</a>
-        <a href="#" onclick="showPage('testPage')">📈 Deneme Takip Sistemi</a>
+        <a href="#" data-page="questionPage">📚 Soru Defterim</a>
+        <a href="#" data-page="testPage">📈 Deneme Takip Sistemi</a>
     </div>
 
     <div class="container" id="main-container">
@@ -984,7 +984,7 @@
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <label for="weeklyGoalInput">Haftalık Soru Hedefi</label>
                             <input type="number" id="weeklyGoalInput" placeholder="50" style="width: 100px;">
-                            <button class="btn btn-primary" onclick="setWeeklyGoal()">Belirle</button>
+                            <button class="btn btn-primary" id="btnSetGoal">Belirle</button>
                         </div>
                         <div>
                             <p id="weeklyGoalStatus">Hedef: Belirlenmedi</p>
@@ -1001,7 +1001,7 @@
                 <div class="left-column">
                     <div class="upload-section">
                         <h2 class="section-title">➕ Yeni Soru Ekle</h2>
-                        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-area" id="uploadArea">
                             <div class="upload-icon">📁</div>
                             <p>Soru görselini buraya sürükleyin veya tıklayın</p>
                             <p style="font-size: 0.9rem; color: #718096; margin-top: 10px;">
@@ -1065,19 +1065,19 @@
                             <label for="kaynak">Kaynak (Opsiyonel)</label>
                             <input type="text" id="kaynak" placeholder="Örn: TYT 2023 Deneme 5...">
                         </div>
-                        <button class="btn btn-primary" onclick="saveQuestions()">💾 Soruları Kaydet</button>
+                        <button class="btn btn-primary" id="btnSaveQuestions">💾 Soruları Kaydet</button>
                     </div>
 
                     <div class="filter-section">
                         <h2 class="section-title">🔍 Filtreleme</h2>
                         <div class="form-group">
                             <label for="filterSearchText">Genel Arama</label>
-                            <input type="text" id="filterSearchText" placeholder="Konu, yorum veya kaynakta ara..." oninput="applyFilters()">
+                            <input type="text" id="filterSearchText" placeholder="Konu, yorum veya kaynakta ara...">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Sınav Oturumu</label>
-                                <select id="filterSinav" onchange="applyFilters()">
+                                <select id="filterSinav">
                                     <option value="">Tümü</option>
                                     <option value="TYT">TYT</option>
                                     <option value="AYT">AYT</option>
@@ -1085,14 +1085,14 @@
                             </div>
                             <div class="form-group">
                                 <label>Branş</label>
-                                <select id="filterBrans" onchange="applyFilters()">
+                                <select id="filterBrans">
                                     <option value="">Tümü</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Durum</label>
-                            <select id="filterDurum" onchange="applyFilters()">
+                            <select id="filterDurum">
                                     <option value="">Tümü</option>
                                 <option value="cozulmedi">❌ Çözülmedi</option>
                                 <option value="yarim">⚠️ Yarım Anladım</option>
@@ -1101,17 +1101,17 @@
                         </div>
                         <div class="form-group">
                             <label>Zorluk Seviyesi</label>
-                            <select id="filterZorluk" onchange="applyFilters()">
+                            <select id="filterZorluk">
                                 <option value="">Tümü</option>
                                 <option value="kolay">🟢 Kolay</option>
                                 <option value="orta">🟡 Orta</option>
                                 <option value="zor">🔴 Zor</option>
                             </select>
                         </div>
-                        <button class="btn btn-secondary" onclick="clearFilters()">🗑️ Filtreleri Temizle</button>
-                        <button class="btn btn-secondary" onclick="exportData()" style="margin-left: 10px;">📤 Dışa Aktar</button>
-                        <button class="btn btn-secondary" onclick="importData()" style="margin-left: 10px;">📥 İçe Aktar</button>
-                        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
+                        <button class="btn btn-secondary" id="btnClearFilters">🗑️ Filtreleri Temizle</button>
+                        <button class="btn btn-secondary" id="btnExport" style="margin-left: 10px;">📤 Dışa Aktar</button>
+                        <button class="btn btn-secondary" id="btnImport" style="margin-left: 10px;">📥 İçe Aktar</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
                     </div>
 
                     <div class="chart-container">
@@ -1227,7 +1227,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary" onclick="saveTestResult()">💾 Deneme Sonucunu Kaydet</button>
+                <button class="btn btn-primary" id="btnSaveTestResult">💾 Deneme Sonucunu Kaydet</button>
             </div>
             <div class="test-section" style="margin-top: 30px;">
                 <h2 class="section-title">📊 Deneme Sonuçlarım</h2>
@@ -1287,7 +1287,7 @@
     <div id="myModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" id="modalCloseBtn">&times;</span>
                 <h2 class="modal-title" id="modalTitle">Soru Detayları</h2>
                 <p class="modal-subtitle" id="modalDate"></p>
             </div>
@@ -1311,7 +1311,7 @@
                             <img id="solutionImage" src="" alt="Çözüm Görseli">
                             <p id="noSolutionText" style="font-style: italic; color: #718096; display: none;">Çözüm görseli eklenmemiş.</p>
                             <input type="file" id="solutionInput" accept="image/*" style="margin-top: 10px;">
-                            <button class="btn btn-primary" onclick="saveSolutionImage()">Çözümü Kaydet</button>
+                            <button class="btn btn-primary" id="btnSaveSolution">Çözümü Kaydet</button>
                         </div>
                     </div>
                     <div class="detail-section">
@@ -1322,11 +1322,11 @@
                                 <option value="yarim">⚠️ Yarım Anladım</option>
                                 <option value="cozuldu">✅ Çözüldü</option>
                             </select>
-                            <button class="btn-status" onclick="updateQuestionStatus()">Durumu Güncelle</button>
+                            <button class="btn-status" id="btnUpdateStatus">Durumu Güncelle</button>
                         </div>
                     </div>
                     <div class="detail-section">
-                        <button class="btn-delete" onclick="deleteQuestion()">❌ Soruyu Sil</button>
+                        <button class="btn-delete" id="btnDeleteQuestion">❌ Soruyu Sil</button>
                     </div>
                 </div>
             </div>
@@ -1334,7 +1334,7 @@
     </div>
     
     <div id="fullscreenModal" class="modal">
-        <span class="fullscreen-close" onclick="closeFullscreenModal()">&times;</span>
+        <span class="fullscreen-close" id="fullscreenCloseBtn">&times;</span>
         <img id="fullscreenModalContent">
     </div>
 
@@ -1431,7 +1431,6 @@
                 tests = testsData;
                 updateUI();
                 checkDailyStreak();
-                // LocalStorage'dan haftalık hedefi okumaya devam et, çünkü bu küçük bir veri.
                 updateWeeklyGoalStatus(); 
             } catch (error) {
                 console.error("Failed to load data from DB:", error);
@@ -1476,7 +1475,7 @@
 
                     try {
                         await addToDB(QUESTION_STORE, newQuestion);
-                        questions.push(newQuestion); // Sync local array with DB
+                        questions.push(newQuestion); 
                         
                         updateQuestionGrid();
                         updateStats();
@@ -1535,7 +1534,7 @@
             
             try {
                 await addToDB(TEST_STORE, testResult);
-                tests.push(testResult); // Sync local array
+                tests.push(testResult);
                 updateTestUI();
 
                 document.getElementById('testName').value = '';
@@ -1641,6 +1640,10 @@
             }
         }
 
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+
         function handleImport(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1665,7 +1668,7 @@
 
                         tx.oncomplete = () => {
                             alert('Veriler başarıyla içe aktarıldı!');
-                            loadData(); // Reload data from DB and update UI
+                            loadData(); 
                         };
                         tx.onerror = (event) => {
                             console.error("Import transaction failed:", event.target.error);
@@ -1679,17 +1682,6 @@
             };
             reader.readAsText(file);
         }
-
-        window.addEventListener('load', async function() {
-            try {
-                await initDB();
-                loadTheme();
-                await loadData();
-            } catch (error) {
-                console.error("Initialization failed:", error);
-                alert("Uygulama başlatılamadı. Veritabanı hatası.");
-            }
-        });
         
         // --- UI & Other Functions (Mostly unchanged) ---
 
@@ -1704,7 +1696,7 @@
             filteredQuestions.forEach(q => {
                 const card = document.createElement('div');
                 card.className = 'question-card';
-                card.onclick = () => openModal(q.id);
+                card.dataset.questionId = q.id; // Kartlara ID ekle
                 let solutionIndicator = q.solution ? `<span class="question-solution-indicator">Çözüm Var</span>` : '';
                 let repeatTag = '';
                 if (q.repeatDate) {
@@ -1713,7 +1705,7 @@
                         repeatTag = `<span class="tag tag-tekrar">Bugün Tekrar Et!</span>`;
                     }
                 }
-                card.innerHTML = `<button class="delete-btn" onclick="event.stopPropagation(); deleteQuestionFromCard('${q.id}')">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>${repeatTag}</div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
+                card.innerHTML = `<button class="delete-btn" data-question-id="${q.id}">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>${repeatTag}</div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
                 grid.appendChild(card);
             });
         }
@@ -1729,9 +1721,9 @@
             repeatQuestions.forEach(q => {
                 const card = document.createElement('div');
                 card.className = 'question-card';
-                card.onclick = () => openModal(q.id);
+                card.dataset.questionId = q.id;
                 let solutionIndicator = q.solution ? `<span class="question-solution-indicator">Çözüm Var</span>` : '';
-                card.innerHTML = `<button class="delete-btn" onclick="event.stopPropagation(); deleteQuestionFromCard('${q.id}')">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span><span class="tag tag-tekrar">Bugün Tekrar Et!</span></div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
+                card.innerHTML = `<button class="delete-btn" data-question-id="${q.id}">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span><span class="tag tag-tekrar">Bugün Tekrar Et!</span></div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
                 repeatGrid.appendChild(card);
             });
         }
@@ -1786,7 +1778,6 @@
             document.getElementById('modalTitle').innerText = `${question.brans} - ${question.konu}`;
             document.getElementById('modalDate').innerText = `Eklenme Tarihi: ${new Date(question.date).toLocaleDateString()}`;
             document.getElementById('modalImage').src = question.image;
-            document.getElementById('modalImage').onclick = () => openFullscreenModal(question.image);
             document.getElementById('modalSource').innerText = question.kaynak || 'Belirtilmemiş';
             document.getElementById('modalComment').innerText = question.yorum || 'Not yok.';
             document.getElementById('modalDurumSelect').value = question.durum;
@@ -1796,7 +1787,6 @@
                 solutionImage.src = question.solution;
                 solutionImage.style.display = 'block';
                 noSolutionText.style.display = 'none';
-                solutionImage.onclick = () => openFullscreenModal(question.solution);
             } else {
                 solutionImage.style.display = 'none';
                 noSolutionText.style.display = 'block';
@@ -1899,13 +1889,6 @@
             document.getElementById('tytTestInputs').style.display = e.target.value === 'TYT' ? 'block' : 'none';
             document.getElementById('aytTestInputs').style.display = e.target.value === 'AYT' ? 'block' : 'none';
         });
-        document.getElementById('darkModeToggle').addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDarkMode);
-            document.getElementById('darkModeToggle').innerText = isDarkMode ? '🌙' : '☀️';
-            drawCharts(); drawTestCharts();
-        });
         function loadTheme() {
             if (localStorage.getItem('darkMode') === 'true') {
                 document.body.classList.add('dark-mode');
@@ -1947,6 +1930,95 @@
             }
             document.getElementById('streakCounter').innerText = streak;
         }
+
+        // --- Add Event Listeners ---
+        function addEventListeners() {
+            // Main navigation
+            document.getElementById('hamburgerMenu').addEventListener('click', toggleMenu);
+            document.getElementById('darkModeToggle').addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
+                document.getElementById('darkModeToggle').innerText = isDarkMode ? '🌙' : '☀️';
+                drawCharts(); drawTestCharts();
+            });
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    showPage(link.dataset.page);
+                });
+            });
+
+            // Soru Ekleme Formu
+            document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
+            document.getElementById('btnSaveQuestions').addEventListener('click', saveQuestions);
+
+            // Filtreleme
+            document.getElementById('btnClearFilters').addEventListener('click', clearFilters);
+            document.getElementById('btnExport').addEventListener('click', exportData);
+            document.getElementById('btnImport').addEventListener('click', importData);
+            document.getElementById('importFile').addEventListener('change', handleImport);
+            
+            const filterInputs = ['filterSearchText', 'filterSinav', 'filterBrans', 'filterDurum', 'filterZorluk'];
+            filterInputs.forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
+
+
+            // Hedef Belirleme
+            document.getElementById('btnSetGoal').addEventListener('click', setWeeklyGoal);
+
+            // Deneme Ekleme Formu
+            document.getElementById('btnSaveTestResult').addEventListener('click', saveTestResult);
+
+            // Modal (Pop-up) Butonları
+            document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+            document.getElementById('btnSaveSolution').addEventListener('click', saveSolutionImage);
+            document.getElementById('btnUpdateStatus').addEventListener('click', updateQuestionStatus);
+            document.getElementById('btnDeleteQuestion').addEventListener('click', deleteQuestion);
+            
+            // Fullscreen Modal
+            document.getElementById('fullscreenCloseBtn').addEventListener('click', closeFullscreenModal);
+            document.getElementById('modalImage').addEventListener('click', () => openFullscreenModal(document.getElementById('modalImage').src));
+            document.getElementById('solutionImage').addEventListener('click', () => {
+                const imgSrc = document.getElementById('solutionImage').src;
+                if (imgSrc) openFullscreenModal(imgSrc);
+            });
+
+            // Soru Kartı Tıklama (Event Delegation)
+            document.getElementById('questionGrid').addEventListener('click', (e) => {
+                const card = e.target.closest('.question-card');
+                if (!card) return;
+
+                if (e.target.classList.contains('delete-btn')) {
+                    e.stopPropagation();
+                    deleteQuestionFromCard(e.target.dataset.questionId);
+                } else {
+                    openModal(card.dataset.questionId);
+                }
+            });
+            document.getElementById('repeatQuestionGrid').addEventListener('click', (e) => {
+                const card = e.target.closest('.question-card');
+                if (!card) return;
+
+                if (e.target.classList.contains('delete-btn')) {
+                    e.stopPropagation();
+                    deleteQuestionFromCard(e.target.dataset.questionId);
+                } else {
+                    openModal(card.dataset.questionId);
+                }
+            });
+        }
+
+        window.addEventListener('load', async function() {
+            try {
+                await initDB();
+                addEventListeners(); // Bütün tıklama olaylarını buradan başlat
+                loadTheme();
+                await loadData();
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                alert("Uygulama başlatılamadı. Veritabanı hatası.");
+            }
+        });
 
     </script>
 </body>
