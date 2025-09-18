@@ -1339,30 +1339,105 @@
     </div>
 
     <script>
-        const bransList = ['Matematik', 'Fizik', 'Kimya', 'Biyoloji', 'Türkçe', 'Tarih', 'Coğrafya', 'Felsefe', 'Edebiyat', 'Geometri'];
+        // --- IndexedDB Setup ---
+        let db;
+        const DB_NAME = 'YKSDefteriDB';
+        const DB_VERSION = 1;
+        const QUESTION_STORE = 'questions';
+        const TEST_STORE = 'tests';
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(QUESTION_STORE)) {
+                        db.createObjectStore(QUESTION_STORE, { keyPath: 'id' });
+                    }
+                    if (!db.objectStoreNames.contains(TEST_STORE)) {
+                        db.createObjectStore(TEST_STORE, { keyPath: 'id' });
+                    }
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    console.log('Database opened successfully');
+                    resolve(db);
+                };
+
+                request.onerror = (event) => {
+                    console.error('Database error:', event.target.errorCode);
+                    reject(event.target.errorCode);
+                };
+            });
+        }
+
+        function getStore(storeName, mode) {
+            const tx = db.transaction(storeName, mode);
+            return tx.objectStore(storeName);
+        }
+
+        function addToDB(storeName, item) {
+            return new Promise((resolve, reject) => {
+                const store = getStore(storeName, 'readwrite');
+                const request = store.add(item);
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+        
+        function updateInDB(storeName, item) {
+             return new Promise((resolve, reject) => {
+                const store = getStore(storeName, 'readwrite');
+                const request = store.put(item);
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function deleteFromDB(storeName, id) {
+            return new Promise((resolve, reject) => {
+                const store = getStore(storeName, 'readwrite');
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function getAllFromDB(storeName) {
+            return new Promise((resolve, reject) => {
+                const store = getStore(storeName, 'readonly');
+                const request = store.getAll();
+                request.onsuccess = (event) => resolve(event.target.result);
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        // --- Application State ---
         let questions = [];
         let tests = [];
         let currentQuestionId = null;
-
-        const bransChartConfig = { type: 'pie', data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] }, options: { responsive: true, maintainAspectRatio: false } };
-        const zorlukChartConfig = { type: 'pie', data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] }, options: { responsive: true, maintainAspectRatio: false } };
         let bransChart, zorlukChart, tytTotalChart, aytTotalChart;
         let tytMatChart, tytTurkceChart, aytMatChart, aytFizikChart, aytKimyaChart, aytBiyolojiChart;
 
-        function loadData() {
-            questions = JSON.parse(localStorage.getItem('yksQuestions')) || [];
-            tests = JSON.parse(localStorage.getItem('yksTests')) || [];
-            updateUI(); // İlk yüklemede her şeyi güncelle
-            checkDailyStreak();
-            updateWeeklyGoalStatus();
+        async function loadData() {
+            try {
+                const [questionsData, testsData] = await Promise.all([
+                    getAllFromDB(QUESTION_STORE),
+                    getAllFromDB(TEST_STORE)
+                ]);
+                questions = questionsData;
+                tests = testsData;
+                updateUI();
+                checkDailyStreak();
+                // LocalStorage'dan haftalık hedefi okumaya devam et, çünkü bu küçük bir veri.
+                updateWeeklyGoalStatus(); 
+            } catch (error) {
+                console.error("Failed to load data from DB:", error);
+            }
         }
 
-        function saveToStorage() {
-            localStorage.setItem('yksQuestions', JSON.stringify(questions));
-            localStorage.setItem('yksTests', JSON.stringify(tests));
-        }
-
-        // Genel güncelleme fonksiyonu, sadece ilk yükleme için
         function updateUI() {
             updateQuestionGrid();
             updateStats();
@@ -1371,140 +1446,7 @@
             updateTestUI();
             updateRepeatQuestions();
         }
-
-        function updateQuestionGrid(filteredQuestions = questions) {
-            const grid = document.getElementById('questionGrid');
-            grid.innerHTML = '';
-            if (filteredQuestions.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📝</div>
-                        <h3>${questions.length === 0 ? 'Henüz soru eklenmedi' : 'Filtrelemeye uyan soru bulunamadı'}</h3>
-                        <p>${questions.length === 0 ? 'Yukarıdan soru görseli yükleyerek başlayın!' : 'Filtreleri değiştirerek yeniden deneyin.'}</p>
-                    </div>
-                `;
-                return;
-            }
-
-            filteredQuestions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            filteredQuestions.forEach(q => {
-                const card = document.createElement('div');
-                card.className = 'question-card';
-                card.onclick = () => openModal(q.id);
-
-                let solutionIndicator = '';
-                if (q.solution) {
-                    solutionIndicator = `<span class="question-solution-indicator">Çözüm Var</span>`;
-                }
-
-                let repeatTag = '';
-                if (q.repeatDate) {
-                    const today = new Date().toISOString().split('T')[0];
-                    if (q.repeatDate <= today) {
-                        repeatTag = `<span class="tag tag-tekrar">Bugün Tekrar Et!</span>`;
-                    }
-                }
-
-                card.innerHTML = `
-                    <button class="delete-btn" onclick="event.stopPropagation(); deleteQuestionFromCard('${q.id}')">&times;</button>
-                    <img src="${q.image}" alt="Soru görseli" class="question-image">
-                    <div class="question-info">
-                        <div class="question-tags">
-                            <span class="tag tag-sinav">${q.sinav}</span>
-                            <span class="tag tag-brans">${q.brans}</span>
-                            <span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span>
-                            <span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>
-                            ${repeatTag}
-                        </div>
-                        <p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>
-                        ${solutionIndicator}
-                        <div class="question-comment">${q.yorum || 'Not yok.'}</div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function updateRepeatQuestions() {
-            const repeatGrid = document.getElementById('repeatQuestionGrid');
-            const today = new Date().toISOString().split('T')[0];
-            const repeatQuestions = questions.filter(q => q.repeatDate && q.repeatDate <= today);
-
-            repeatGrid.innerHTML = '';
-            if (repeatQuestions.length === 0) {
-                repeatGrid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🎉</div>
-                        <h3>Bugün tekrar etmen gereken soru yok!</h3>
-                        <p>Tekrar tarihi belirlediğin sorular burada görünecek.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            repeatQuestions.forEach(q => {
-                const card = document.createElement('div');
-                card.className = 'question-card';
-                card.onclick = () => openModal(q.id);
-
-                let solutionIndicator = '';
-                if (q.solution) {
-                    solutionIndicator = `<span class="question-solution-indicator">Çözüm Var</span>`;
-                }
-
-                card.innerHTML = `
-                    <button class="delete-btn" onclick="event.stopPropagation(); deleteQuestionFromCard('${q.id}')">&times;</button>
-                    <img src="${q.image}" alt="Soru görseli" class="question-image">
-                    <div class="question-info">
-                        <div class="question-tags">
-                            <span class="tag tag-sinav">${q.sinav}</span>
-                            <span class="tag tag-brans">${q.brans}</span>
-                            <span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span>
-                            <span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>
-                            <span class="tag tag-tekrar">Bugün Tekrar Et!</span>
-                        </div>
-                        <p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>
-                        ${solutionIndicator}
-                        <div class="question-comment">${q.yorum || 'Not yok.'}</div>
-                    </div>
-                `;
-                repeatGrid.appendChild(card);
-            });
-        }
-
-        function updateStats() {
-            const tytQuestionsCount = questions.filter(q => q.sinav === 'TYT').length;
-            const aytQuestionsCount = questions.filter(q => q.sinav === 'AYT').length;
-            const todayQuestionsCount = questions.filter(q => {
-                const today = new Date().toISOString().split('T')[0];
-                return q.date.split('T')[0] === today;
-            }).length;
-            const solvedQuestionsCount = questions.filter(q => q.durum === 'cozuldu').length;
-            const hardQuestionsCount = questions.filter(q => q.zorluk === 'zor').length;
-
-            document.getElementById('totalQuestions').innerText = questions.length;
-            document.getElementById('tytQuestions').innerText = tytQuestionsCount;
-            document.getElementById('aytQuestions').innerText = aytQuestionsCount;
-            document.getElementById('todayQuestions').innerText = todayQuestionsCount;
-            document.getElementById('solvedQuestions').innerText = solvedQuestionsCount;
-            document.getElementById('hardQuestions').innerText = hardQuestionsCount;
-        }
-
-        function updateFilterOptions() {
-            const filterBrans = document.getElementById('filterBrans');
-            const currentFilter = filterBrans.value;
-            filterBrans.innerHTML = '<option value="">Tümü</option>';
-            const uniqueBrans = [...new Set(questions.map(q => q.brans))].sort();
-            uniqueBrans.forEach(brans => {
-                const option = document.createElement('option');
-                option.value = brans;
-                option.text = brans;
-                filterBrans.appendChild(option);
-            });
-            filterBrans.value = currentFilter;
-        }
-
+        
         async function saveQuestions() {
             const fileInput = document.getElementById('fileInput');
             const images = fileInput.files;
@@ -1516,7 +1458,7 @@
 
             for (const image of images) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = async function(e) {
                     const newQuestion = {
                         id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
                         image: e.target.result,
@@ -1532,196 +1474,34 @@
                         solution: null
                     };
 
-                    questions.push(newQuestion);
-                    saveToStorage();
-                    
-                    // Sadece soru sayfası elemanlarını güncelle
-                    updateQuestionGrid();
-                    updateStats();
-                    updateFilterOptions();
-                    drawCharts();
-                    updateRepeatQuestions();
-                    
-                    document.getElementById('konu').value = '';
-                    document.getElementById('yorum').value = '';
-                    document.getElementById('kaynak').value = '';
-                    document.getElementById('repeatDate').value = '';
-                    fileInput.value = '';
+                    try {
+                        await addToDB(QUESTION_STORE, newQuestion);
+                        questions.push(newQuestion); // Sync local array with DB
+                        
+                        updateQuestionGrid();
+                        updateStats();
+                        updateFilterOptions();
+                        drawCharts();
+                        updateRepeatQuestions();
+                        
+                        document.getElementById('konu').value = '';
+                        document.getElementById('yorum').value = '';
+                        document.getElementById('kaynak').value = '';
+                        document.getElementById('repeatDate').value = '';
+                        fileInput.value = '';
 
-                    checkDailyStreak(true);
-                    updateWeeklyGoalStatus();
+                        checkDailyStreak(true);
+                        updateWeeklyGoalStatus();
+                    } catch (error) {
+                        console.error("Failed to save question:", error);
+                        alert("Soru kaydedilemedi. Depolama hatası.");
+                    }
                 };
                 reader.readAsDataURL(image);
             }
         }
 
-        function applyFilters() {
-            const filterSinav = document.getElementById('filterSinav').value;
-            const filterBrans = document.getElementById('filterBrans').value;
-            const filterDurum = document.getElementById('filterDurum').value;
-            const filterZorluk = document.getElementById('filterZorluk').value;
-            const filterSearchText = document.getElementById('filterSearchText').value.toLowerCase();
-
-            const filtered = questions.filter(q => {
-                const matchesSinav = !filterSinav || q.sinav === filterSinav;
-                const matchesBrans = !filterBrans || q.brans === filterBrans;
-                const matchesDurum = !filterDurum || q.durum === filterDurum;
-                const matchesZorluk = !filterZorluk || q.zorluk === filterZorluk;
-                const matchesSearch = !filterSearchText ||
-                    q.konu.toLowerCase().includes(filterSearchText) ||
-                    q.yorum.toLowerCase().includes(filterSearchText) ||
-                    q.kaynak.toLowerCase().includes(filterSearchText);
-                
-                return matchesSinav && matchesBrans && matchesDurum && matchesZorluk && matchesSearch;
-            });
-
-            updateQuestionGrid(filtered);
-        }
-
-        function clearFilters() {
-            document.getElementById('filterSinav').value = '';
-            document.getElementById('filterBrans').value = '';
-            document.getElementById('filterDurum').value = '';
-            document.getElementById('filterZorluk').value = '';
-            document.getElementById('filterSearchText').value = '';
-            applyFilters();
-        }
-
-        function openModal(id) {
-            const question = questions.find(q => q.id === id);
-            if (!question) return;
-
-            currentQuestionId = id;
-            document.getElementById('modalTitle').innerText = `${question.brans} - ${question.konu}`;
-            document.getElementById('modalDate').innerText = `Eklenme Tarihi: ${new Date(question.date).toLocaleDateString()}`;
-            document.getElementById('modalImage').src = question.image;
-            document.getElementById('modalImage').onclick = () => openFullscreenModal(question.image);
-
-            document.getElementById('modalSource').innerText = question.kaynak || 'Belirtilmemiş';
-            document.getElementById('modalComment').innerText = question.yorum || 'Not yok.';
-            document.getElementById('modalDurumSelect').value = question.durum;
-
-            const solutionImage = document.getElementById('solutionImage');
-            const noSolutionText = document.getElementById('noSolutionText');
-            if (question.solution) {
-                solutionImage.src = question.solution;
-                solutionImage.style.display = 'block';
-                noSolutionText.style.display = 'none';
-                solutionImage.onclick = () => openFullscreenModal(question.solution);
-            } else {
-                solutionImage.style.display = 'none';
-                noSolutionText.style.display = 'block';
-            }
-
-            const modalTags = document.getElementById('modalTags');
-            modalTags.innerHTML = `
-                <span class="tag tag-sinav">${question.sinav}</span>
-                <span class="tag tag-brans">${question.brans}</span>
-                <span class="tag tag-zorluk ${question.zorluk}">${question.zorluk}</span>
-                <span class="tag tag-durum ${question.durum}">${question.durum === 'cozulmedi' ? 'Çözülmedi' : (question.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>
-            `;
-            if (question.repeatDate) {
-                modalTags.innerHTML += `<span class="tag tag-tekrar">Tekrar Tarihi: ${question.repeatDate}</span>`;
-            }
-
-            document.getElementById('myModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('myModal').style.display = 'none';
-        }
-
-        function openFullscreenModal(imageSrc) {
-            const fullscreenModal = document.getElementById('fullscreenModal');
-            const fullscreenImage = document.getElementById('fullscreenModalContent');
-            fullscreenImage.src = imageSrc;
-            fullscreenModal.style.display = 'flex';
-        }
-        
-        function closeFullscreenModal() {
-            document.getElementById('fullscreenModal').style.display = 'none';
-        }
-
-        async function saveSolutionImage() {
-            const solutionInput = document.getElementById('solutionInput');
-            const image = solutionInput.files[0];
-            if (!image) {
-                alert('Lütfen bir çözüm görseli seçin.');
-                return;
-            }
-
-            const question = questions.find(q => q.id === currentQuestionId);
-            if (!question) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                question.solution = e.target.result;
-                saveToStorage();
-                updateQuestionGrid();
-                closeModal();
-            };
-            reader.readAsDataURL(image);
-        }
-
-        function updateQuestionStatus() {
-            const newStatus = document.getElementById('modalDurumSelect').value;
-            const question = questions.find(q => q.id === currentQuestionId);
-            if (!question) return;
-
-            question.durum = newStatus;
-            saveToStorage();
-            updateQuestionGrid();
-            updateStats();
-            closeModal();
-        }
-
-        function deleteQuestion() {
-            if (confirm('Bu soruyu silmek istediğinizden emin misiniz?')) {
-                questions = questions.filter(q => q.id !== currentQuestionId);
-                saveToStorage();
-                updateQuestionGrid();
-                updateStats();
-                drawCharts();
-                closeModal();
-            }
-        }
-        
-        function deleteQuestionFromCard(id) {
-            if (confirm('Bu soruyu kalıcı olarak silmek istediğinizden emin misiniz?')) {
-                questions = questions.filter(q => q.id !== id);
-                saveToStorage();
-                updateQuestionGrid();
-                updateStats();
-                drawCharts();
-            }
-        }
-
-        function toggleMenu() {
-            const navMenu = document.getElementById('navMenu');
-            navMenu.classList.toggle('active');
-        }
-
-        // *** DEĞİŞİKLİK: BU FONKSİYON GÜNCELLENDİ ***
-        function showPage(pageId) {
-            document.querySelectorAll('.tab-content').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-            toggleMenu(); // Menüyü kapat
-
-            // Artık sadece aktif olan sayfanın verileri güncelleniyor
-            if (pageId === 'questionPage') {
-                updateQuestionGrid();
-                updateStats();
-                updateFilterOptions();
-                drawCharts();
-                updateRepeatQuestions();
-            } else if (pageId === 'testPage') {
-                updateTestUI();
-            }
-        }
-
-        function saveTestResult() {
+        async function saveTestResult() {
             const testType = document.getElementById('testType').value;
             const testName = document.getElementById('testName').value;
 
@@ -1731,7 +1511,7 @@
             }
 
             let testResult = {
-                id: Date.now().toString(),
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
                 date: new Date().toISOString().split('T')[0],
                 type: testType,
                 name: testName,
@@ -1744,366 +1524,430 @@
             };
 
             let totalNet = 0;
-            let isValid = true;
-
             sections[testType].forEach(section => {
                 const dogru = parseFloat(document.getElementById(`${section}Dogru`).value) || 0;
                 const yanlis = parseFloat(document.getElementById(`${section}Yanlis`).value) || 0;
-                const net = dogru - (yanlis / 4);
-
-                if (isNaN(dogru) || isNaN(yanlis)) {
-                    isValid = false;
-                }
-
-                testResult.results[section] = { dogru, yanlis, net };
-                totalNet += net;
+                testResult.results[section] = { dogru, yanlis, net: dogru - (yanlis / 4) };
+                totalNet += testResult.results[section].net;
             });
-
-            if (!isValid) {
-                alert('Lütfen doğru ve yanlış sayılarını geçerli bir şekilde girin.');
-                return;
-            }
 
             testResult.totalNet = totalNet;
-            tests.push(testResult);
-            saveToStorage();
-            updateTestUI();
+            
+            try {
+                await addToDB(TEST_STORE, testResult);
+                tests.push(testResult); // Sync local array
+                updateTestUI();
 
-            document.getElementById('testName').value = '';
-            sections[testType].forEach(section => {
-                document.getElementById(`${section}Dogru`).value = '';
-                document.getElementById(`${section}Yanlis`).value = '';
-            });
-        }
-
-        function updateTestUI() {
-            const testListContainer = document.getElementById('testListContainer');
-            testListContainer.innerHTML = '';
-            if (tests.length === 0) {
-                 testListContainer.innerHTML = `<div class="empty-state">
-                    <div class="empty-state-icon">📊</div>
-                    <h3>Henüz deneme sonucu eklenmedi</h3>
-                    <p>Yukarıdan deneme sonucunu ekleyerek başlayın!</p>
-                </div>`;
-            } else {
-                 tests.sort((a,b) => new Date(b.date) - new Date(a.date));
-                 tests.forEach(test => {
-                    const listItem = document.createElement('div');
-                    listItem.className = 'test-list-item';
-                    listItem.innerHTML = `
-                        <div class="test-info">
-                            <strong>${test.name}</strong> (${test.type})
-                            <div class="date">${new Date(test.date).toLocaleDateString()}</div>
-                        </div>
-                        <div class="test-net">${test.totalNet.toFixed(2)} Net</div>
-                    `;
-                    testListContainer.appendChild(listItem);
-                 });
+                document.getElementById('testName').value = '';
+                sections[testType].forEach(section => {
+                    document.getElementById(`${section}Dogru`).value = '';
+                    document.getElementById(`${section}Yanlis`).value = '';
+                });
+            } catch (error) {
+                console.error("Failed to save test result:", error);
+                alert("Deneme sonucu kaydedilemedi.");
             }
-            drawTestCharts();
-            updateTestStats();
         }
 
-        function updateTestStats() {
-            const tytTests = tests.filter(t => t.type === 'TYT');
-            const aytTests = tests.filter(t => t.type === 'AYT');
+        async function updateQuestionStatus() {
+            const newStatus = document.getElementById('modalDurumSelect').value;
+            const questionIndex = questions.findIndex(q => q.id === currentQuestionId);
+            if (questionIndex === -1) return;
 
-            const tytNets = tytTests.map(t => t.totalNet);
-            const aytNets = aytTests.map(t => t.totalNet);
+            questions[questionIndex].durum = newStatus;
             
-            const tytAverageNet = tytNets.length > 0 ? (tytNets.reduce((sum, net) => sum + net, 0) / tytNets.length).toFixed(2) : 0;
-            const tytBestNet = tytNets.length > 0 ? Math.max(...tytNets).toFixed(2) : 0;
-            
-            const aytAverageNet = aytNets.length > 0 ? (aytNets.reduce((sum, net) => sum + net, 0) / aytNets.length).toFixed(2) : 0;
-            const aytBestNet = aytNets.length > 0 ? Math.max(...aytNets).toFixed(2) : 0;
-
-            document.getElementById('tytAverageNet').innerText = tytAverageNet;
-            document.getElementById('tytBestNet').innerText = tytBestNet;
-            document.getElementById('aytAverageNet').innerText = aytAverageNet;
-            document.getElementById('aytBestNet').innerText = aytBestNet;
-        }
-
-        function drawCharts() {
-            const bransData = {};
-            const zorlukData = {};
-            
-            questions.forEach(q => {
-                bransData[q.brans] = (bransData[q.brans] || 0) + 1;
-                zorlukData[q.zorluk] = (zorlukData[q.zorluk] || 0) + 1;
-            });
-            
-            const bransLabels = Object.keys(bransData);
-            const bransValues = Object.values(bransData);
-            const zorlukLabels = Object.keys(zorlukData);
-            const zorlukValues = Object.values(zorlukData);
-            
-            const bransColors = ['#4299e1', '#48bb78', '#f6ad55', '#e53e3e', '#ecc94b', '#9f7aea', '#ed64a6', '#4fd1c5', '#718096', '#38b2ac'];
-            const zorlukColors = ['#48bb78', '#f6ad55', '#e53e3e'];
-
-            if (bransChart) bransChart.destroy();
-            if (zorlukChart) zorlukChart.destroy();
-            
-            bransChart = new Chart(document.getElementById('bransChart').getContext('2d'), {
-                type: 'pie',
-                data: {
-                    labels: bransLabels,
-                    datasets: [{
-                        data: bransValues,
-                        backgroundColor: bransColors.slice(0, bransLabels.length)
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            zorlukChart = new Chart(document.getElementById('zorlukChart').getContext('2d'), {
-                type: 'pie',
-                data: {
-                    labels: zorlukLabels,
-                    datasets: [{
-                        data: zorlukValues,
-                        backgroundColor: zorlukColors.slice(0, zorlukLabels.length)
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function drawTestCharts() {
-            const tytTests = tests.filter(t => t.type === 'TYT').sort((a, b) => new Date(a.date) - new Date(b.date));
-            const aytTests = tests.filter(t => t.type === 'AYT').sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            const tytLabels = tytTests.map(t => t.name);
-            const tytTotalData = tytTests.map(t => t.totalNet.toFixed(2));
-            const aytLabels = aytTests.map(t => t.name);
-            const aytTotalData = aytTests.map(t => t.totalNet.toFixed(2));
-
-            const tytMatData = tytTests.map(t => t.results.tytMat.net.toFixed(2));
-            const tytTurkceData = tytTests.map(t => t.results.tytTurkce.net.toFixed(2));
-            const aytMatData = aytTests.map(t => t.results.aytMat ? t.results.aytMat.net.toFixed(2) : 0);
-            const aytFizikData = aytTests.map(t => t.results.aytFizik ? t.results.aytFizik.net.toFixed(2) : 0);
-            const aytKimyaData = aytTests.map(t => t.results.aytKimya ? t.results.aytKimya.net.toFixed(2) : 0);
-            const aytBiyolojiData = aytTests.map(t => t.results.aytBiyoloji ? t.results.aytBiyoloji.net.toFixed(2) : 0);
-
-            const datasets = (data, label, color) => [{
-                label: label,
-                data: data,
-                borderColor: color,
-                backgroundColor: 'rgba(0, 0, 0, 0)',
-                tension: 0.3
-            }];
-
-            const chartOptions = { responsive: true, maintainAspectRatio: false };
-            
-            if (tytTotalChart) tytTotalChart.destroy();
-            tytTotalChart = new Chart(document.getElementById('tytTotalChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: tytLabels, datasets: datasets(tytTotalData, 'TYT Toplam Net', '#667eea') },
-                options: chartOptions
-            });
-
-            if (aytTotalChart) aytTotalChart.destroy();
-            aytTotalChart = new Chart(document.getElementById('aytTotalChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: aytLabels, datasets: datasets(aytTotalData, 'AYT Toplam Net', '#764ba2') },
-                options: chartOptions
-            });
-
-            if (tytMatChart) tytMatChart.destroy();
-            tytMatChart = new Chart(document.getElementById('tytMatChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: tytLabels, datasets: datasets(tytMatData, 'TYT Matematik Net', '#4a5568') },
-                options: chartOptions
-            });
-
-            if (tytTurkceChart) tytTurkceChart.destroy();
-            tytTurkceChart = new Chart(document.getElementById('tytTurkceChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: tytLabels, datasets: datasets(tytTurkceData, 'TYT Türkçe Net', '#e53e3e') },
-                options: chartOptions
-            });
-            
-            if (aytMatChart) aytMatChart.destroy();
-            aytMatChart = new Chart(document.getElementById('aytMatChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: aytLabels, datasets: datasets(aytMatData, 'AYT Matematik Net', '#4a5568') },
-                options: chartOptions
-            });
-            
-            if (aytFizikChart) aytFizikChart.destroy();
-            aytFizikChart = new Chart(document.getElementById('aytFizikChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: aytLabels, datasets: datasets(aytFizikData, 'AYT Fizik Net', '#4299e1') },
-                options: chartOptions
-            });
-            
-            if (aytKimyaChart) aytKimyaChart.destroy();
-            aytKimyaChart = new Chart(document.getElementById('aytKimyaChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: aytLabels, datasets: datasets(aytKimyaData, 'AYT Kimya Net', '#f6ad55') },
-                options: chartOptions
-            });
-            
-            if (aytBiyolojiChart) aytBiyolojiChart.destroy();
-            aytBiyolojiChart = new Chart(document.getElementById('aytBiyolojiChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: aytLabels, datasets: datasets(aytBiyolojiData, 'AYT Biyoloji Net', '#48bb78') },
-                options: chartOptions
-            });
-
-        }
-
-        document.getElementById('testType').addEventListener('change', (e) => {
-            document.getElementById('tytTestInputs').style.display = 'none';
-            document.getElementById('aytTestInputs').style.display = 'none';
-            document.getElementById(e.target.value === 'TYT' ? 'tytTestInputs' : 'aytTestInputs').style.display = 'block';
-        });
-
-        document.getElementById('darkModeToggle').addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDarkMode);
-            document.getElementById('darkModeToggle').innerText = isDarkMode ? '🌙' : '☀️';
-            drawCharts();
-            drawTestCharts();
-        });
-
-        function loadTheme() {
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.body.classList.add('dark-mode');
-                document.getElementById('darkModeToggle').innerText = '🌙';
+            try {
+                await updateInDB(QUESTION_STORE, questions[questionIndex]);
+                updateUI();
+                closeModal();
+            } catch (error) {
+                console.error("Failed to update status:", error);
             }
         }
         
-        function setWeeklyGoal() {
-            const goal = parseInt(document.getElementById('weeklyGoalInput').value);
-            if (isNaN(goal) || goal <= 0) {
-                alert('Lütfen geçerli bir hedef girin.');
+        async function saveSolutionImage() {
+            const solutionInput = document.getElementById('solutionInput');
+            const image = solutionInput.files[0];
+            if (!image) {
+                alert('Lütfen bir çözüm görseli seçin.');
                 return;
             }
-            localStorage.setItem('weeklyQuestionGoal', goal);
-            alert(`Haftalık soru hedefiniz ${goal} olarak belirlendi!`);
-            updateWeeklyGoalStatus();
+
+            const questionIndex = questions.findIndex(q => q.id === currentQuestionId);
+            if (questionIndex === -1) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                questions[questionIndex].solution = e.target.result;
+                try {
+                    await updateInDB(QUESTION_STORE, questions[questionIndex]);
+                    updateUI();
+                    closeModal();
+                } catch (error) {
+                    console.error("Failed to save solution image:", error);
+                }
+            };
+            reader.readAsDataURL(image);
         }
 
-        function updateWeeklyGoalStatus() {
-            const goal = parseInt(localStorage.getItem('weeklyQuestionGoal') || 0);
-            const startOfWeek = new Date();
-            startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() + 6) % 7);
-            startOfWeek.setHours(0, 0, 0, 0);
-
-            const weeklyQuestions = questions.filter(q => new Date(q.date) >= startOfWeek).length;
-            const statusText = document.getElementById('weeklyGoalStatus');
-
-            if (goal > 0) {
-                const percentage = Math.min((weeklyQuestions / goal) * 100, 100);
-                statusText.innerHTML = `Hedef: ${goal} | Bu Hafta: ${weeklyQuestions} <br>
-                    <progress value="${weeklyQuestions}" max="${goal}" style="width: 100%; margin-top: 5px;"></progress>`;
-            } else {
-                statusText.innerText = 'Henüz haftalık hedef belirlenmedi.';
-            }
-        }
-
-        function checkDailyStreak(questionAdded = false) {
-            const today = new Date().toISOString().split('T')[0];
-            let streak = parseInt(localStorage.getItem('streak') || 0);
-            const lastActiveDay = localStorage.getItem('lastActiveDay');
-
-            if (questionAdded) {
-                if (lastActiveDay === today) {
-                } else if (lastActiveDay) {
-                    const lastDay = new Date(lastActiveDay);
-                    const yesterday = new Date();
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    const yesterdayString = yesterday.toISOString().split('T')[0];
-                    if (lastActiveDay === yesterdayString) {
-                        streak++;
-                    } else {
-                        streak = 1;
-                    }
-                    localStorage.setItem('streak', streak);
-                    localStorage.setItem('lastActiveDay', today);
-                } else {
-                    streak = 1;
-                    localStorage.setItem('streak', streak);
-                    localStorage.setItem('lastActiveDay', today);
+        async function deleteQuestion() {
+            if (confirm('Bu soruyu silmek istediğinizden emin misiniz?')) {
+                try {
+                    await deleteFromDB(QUESTION_STORE, currentQuestionId);
+                    questions = questions.filter(q => q.id !== currentQuestionId);
+                    updateUI();
+                    closeModal();
+                } catch (error) {
+                    console.error("Failed to delete question:", error);
                 }
             }
-            
-            document.getElementById('streakCounter').innerText = streak;
         }
-
-
-        function exportData() {
-            if (questions.length === 0 && tests.length === 0) {
-                alert('Dışa aktarılacak veri yok!');
-                return;
+        
+        async function deleteQuestionFromCard(id) {
+            if (confirm('Bu soruyu kalıcı olarak silmek istediğinizden emin misiniz?')) {
+                 try {
+                    await deleteFromDB(QUESTION_STORE, id);
+                    questions = questions.filter(q => q.id !== id);
+                    updateUI();
+                } catch (error) {
+                    console.error("Failed to delete question from card:", error);
+                }
             }
-            
-            const dataToExport = {
-                questions: questions,
-                tests: tests
-            };
-
-            const dataStr = JSON.stringify(dataToExport, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = `yks-hata-defteri-${new Date().toISOString().split('T')[0]}.json`;
-            link.click();
-            
-            alert('Veriler başarıyla JSON dosyası olarak dışa aktarıldı. Bu dosyayı yedek olarak saklayabilirsiniz.');
         }
 
-        function importData() {
-            document.getElementById('importFile').click();
+        async function exportData() {
+            try {
+                const questionsData = await getAllFromDB(QUESTION_STORE);
+                const testsData = await getAllFromDB(TEST_STORE);
+
+                if (questionsData.length === 0 && testsData.length === 0) {
+                    alert('Dışa aktarılacak veri yok!');
+                    return;
+                }
+                
+                const dataToExport = { questions: questionsData, tests: testsData };
+                const dataStr = JSON.stringify(dataToExport, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `yks-hata-defteri-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                alert('Veriler başarıyla JSON dosyası olarak dışa aktarıldı.');
+            } catch (error) {
+                console.error("Export failed:", error);
+                alert("Veriler dışa aktarılamadı.");
+            }
         }
 
         function handleImport(event) {
             const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    let importedQuestions = [];
-                    let importedTests = [];
-
-                    if (Array.isArray(importedData)) {
-                        importedQuestions = importedData;
-                        importedQuestions.forEach(q => {
-                            if (!q.id) { q.id = Date.now().toString() + Math.random(); }
-                        });
-                    } else if (importedData.questions || importedData.tests) {
-                        importedQuestions = importedData.questions || [];
-                        importedTests = importedData.tests || [];
-                    } else {
-                        alert('Dosya formatı hatalı! Lütfen geçerli bir JSON dosyası seçin.');
-                        return;
-                    }
+                    const importedQuestions = importedData.questions || [];
+                    const importedTests = importedData.tests || [];
                     
-                    if (confirm('Mevcut verileriniz silinecek ve yeni verilerle değiştirilecek. Emin misiniz?')) {
-                        questions = importedQuestions;
-                        tests = importedTests;
-                        saveToStorage();
-                        updateUI();
-                        alert('Veriler başarıyla içe aktarıldı!');
+                    if (confirm('Mevcut tüm verileriniz silinecek ve bu dosyadaki verilerle değiştirilecek. Emin misiniz?')) {
+                        const tx = db.transaction([QUESTION_STORE, TEST_STORE], 'readwrite');
+                        const questionStore = tx.objectStore(QUESTION_STORE);
+                        const testStore = tx.objectStore(TEST_STORE);
+
+                        questionStore.clear();
+                        testStore.clear();
+
+                        importedQuestions.forEach(q => questionStore.add(q));
+                        importedTests.forEach(t => testStore.add(t));
+
+                        tx.oncomplete = () => {
+                            alert('Veriler başarıyla içe aktarıldı!');
+                            loadData(); // Reload data from DB and update UI
+                        };
+                        tx.onerror = (event) => {
+                            console.error("Import transaction failed:", event.target.error);
+                            alert("Veriler içe aktarılırken bir hata oluştu.");
+                        };
                     }
                 } catch (error) {
-                    console.error("İçe aktarma hatası:", error);
+                    console.error("Import error:", error);
                     alert('Dosya formatı hatalı! Lütfen geçerli bir JSON dosyası seçin.');
                 }
             };
             reader.readAsText(file);
         }
 
-        window.addEventListener('load', function() {
-            loadTheme();
-            loadData();
+        window.addEventListener('load', async function() {
+            try {
+                await initDB();
+                loadTheme();
+                await loadData();
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                alert("Uygulama başlatılamadı. Veritabanı hatası.");
+            }
         });
+        
+        // --- UI & Other Functions (Mostly unchanged) ---
+
+        function updateQuestionGrid(filteredQuestions = questions) {
+            const grid = document.getElementById('questionGrid');
+            grid.innerHTML = '';
+            if (filteredQuestions.length === 0) {
+                grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><h3>${questions.length === 0 ? 'Henüz soru eklenmedi' : 'Filtrelemeye uyan soru bulunamadı'}</h3><p>${questions.length === 0 ? 'Yukarıdan soru görseli yükleyerek başlayın!' : 'Filtreleri değiştirerek yeniden deneyin.'}</p></div>`;
+                return;
+            }
+            filteredQuestions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            filteredQuestions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.onclick = () => openModal(q.id);
+                let solutionIndicator = q.solution ? `<span class="question-solution-indicator">Çözüm Var</span>` : '';
+                let repeatTag = '';
+                if (q.repeatDate) {
+                    const today = new Date().toISOString().split('T')[0];
+                    if (q.repeatDate <= today) {
+                        repeatTag = `<span class="tag tag-tekrar">Bugün Tekrar Et!</span>`;
+                    }
+                }
+                card.innerHTML = `<button class="delete-btn" onclick="event.stopPropagation(); deleteQuestionFromCard('${q.id}')">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>${repeatTag}</div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
+                grid.appendChild(card);
+            });
+        }
+        function updateRepeatQuestions() {
+            const repeatGrid = document.getElementById('repeatQuestionGrid');
+            const today = new Date().toISOString().split('T')[0];
+            const repeatQuestions = questions.filter(q => q.repeatDate && q.repeatDate <= today);
+            repeatGrid.innerHTML = '';
+            if (repeatQuestions.length === 0) {
+                repeatGrid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎉</div><h3>Bugün tekrar etmen gereken soru yok!</h3><p>Tekrar tarihi belirlediğin sorular burada görünecek.</p></div>`;
+                return;
+            }
+            repeatQuestions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.onclick = () => openModal(q.id);
+                let solutionIndicator = q.solution ? `<span class="question-solution-indicator">Çözüm Var</span>` : '';
+                card.innerHTML = `<button class="delete-btn" onclick="event.stopPropagation(); deleteQuestionFromCard('${q.id}')">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span><span class="tag tag-tekrar">Bugün Tekrar Et!</span></div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
+                repeatGrid.appendChild(card);
+            });
+        }
+        function updateStats() {
+            document.getElementById('totalQuestions').innerText = questions.length;
+            document.getElementById('tytQuestions').innerText = questions.filter(q => q.sinav === 'TYT').length;
+            document.getElementById('aytQuestions').innerText = questions.filter(q => q.sinav === 'AYT').length;
+            document.getElementById('todayQuestions').innerText = questions.filter(q => q.date.split('T')[0] === new Date().toISOString().split('T')[0]).length;
+            document.getElementById('solvedQuestions').innerText = questions.filter(q => q.durum === 'cozuldu').length;
+            document.getElementById('hardQuestions').innerText = questions.filter(q => q.zorluk === 'zor').length;
+        }
+        function updateFilterOptions() {
+            const filterBrans = document.getElementById('filterBrans');
+            const currentFilter = filterBrans.value;
+            filterBrans.innerHTML = '<option value="">Tümü</option>';
+            const uniqueBrans = [...new Set(questions.map(q => q.brans))].sort();
+            uniqueBrans.forEach(brans => {
+                const option = document.createElement('option');
+                option.value = brans;
+                option.text = brans;
+                filterBrans.appendChild(option);
+            });
+            filterBrans.value = currentFilter;
+        }
+        function applyFilters() {
+            const filterSinav = document.getElementById('filterSinav').value;
+            const filterBrans = document.getElementById('filterBrans').value;
+            const filterDurum = document.getElementById('filterDurum').value;
+            const filterZorluk = document.getElementById('filterZorluk').value;
+            const filterSearchText = document.getElementById('filterSearchText').value.toLowerCase();
+            const filtered = questions.filter(q => 
+                (!filterSinav || q.sinav === filterSinav) &&
+                (!filterBrans || q.brans === filterBrans) &&
+                (!filterDurum || q.durum === filterDurum) &&
+                (!filterZorluk || q.zorluk === filterZorluk) &&
+                (!filterSearchText || q.konu.toLowerCase().includes(filterSearchText) || q.yorum.toLowerCase().includes(filterSearchText) || q.kaynak.toLowerCase().includes(filterSearchText))
+            );
+            updateQuestionGrid(filtered);
+        }
+        function clearFilters() {
+            document.getElementById('filterSinav').value = '';
+            document.getElementById('filterBrans').value = '';
+            document.getElementById('filterDurum').value = '';
+            document.getElementById('filterZorluk').value = '';
+            document.getElementById('filterSearchText').value = '';
+            applyFilters();
+        }
+        function openModal(id) {
+            const question = questions.find(q => q.id === id);
+            if (!question) return;
+            currentQuestionId = id;
+            document.getElementById('modalTitle').innerText = `${question.brans} - ${question.konu}`;
+            document.getElementById('modalDate').innerText = `Eklenme Tarihi: ${new Date(question.date).toLocaleDateString()}`;
+            document.getElementById('modalImage').src = question.image;
+            document.getElementById('modalImage').onclick = () => openFullscreenModal(question.image);
+            document.getElementById('modalSource').innerText = question.kaynak || 'Belirtilmemiş';
+            document.getElementById('modalComment').innerText = question.yorum || 'Not yok.';
+            document.getElementById('modalDurumSelect').value = question.durum;
+            const solutionImage = document.getElementById('solutionImage');
+            const noSolutionText = document.getElementById('noSolutionText');
+            if (question.solution) {
+                solutionImage.src = question.solution;
+                solutionImage.style.display = 'block';
+                noSolutionText.style.display = 'none';
+                solutionImage.onclick = () => openFullscreenModal(question.solution);
+            } else {
+                solutionImage.style.display = 'none';
+                noSolutionText.style.display = 'block';
+            }
+            const modalTags = document.getElementById('modalTags');
+            modalTags.innerHTML = `<span class="tag tag-sinav">${question.sinav}</span><span class="tag tag-brans">${question.brans}</span><span class="tag tag-zorluk ${question.zorluk}">${question.zorluk}</span><span class="tag tag-durum ${question.durum}">${question.durum === 'cozulmedi' ? 'Çözülmedi' : (question.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>`;
+            if (question.repeatDate) {
+                modalTags.innerHTML += `<span class="tag tag-tekrar">Tekrar Tarihi: ${question.repeatDate}</span>`;
+            }
+            document.getElementById('myModal').style.display = 'flex';
+        }
+        function closeModal() { document.getElementById('myModal').style.display = 'none'; }
+        function openFullscreenModal(imageSrc) {
+            document.getElementById('fullscreenModalContent').src = imageSrc;
+            document.getElementById('fullscreenModal').style.display = 'flex';
+        }
+        function closeFullscreenModal() { document.getElementById('fullscreenModal').style.display = 'none'; }
+        function toggleMenu() { document.getElementById('navMenu').classList.toggle('active'); }
+        function showPage(pageId) {
+            document.querySelectorAll('.tab-content').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            toggleMenu();
+            if (pageId === 'questionPage') {
+                updateQuestionGrid(); updateStats(); updateFilterOptions(); drawCharts(); updateRepeatQuestions();
+            } else if (pageId === 'testPage') {
+                updateTestUI();
+            }
+        }
+        function updateTestUI() {
+            const testListContainer = document.getElementById('testListContainer');
+            testListContainer.innerHTML = '';
+            if (tests.length === 0) {
+                 testListContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📊</div><h3>Henüz deneme sonucu eklenmedi</h3><p>Yukarıdan deneme sonucunu ekleyerek başlayın!</p></div>`;
+            } else {
+                 tests.sort((a,b) => new Date(b.date) - new Date(a.date));
+                 tests.forEach(test => {
+                    const listItem = document.createElement('div');
+                    listItem.className = 'test-list-item';
+                    listItem.innerHTML = `<div class="test-info"><strong>${test.name}</strong> (${test.type})<div class="date">${new Date(test.date).toLocaleDateString()}</div></div><div class="test-net">${test.totalNet.toFixed(2)} Net</div>`;
+                    testListContainer.appendChild(listItem);
+                 });
+            }
+            drawTestCharts();
+            updateTestStats();
+        }
+        function updateTestStats() {
+            const tytTests = tests.filter(t => t.type === 'TYT');
+            const aytTests = tests.filter(t => t.type === 'AYT');
+            const tytNets = tytTests.map(t => t.totalNet);
+            const aytNets = aytTests.map(t => t.totalNet);
+            document.getElementById('tytAverageNet').innerText = tytNets.length > 0 ? (tytNets.reduce((a, b) => a + b, 0) / tytNets.length).toFixed(2) : 0;
+            document.getElementById('tytBestNet').innerText = tytNets.length > 0 ? Math.max(...tytNets).toFixed(2) : 0;
+            document.getElementById('aytAverageNet').innerText = aytNets.length > 0 ? (aytNets.reduce((a, b) => a + b, 0) / aytNets.length).toFixed(2) : 0;
+            document.getElementById('aytBestNet').innerText = aytNets.length > 0 ? Math.max(...aytNets).toFixed(2) : 0;
+        }
+        function drawCharts() {
+            const bransData = {}, zorlukData = {};
+            questions.forEach(q => {
+                bransData[q.brans] = (bransData[q.brans] || 0) + 1;
+                zorlukData[q.zorluk] = (zorlukData[q.zorluk] || 0) + 1;
+            });
+            const commonOptions = { responsive: true, maintainAspectRatio: false };
+            if (bransChart) bransChart.destroy();
+            bransChart = new Chart(document.getElementById('bransChart').getContext('2d'), { type: 'pie', data: { labels: Object.keys(bransData), datasets: [{ data: Object.values(bransData), backgroundColor: ['#4299e1', '#48bb78', '#f6ad55', '#e53e3e', '#ecc94b', '#9f7aea', '#ed64a6'] }] }, options: commonOptions });
+            if (zorlukChart) zorlukChart.destroy();
+            zorlukChart = new Chart(document.getElementById('zorlukChart').getContext('2d'), { type: 'pie', data: { labels: Object.keys(zorlukData), datasets: [{ data: Object.values(zorlukData), backgroundColor: ['#48bb78', '#f6ad55', '#e53e3e'] }] }, options: commonOptions });
+        }
+        function drawTestCharts() {
+            const chartConfigs = {
+                tytTotalChart: { type: 'TYT', dataKey: 'totalNet', label: 'TYT Toplam Net', color: '#667eea' },
+                aytTotalChart: { type: 'AYT', dataKey: 'totalNet', label: 'AYT Toplam Net', color: '#764ba2' },
+                tytMatChart: { type: 'TYT', dataKey: 'results.tytMat.net', label: 'TYT Mat Net', color: '#4a5568' },
+                tytTurkceChart: { type: 'TYT', dataKey: 'results.tytTurkce.net', label: 'TYT Türkçe Net', color: '#e53e3e' },
+                aytMatChart: { type: 'AYT', dataKey: 'results.aytMat.net', label: 'AYT Mat Net', color: '#4a5568' },
+                aytFizikChart: { type: 'AYT', dataKey: 'results.aytFizik.net', label: 'AYT Fizik Net', color: '#4299e1' },
+                aytKimyaChart: { type: 'AYT', dataKey: 'results.aytKimya.net', label: 'AYT Kimya Net', color: '#f6ad55' },
+                aytBiyolojiChart: { type: 'AYT', dataKey: 'results.aytBiyoloji.net', label: 'AYT Biyoloji Net', color: '#48bb78' },
+            };
+            const allCharts = { tytTotalChart, aytTotalChart, tytMatChart, tytTurkceChart, aytMatChart, aytFizikChart, aytKimyaChart, aytBiyolojiChart };
+
+            for (const [chartId, config] of Object.entries(chartConfigs)) {
+                const relevantTests = tests.filter(t => t.type === config.type).sort((a, b) => new Date(a.date) - new Date(b.date));
+                const labels = relevantTests.map(t => t.name);
+                const data = relevantTests.map(t => {
+                    const keys = config.dataKey.split('.');
+                    let value = t;
+                    for (const key of keys) { value = value ? value[key] : 0; }
+                    return (value || 0).toFixed(2);
+                });
+
+                if (allCharts[chartId]) allCharts[chartId].destroy();
+                allCharts[chartId] = new Chart(document.getElementById(chartId).getContext('2d'), {
+                    type: 'line',
+                    data: { labels: labels, datasets: [{ label: config.label, data: data, borderColor: config.color, tension: 0.3 }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        }
+        document.getElementById('testType').addEventListener('change', (e) => {
+            document.getElementById('tytTestInputs').style.display = e.target.value === 'TYT' ? 'block' : 'none';
+            document.getElementById('aytTestInputs').style.display = e.target.value === 'AYT' ? 'block' : 'none';
+        });
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            document.getElementById('darkModeToggle').innerText = isDarkMode ? '🌙' : '☀️';
+            drawCharts(); drawTestCharts();
+        });
+        function loadTheme() {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('darkModeToggle').innerText = '🌙';
+            }
+        }
+        function setWeeklyGoal() {
+            const goal = parseInt(document.getElementById('weeklyGoalInput').value);
+            if (isNaN(goal) || goal <= 0) { alert('Lütfen geçerli bir hedef girin.'); return; }
+            localStorage.setItem('weeklyQuestionGoal', goal);
+            alert(`Haftalık soru hedefiniz ${goal} olarak belirlendi!`);
+            updateWeeklyGoalStatus();
+        }
+        function updateWeeklyGoalStatus() {
+            const goal = parseInt(localStorage.getItem('weeklyQuestionGoal') || 0);
+            const startOfWeek = new Date();
+            startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() + 6) % 7);
+            startOfWeek.setHours(0, 0, 0, 0);
+            const weeklyQuestions = questions.filter(q => new Date(q.date) >= startOfWeek).length;
+            const statusText = document.getElementById('weeklyGoalStatus');
+            if (goal > 0) {
+                statusText.innerHTML = `Hedef: ${goal} | Bu Hafta: ${weeklyQuestions} <br><progress value="${weeklyQuestions}" max="${goal}" style="width: 100%; margin-top: 5px;"></progress>`;
+            } else {
+                statusText.innerText = 'Henüz haftalık hedef belirlenmedi.';
+            }
+        }
+        function checkDailyStreak(questionAdded = false) {
+            const today = new Date().toISOString().split('T')[0];
+            let streak = parseInt(localStorage.getItem('streak') || 0);
+            const lastActiveDay = localStorage.getItem('lastActiveDay');
+            if (questionAdded) {
+                if (lastActiveDay !== today) {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    streak = (lastActiveDay === yesterday.toISOString().split('T')[0]) ? streak + 1 : 1;
+                    localStorage.setItem('lastActiveDay', today);
+                    localStorage.setItem('streak', streak);
+                }
+            }
+            document.getElementById('streakCounter').innerText = streak;
+        }
+
     </script>
 </body>
 </html>
