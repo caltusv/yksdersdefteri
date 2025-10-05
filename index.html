@@ -310,6 +310,12 @@
             transition: border-color 0.3s ease;
             width: 100%;
         }
+        
+        input[disabled] {
+            background-color: var(--upload-area-bg);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
 
         select:focus, input:focus, textarea:focus {
             outline: none;
@@ -801,7 +807,7 @@
         
         .test-input-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1.5fr 0.5fr;
             gap: 15px;
             align-items: center;
         }
@@ -811,10 +817,17 @@
         }
 
         .test-input-grid .input-group {
-            display: flex;
-            align-items: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
-            grid-column: 2 / 4;
+            grid-column: 2 / 3;
+        }
+
+        .test-input-grid .btn-add-subject {
+            grid-column: 3 / 4;
+            padding: 10px;
+            font-size: 0.8rem;
+            margin-top: 0;
         }
 
         .test-input-grid input {
@@ -935,7 +948,6 @@
             cursor: pointer;
         }
 
-        /* --- YENİ EKLENEN CSS --- */
         .test-delete-btn {
             position: absolute;
             top: 50%;
@@ -965,6 +977,52 @@
         .test-delete-btn:hover {
             background: rgba(255, 0, 0, 1);
             transform: translateY(-50%) scale(1.1);
+        }
+
+        /* YENİ EKLENEN CSS */
+        .total-questions-settings {
+            background: var(--test-results-bg);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .total-questions-settings h4 {
+            margin-bottom: 15px;
+            color: var(--section-title-color);
+        }
+        .total-questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .total-q-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .total-q-group label {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .total-q-group input {
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+        #subjectTagsContainer .tag {
+            cursor: pointer;
+            position: relative;
+            padding-right: 25px;
+            background-color: var(--tag-konu-bg);
+            color: var(--tag-konu-text);
+        }
+
+        #subjectTagsContainer .tag::after {
+            content: '×';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
         }
 
     </style>
@@ -1199,65 +1257,113 @@
                     <label for="testName">Deneme Adı</label>
                     <input type="text" id="testName" placeholder="Örn: 3D Yayınları Deneme 5">
                 </div>
+                
+                <div class="total-questions-settings">
+                    <h4>📝 Derslerin Toplam Soru Sayıları</h4>
+                    <div id="tytTotalQuestions" class="total-questions-grid">
+                        <div class="total-q-group"><label>Matematik</label><input type="number" class="total-q-input" data-lesson="tytMat" id="tytMatToplam" value="40"></div>
+                        <div class="total-q-group"><label>Türkçe</label><input type="number" class="total-q-input" data-lesson="tytTurkce" id="tytTurkceToplam" value="40"></div>
+                        <div class="total-q-group"><label>Sosyal</label><input type="number" class="total-q-input" data-lesson="tytSosyal" id="tytSosyalToplam" value="20"></div>
+                        <div class="total-q-group"><label>Fen</label><input type="number" class="total-q-input" data-lesson="tytFen" id="tytFenToplam" value="20"></div>
+                    </div>
+                    <div id="aytTotalQuestions" class="total-questions-grid" style="display: none;">
+                        <div class="total-q-group"><label>Matematik</label><input type="number" class="total-q-input" data-lesson="aytMat" id="aytMatToplam" value="40"></div>
+                        <div class="total-q-group"><label>Fizik</label><input type="number" class="total-q-input" data-lesson="aytFizik" id="aytFizikToplam" value="14"></div>
+                        <div class="total-q-group"><label>Kimya</label><input type="number" class="total-q-input" data-lesson="aytKimya" id="aytKimyaToplam" value="13"></div>
+                        <div class="total-q-group"><label>Biyoloji</label><input type="number" class="total-q-input" data-lesson="aytBiyoloji" id="aytBiyolojiToplam" value="13"></div>
+                        <div class="total-q-group"><label>Edebiyat</label><input type="number" class="total-q-input" data-lesson="aytEdebiyat" id="aytEdebiyatToplam" value="24"></div>
+                        <div class="total-q-group"><label>Coğrafya</label><input type="number" class="total-q-input" data-lesson="aytCografya" id="aytCografyaToplam" value="6"></div>
+                    </div>
+                </div>
+
                 <hr style="margin: 20px 0; border: none; border-top: 1px dashed var(--section-border-color);">
+
                 <div id="tytTestInputs" class="test-inputs">
                     <h3>TYT Dersleri</h3>
                     <div class="test-input-grid">
                         <label>Matematik</label>
                         <div class="input-group">
-                            <input type="number" id="tytMatDogru" placeholder="Doğru">
-                            <input type="number" id="tytMatYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="tytMat" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="tytMat" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="tytMat" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="tytMat">Konu Ekle</button>
+                        
                         <label>Türkçe</label>
                         <div class="input-group">
-                            <input type="number" id="tytTurkceDogru" placeholder="Doğru">
-                            <input type="number" id="tytTurkceYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="tytTurkce" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="tytTurkce" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="tytTurkce" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="tytTurkce">Konu Ekle</button>
+
                         <label>Sosyal</label>
                         <div class="input-group">
-                            <input type="number" id="tytSosyalDogru" placeholder="Doğru">
-                            <input type="number" id="tytSosyalYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="tytSosyal" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="tytSosyal" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="tytSosyal" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="tytSosyal">Konu Ekle</button>
+                        
                         <label>Fen</label>
                         <div class="input-group">
-                            <input type="number" id="tytFenDogru" placeholder="Doğru">
-                            <input type="number" id="tytFenYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="tytFen" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="tytFen" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="tytFen" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="tytFen">Konu Ekle</button>
                     </div>
                 </div>
                 <div id="aytTestInputs" class="test-inputs" style="display: none;">
                     <h3>AYT Dersleri</h3>
                     <div class="test-input-grid">
-                        <label>Matematik</label>
+                         <label>Matematik</label>
                         <div class="input-group">
-                            <input type="number" id="aytMatDogru" placeholder="Doğru">
-                            <input type="number" id="aytMatYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytMat" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="aytMat" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytMat" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytMat">Konu Ekle</button>
+                        
                         <label>Fizik</label>
                         <div class="input-group">
-                            <input type="number" id="aytFizikDogru" placeholder="Doğru">
-                            <input type="number" id="aytFizikYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytFizik" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="aytFizik" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytFizik" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytFizik">Konu Ekle</button>
+                        
                         <label>Kimya</label>
                         <div class="input-group">
-                            <input type="number" id="aytKimyaDogru" placeholder="Doğru">
-                            <input type="number" id="aytKimyaYanlis" placeholder="Yanlış">
+                           <input type="number" data-lesson="aytKimya" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="aytKimya" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytKimya" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytKimya">Konu Ekle</button>
+                        
                         <label>Biyoloji</label>
                         <div class="input-group">
-                            <input type="number" id="aytBiyolojiDogru" placeholder="Doğru">
-                            <input type="number" id="aytBiyolojiYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytBiyoloji" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="aytBiyoloji" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytBiyoloji" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytBiyoloji">Konu Ekle</button>
+                        
                         <label>Edebiyat</label>
                         <div class="input-group">
-                            <input type="number" id="aytEdebiyatDogru" placeholder="Doğru">
-                            <input type="number" id="aytEdebiyatYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytEdebiyat" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="aytEdebiyat" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytEdebiyat" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytEdebiyat">Konu Ekle</button>
+                        
                         <label>Coğrafya</label>
                         <div class="input-group">
-                            <input type="number" id="aytCografyaDogru" placeholder="Doğru">
-                            <input type="number" id="aytCografyaYanlis" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytCografya" class="dogru-input count-input" placeholder="Doğru">
+                            <input type="number" data-lesson="aytCografya" class="yanlis-input count-input" placeholder="Yanlış">
+                            <input type="number" data-lesson="aytCografya" class="bos-display" placeholder="Boş" disabled>
                         </div>
+                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytCografya">Konu Ekle</button>
                     </div>
                 </div>
                 <button class="btn btn-primary" id="btnSaveTestResult">💾 Deneme Sonucunu Kaydet</button>
@@ -1371,6 +1477,37 @@
         <img id="fullscreenModalContent">
     </div>
 
+    <div id="subjectModal" class="modal" style="align-items: flex-start; padding-top: 5%;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <span class="close" id="subjectModalCloseBtn">&times;</span>
+                <h2 class="modal-title" id="subjectModalTitle">Konu Ekle</h2>
+            </div>
+            <div class="modal-body" style="grid-template-columns: 1fr; padding: 20px;">
+                <p id="subjectModalInfo">Lütfen bu dersteki toplam <strong id="mistakeCount">0</strong> adet boş veya yanlış konunuzu girin.</p>
+                <div class="form-group">
+                    <label for="subjectInput">Konu Adı (Enter'a basarak ekleyin)</label>
+                    <input type="text" id="subjectInput" placeholder="Örn: Trigonometri, Limit, Ses Bilgisi...">
+                </div>
+                <div id="subjectTagsContainer" class="modal-tags" style="margin-top: 15px; border: 1px solid var(--input-border); padding: 10px; border-radius: 10px; min-height: 50px;">
+                    </div>
+                <button id="saveSubjectsBtn" class="btn btn-primary" style="margin-top: 20px;">Konuları Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="testDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <span class="close" id="testDetailModalCloseBtn">&times;</span>
+                <h2 class="modal-title" id="testDetailModalTitle">Deneme Detayları</h2>
+                <p class="modal-subtitle" id="testDetailModalDate"></p>
+            </div>
+            <div class="modal-body" id="testDetailModalBody" style="grid-template-columns: 1fr; padding: 25px; max-height: 70vh; overflow-y: auto;">
+                </div>
+        </div>
+    </div>
+
     <script>
         // --- IndexedDB Setup ---
         let db;
@@ -1451,6 +1588,7 @@
         let questions = [];
         let tests = [];
         let currentQuestionId = null;
+        let tempMistakeSubjects = {}; // Deneme konularını geçici olarak tutmak için
         let bransChart, zorlukChart, tytTotalChart, aytTotalChart;
         let tytMatChart, tytTurkceChart, aytMatChart, aytFizikChart, aytKimyaChart, aytBiyolojiChart;
 
@@ -1556,12 +1694,32 @@
             };
 
             let totalNet = 0;
+            let formIsValid = true;
             sections[testType].forEach(section => {
-                const dogru = parseFloat(document.getElementById(`${section}Dogru`).value) || 0;
-                const yanlis = parseFloat(document.getElementById(`${section}Yanlis`).value) || 0;
-                testResult.results[section] = { dogru, yanlis, net: dogru - (yanlis / 4) };
-                totalNet += testResult.results[section].net;
+                const total = parseInt(document.getElementById(`${section}Toplam`).value) || 0;
+                const dogru = parseInt(document.querySelector(`.dogru-input[data-lesson='${section}']`).value) || 0;
+                const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${section}']`).value) || 0;
+                
+                if (dogru + yanlis > total) {
+                    alert(`${section} dersi için doğru ve yanlış sayısı toplam soru sayısından fazla olamaz!`);
+                    formIsValid = false;
+                    return;
+                }
+
+                const bos = total - (dogru + yanlis);
+                const net = dogru - (yanlis / 4);
+
+                testResult.results[section] = { 
+                    dogru, 
+                    yanlis, 
+                    bos,
+                    net,
+                    mistakeSubjects: tempMistakeSubjects[section] || []
+                };
+                totalNet += net;
             });
+
+            if (!formIsValid) return;
 
             testResult.totalNet = totalNet;
             
@@ -1570,11 +1728,15 @@
                 tests.push(testResult);
                 updateTestUI();
 
+                // Formu temizle
                 document.getElementById('testName').value = '';
                 sections[testType].forEach(section => {
-                    document.getElementById(`${section}Dogru`).value = '';
-                    document.getElementById(`${section}Yanlis`).value = '';
+                    document.querySelector(`.dogru-input[data-lesson='${section}']`).value = '';
+                    document.querySelector(`.yanlis-input[data-lesson='${section}']`).value = '';
+                    updateCounts(section); // Boş'ları da temizlemek için
                 });
+                tempMistakeSubjects = {};
+
             } catch (error) {
                 console.error("Failed to save test result:", error);
                 alert("Deneme sonucu kaydedilemedi.");
@@ -1647,7 +1809,6 @@
             }
         }
 
-        // --- YENİ EKLENEN FONKSİYON ---
         async function deleteTest(id) {
             if (!confirm('Bu deneme sonucunu kalıcı olarak silmek istediğinizden emin misiniz?')) {
                 return; 
@@ -1731,8 +1892,6 @@
             reader.readAsText(file);
         }
         
-        // --- UI & Other Functions (Mostly unchanged) ---
-
         function updateQuestionGrid(filteredQuestions = questions) {
             const grid = document.getElementById('questionGrid');
             grid.innerHTML = '';
@@ -1864,7 +2023,6 @@
             }
         }
         
-        // --- DEĞİŞİKLİK: updateTestUI FONKSİYONU GÜNCELLENDİ ---
         function updateTestUI() {
             const testListContainer = document.getElementById('testListContainer');
             testListContainer.innerHTML = '';
@@ -1875,7 +2033,7 @@
                  tests.forEach(test => {
                     const listItem = document.createElement('div');
                     listItem.className = 'test-list-item';
-                    // Silme butonu HTML'e eklendi
+                    listItem.dataset.testid = test.id;
                     listItem.innerHTML = `
                         <button class="test-delete-btn" data-testid="${test.id}">&times;</button>
                         <div class="test-info">
@@ -1932,8 +2090,8 @@
                 const data = relevantTests.map(t => {
                     const keys = config.dataKey.split('.');
                     let value = t;
-                    for (const key of keys) { value = value ? value[key] : 0; }
-                    return (value || 0).toFixed(2);
+                    for (const key of keys) { value = value ? value[key] : undefined; }
+                    return (value !== undefined ? value.toFixed(2) : 0);
                 });
 
                 if (allCharts[chartId]) allCharts[chartId].destroy();
@@ -1945,8 +2103,11 @@
             }
         }
         document.getElementById('testType').addEventListener('change', (e) => {
-            document.getElementById('tytTestInputs').style.display = e.target.value === 'TYT' ? 'block' : 'none';
-            document.getElementById('aytTestInputs').style.display = e.target.value === 'AYT' ? 'block' : 'none';
+            const isTYT = e.target.value === 'TYT';
+            document.getElementById('tytTestInputs').style.display = isTYT ? 'block' : 'none';
+            document.getElementById('aytTestInputs').style.display = isTYT ? 'none' : 'block';
+            document.getElementById('tytTotalQuestions').style.display = isTYT ? 'grid' : 'none';
+            document.getElementById('aytTotalQuestions').style.display = isTYT ? 'none' : 'grid';
         });
         function loadTheme() {
             if (localStorage.getItem('darkMode') === 'true') {
@@ -1990,6 +2151,119 @@
             document.getElementById('streakCounter').innerText = streak;
         }
 
+        // YENİ FONKSİYONLAR
+        function updateCounts(lesson) {
+            const totalInput = document.getElementById(`${lesson}Toplam`);
+            const dogruInput = document.querySelector(`.dogru-input[data-lesson='${lesson}']`);
+            const yanlisInput = document.querySelector(`.yanlis-input[data-lesson='${lesson}']`);
+            const bosDisplay = document.querySelector(`.bos-display[data-lesson='${lesson}']`);
+
+            const total = parseInt(totalInput.value) || 0;
+            const dogru = parseInt(dogruInput.value) || 0;
+            const yanlis = parseInt(yanlisInput.value) || 0;
+
+            if (dogru + yanlis > total) {
+                yanlisInput.style.borderColor = 'red';
+            } else {
+                yanlisInput.style.borderColor = ''; // Stili sıfırla
+            }
+            
+            const bos = Math.max(0, total - (dogru + yanlis));
+            bosDisplay.value = bos;
+        }
+
+        let currentLessonForSubjects = null; 
+
+        function openSubjectModal(lesson) {
+            currentLessonForSubjects = lesson;
+            const lessonLabel = document.querySelector(`.test-input-grid label[for='${lesson}Dogru']`)?.innerText || lesson;
+            
+            const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${lesson}']`).value) || 0;
+            const bos = parseInt(document.querySelector(`.bos-display[data-lesson='${lesson}']`).value) || 0;
+            const totalMistakes = yanlis + bos;
+
+            if (totalMistakes === 0) {
+                alert("Bu derste boş veya yanlışınız bulunmuyor. Konu ekleyemezsiniz.");
+                return;
+            }
+
+            document.getElementById('subjectModalTitle').innerText = `${lessonLabel} - Hatalı Konular`;
+            document.getElementById('mistakeCount').innerText = totalMistakes;
+            
+            updateSubjectTags();
+            
+            document.getElementById('subjectModal').style.display = 'flex';
+            document.getElementById('subjectInput').focus();
+        }
+
+        function closeSubjectModal() {
+            document.getElementById('subjectModal').style.display = 'none';
+        }
+
+        function updateSubjectTags() {
+            const container = document.getElementById('subjectTagsContainer');
+            container.innerHTML = '';
+            const subjects = tempMistakeSubjects[currentLessonForSubjects] || [];
+            subjects.forEach(subject => {
+                const tag = document.createElement('span');
+                tag.className = 'tag';
+                tag.innerText = subject;
+                tag.onclick = () => removeSubject(subject);
+                container.appendChild(tag);
+            });
+        }
+
+        function addSubject(subject) {
+            if (!subject.trim()) return;
+            if (!tempMistakeSubjects[currentLessonForSubjects]) {
+                tempMistakeSubjects[currentLessonForSubjects] = [];
+            }
+            const subjects = tempMistakeSubjects[currentLessonForSubjects];
+            const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${currentLessonForSubjects}']`).value) || 0;
+            const bos = parseInt(document.querySelector(`.bos-display[data-lesson='${currentLessonForSubjects}']`).value) || 0;
+            const totalMistakes = yanlis + bos;
+
+            if (subjects.length >= totalMistakes) {
+                alert(`Maksimum ${totalMistakes} konu ekleyebilirsiniz.`);
+                return;
+            }
+            if (!subjects.includes(subject.trim())) {
+                subjects.push(subject.trim());
+            }
+            updateSubjectTags();
+        }
+
+        function removeSubject(subject) {
+            const subjects = tempMistakeSubjects[currentLessonForSubjects] || [];
+            const index = subjects.indexOf(subject);
+            if (index > -1) subjects.splice(index, 1);
+            updateSubjectTags();
+        }
+
+        function openTestDetailModal(testId) {
+            const test = tests.find(t => t.id === testId);
+            if (!test) return;
+            document.getElementById('testDetailModalTitle').innerText = test.name;
+            document.getElementById('testDetailModalDate').innerText = `Tarih: ${new Date(test.date).toLocaleDateString()}`;
+            const body = document.getElementById('testDetailModalBody');
+            body.innerHTML = '';
+            for (const lesson in test.results) {
+                const data = test.results[lesson];
+                const lessonName = (document.querySelector(`label[for='${lesson}Dogru']`)?.innerText || lesson.replace('tyt', 'TYT ').replace('ayt', 'AYT '));
+                let subjectsHTML = '<p><em>Hatalı konu eklenmemiş.</em></p>';
+                if (data.mistakeSubjects && data.mistakeSubjects.length > 0) {
+                    subjectsHTML = data.mistakeSubjects.map(s => `<span class="tag tag-konu">${s}</span>`).join('');
+                }
+                const detailHTML = `<div class="detail-section"><div class="detail-title">${lessonName}</div><div class="detail-content" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;"><div><strong>Doğru:</strong> ${data.dogru}</div><div><strong>Yanlış:</strong> ${data.yanlis}</div><div><strong>Boş:</strong> ${data.bos}</div><div><strong>Net:</strong> ${data.net.toFixed(2)}</div></div><h4 style="margin-top: 15px; margin-bottom: 10px; color: var(--section-title-color);">Boş/Yanlış Konuları</h4><div class="modal-tags">${subjectsHTML}</div></div><hr style="border-top: 1px dashed var(--section-border-color); margin: 20px 0;">`;
+                body.innerHTML += detailHTML;
+            }
+            document.getElementById('testDetailModal').style.display = 'flex';
+        }
+
+        function closeTestDetailModal() {
+            document.getElementById('testDetailModal').style.display = 'none';
+        }
+
         // --- Add Event Listeners ---
         function addEventListeners() {
             document.getElementById('hamburgerMenu').addEventListener('click', toggleMenu);
@@ -2017,7 +2291,6 @@
             
             const filterInputs = ['filterSearchText', 'filterSinav', 'filterBrans', 'filterDurum', 'filterZorluk'];
             filterInputs.forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
-
 
             document.getElementById('btnSetGoal').addEventListener('click', setWeeklyGoal);
             document.getElementById('btnSaveTestResult').addEventListener('click', saveTestResult);
@@ -2054,12 +2327,36 @@
                     openModal(card.dataset.questionId);
                 }
             });
+            
+            // YENİ Event Listeners
+            document.querySelectorAll('.count-input, .total-q-input').forEach(input => {
+                input.addEventListener('input', () => updateCounts(input.dataset.lesson));
+            });
+            document.getElementById('testPage').addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-add-subject')) {
+                    openSubjectModal(e.target.dataset.lesson);
+                }
+            });
+            document.getElementById('subjectModalCloseBtn').addEventListener('click', closeSubjectModal);
+            document.getElementById('saveSubjectsBtn').addEventListener('click', closeSubjectModal);
+            document.getElementById('subjectInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSubject(e.target.value);
+                    e.target.value = '';
+                }
+            });
+            document.getElementById('testDetailModalCloseBtn').addEventListener('click', closeTestDetailModal);
 
-            // --- YENİ EKLENEN OLAY DİNLEYİCİ ---
             document.getElementById('testListContainer').addEventListener('click', (e) => {
-                if (e.target.classList.contains('test-delete-btn')) {
-                    const testId = e.target.dataset.testid;
-                    deleteTest(testId);
+                const deleteBtn = e.target.closest('.test-delete-btn');
+                if (deleteBtn) {
+                    deleteTest(deleteBtn.dataset.testid);
+                    return;
+                }
+                const testItem = e.target.closest('.test-list-item');
+                if (testItem) {
+                    openTestDetailModal(testItem.dataset.testid);
                 }
             });
         }
