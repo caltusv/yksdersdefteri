@@ -1,3 +1,25 @@
+Harika bir fikir\! Bu, arayüzü çok daha temiz ve kullanışlı hale getirecektir. Filtreleri kaldırıp, odak noktasını ders sekmelerine ve sıralamaya vermek, "hata defteri" deneyimini daha akıcı yapar.
+
+İsteklerinizi tam olarak uyguladım ve tüm değişiklikleri tek bir dosyada birleştirdim.
+
+### Yaptığım Değişikliklerin Dökümü:
+
+1.  **Filtre Paneli Kaldırıldı:** Sol taraftaki "Filtreleme" bölümü (Genel Arama, Sınav Oturumu, Durum, Zorluk) isteğiniz üzerine **tamamen kaldırıldı**. Bu, arayüzü müthiş sadeleştirdi.
+2.  **Sıralama Özelliği Eklendi:** Soru galerisindeki ders sekmelerinin hemen altına "Sırala" adında bir açılır menü (dropdown) ekledim. Artık sorularınızı şu kriterlere göre sıralayabilirsiniz:
+      * Tarih (Yeniden Eskiye) - *Varsayılan*
+      * Tarih (Eskiden Yeniye)
+      * Zorluk (Zordan Kolaya)
+      * Zorluk (Kolaydan Zora)
+3.  **"Tekrar Et" Bölümü Temizlendi:** Bir önceki isteğinizde belirttiğiniz gibi "Tekrar Et" bölümünü hem arayüzden (soru ekleme formundaki "Tekrar Tarihi") hem de kodun her yerinden (kayıt, görüntüleme vb.) tamamen kaldırdım.
+4.  **"En Çok Hata Yapılan Konular" Paneli:** Bu panel, filtre bölümü kalktığı için artık "Yeni Soru Ekle" panelinin hemen altında, sol sütunda yer alıyor.
+
+Aşağıdaki kod, tüm bu değişiklikleri içeren `index.html` dosyanızın son halidir. Mevcut dosyanızın içeriğini silip bu kodla değiştirmeniz yeterlidir.
+
+-----
+
+### Tamamen Güncellenmiş `index.html` Kodu
+
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -236,7 +258,7 @@
             gap: 30px;
         }
 
-        .upload-section, .filter-section, .test-section, .goals-section, .gallery, .chart-container, .top-subjects-section {
+        .upload-section, .test-section, .goals-section, .gallery, .chart-container, .top-subjects-section {
             background: var(--container-bg);
             border-radius: 20px;
             padding: 25px;
@@ -1025,7 +1047,6 @@
             font-weight: bold;
         }
         
-        /* YENİ: Galeri Sekmeleri CSS */
         .gallery-tabs {
             display: flex;
             flex-wrap: wrap;
@@ -1056,7 +1077,6 @@
             box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
         }
         
-        /* YENİ: Top Konular Paneli CSS */
         .top-subjects-list {
             list-style: none;
             padding: 0;
@@ -1083,6 +1103,28 @@
             font-weight: bold;
             font-size: 1.1rem;
             color: var(--test-results-net-color);
+        }
+
+        /* YENİ: Sıralama Kontrolleri CSS */
+        .sorting-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            margin-top: -10px; /* Sekme boşluğunu telafi et */
+        }
+        .sorting-controls label {
+            font-weight: 600;
+            color: var(--section-title-color);
+            margin-bottom: 0;
+        }
+        .sorting-controls select {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            width: auto;
+            flex-grow: 1;
+            max-width: 300px;
         }
 
 
@@ -1216,52 +1258,6 @@
                         <button class="btn btn-primary" id="btnSaveQuestions">💾 Soruları Kaydet</button>
                     </div>
 
-                    <div class="filter-section">
-                        <h2 class="section-title">🔍 Filtreleme</h2>
-                        <div class="form-group">
-                            <label for="filterSearchText">Genel Arama</label>
-                            <input type="text" id="filterSearchText" placeholder="Konu, yorum veya kaynakta ara...">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Sınav Oturumu</label>
-                                <select id="filterSinav">
-                                    <option value="">Tümü</option>
-                                    <option value="TYT">TYT</option>
-                                    <option value="AYT">AYT</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Branş</label>
-                                <select id="filterBrans">
-                                    <option value="">Tümü</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Durum</label>
-                            <select id="filterDurum">
-                                    <option value="">Tümü</option>
-                                <option value="cozulmedi">❌ Çözülmedi</option>
-                                <option value="yarim">⚠️ Yarım Anladım</option>
-                                <option value="cozuldu">✅ Çözüldü</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Zorluk Seviyesi</label>
-                            <select id="filterZorluk">
-                                <option value="">Tümü</option>
-                                <option value="kolay">🟢 Kolay</option>
-                                <option value="orta">🟡 Orta</option>
-                                <option value="zor">🔴 Zor</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-secondary" id="btnClearFilters">🗑️ Filtreleri Temizle</button>
-                        <button class="btn btn-secondary" id="btnExport" style="margin-left: 10px;">📤 Dışa Aktar</button>
-                        <button class="btn btn-secondary" id="btnImport" style="margin-left: 10px;">📥 İçe Aktar</button>
-                        <input type="file" id="importFile" accept=".json" style="display: none;">
-                    </div>
-
                     <div class="top-subjects-section">
                         <h2 class="section-title">🎯 En Çok Hata Yapılan Konular</h2>
                         <ul class="top-subjects-list" id="topSubjectsList">
@@ -1297,6 +1293,16 @@
                             <span class="gallery-tab" data-brans="Tarih">Tarih</span>
                             <span class="gallery-tab" data-brans="Coğrafya">Coğrafya</span>
                             <span class="gallery-tab" data-brans="Felsefe">Felsefe</span>
+                        </div>
+                        
+                        <div class="sorting-controls">
+                            <label for="sortOrder">Sırala:</label>
+                            <select id="sortOrder">
+                                <option value="date-desc">Tarih (Yeniden Eskiye)</option>
+                                <option value="date-asc">Tarih (Eskiden Yeniye)</option>
+                                <option value="zorluk-desc">Zorluk (Zordan Kolaya)</option>
+                                <option value="zorluk-asc">Zorluk (Kolaydan Zora)</option>
+                            </select>
                         </div>
                         
                         <div class="question-grid" id="questionGrid">
@@ -1587,7 +1593,6 @@
         function initDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
-
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains(QUESTION_STORE)) {
@@ -1597,13 +1602,11 @@
                         db.createObjectStore(TEST_STORE, { keyPath: 'id' });
                     }
                 };
-
                 request.onsuccess = (event) => {
                     db = event.target.result;
                     console.log('Database opened successfully');
                     resolve(db);
                 };
-
                 request.onerror = (event) => {
                     console.error('Database error:', event.target.errorCode);
                     reject(event.target.errorCode);
@@ -1677,12 +1680,11 @@
         }
 
         function updateUI() {
-            applyFilters(); // Soru gridi, filtreler tarafından güncellenir
+            renderGallery(); // Filtre yerine bu fonksiyonu çağırıyoruz
             updateStats();
-            updateFilterOptions();
             drawCharts();
             updateTestUI();
-            updateTopMistakeSubjects(); // Yeni eklendi
+            updateTopMistakeSubjects(); 
         }
         
         async function saveQuestions() {
@@ -1694,42 +1696,87 @@
                 return;
             }
 
+            // 1. Bütün form verilerini döngüden ÖNCE alıyoruz
+            const sinav = document.getElementById('sinavOturumu').value;
+            const brans = document.getElementById('brans').value;
+            const konu = document.getElementById('konu').value;
+            const durum = document.getElementById('durum').value;
+            const zorluk = document.getElementById('zorluk').value;
+            const yorum = document.getElementById('yorum').value;
+            const kaynak = document.getElementById('kaynak').value;
+
+            let saveErrors = 0;
+
             for (const image of images) {
                 const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const newQuestion = {
-                        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-                        image: e.target.result,
-                        sinav: document.getElementById('sinavOturumu').value,
-                        brans: document.getElementById('brans').value,
-                        konu: document.getElementById('konu').value,
-                        durum: document.getElementById('durum').value,
-                        zorluk: document.getElementById('zorluk').value,
-                        yorum: document.getElementById('yorum').value,
-                        kaynak: document.getElementById('kaynak').value,
-                        date: new Date().toISOString(),
-                        solution: null
+                
+                // Her bir resmi kaydetmek için bir Promise oluştur
+                const saveImagePromise = new Promise((resolve, reject) => {
+                    reader.onload = async function(e) {
+                        const newQuestion = {
+                            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                            image: e.target.result,
+                            sinav: sinav,
+                            brans: brans,
+                            konu: konu,
+                            durum: durum,
+                            zorluk: zorluk,
+                            yorum: yorum,
+                            kaynak: kaynak,
+                            date: new Date().toISOString(),
+                            solution: null
+                        };
+
+                        // 2. try...catch bloğunu SADECE veritabanı işlemi için kullan
+                        try {
+                            await addToDB(QUESTION_STORE, newQuestion);
+                            // Başarılıysa, yerel diziye ekle
+                            questions.push(newQuestion); 
+                            resolve(); // Bu resim başarılı
+                        } catch (error) {
+                            console.error("Failed to save question:", error);
+                            reject(error); // Bu resim başarısız
+                        }
+                    };
+                    
+                    reader.onerror = (error) => {
+                        reject(error); // Dosya okuma hatası
                     };
 
-                    try {
-                        await addToDB(QUESTION_STORE, newQuestion);
-                        questions.push(newQuestion); 
-                        
-                        updateUI(); // Her şeyi günceller
-                        
-                        document.getElementById('konu').value = '';
-                        document.getElementById('yorum').value = '';
-                        document.getElementById('kaynak').value = '';
-                        fileInput.value = '';
+                    reader.readAsDataURL(image);
+                });
 
-                        checkDailyStreak(true);
-                        updateWeeklyGoalStatus();
-                    } catch (error) {
-                        console.error("Failed to save question:", error);
-                        alert("Soru kaydedilemedi. Depolama hatası.");
-                    }
-                };
-                reader.readAsDataURL(image);
+                // Her bir promise'in sonucunu bekle
+                try {
+                    await saveImagePromise;
+                } catch (error) {
+                    saveErrors++; // Hata sayacını artır
+                }
+            }
+
+            // 3. Bütün işlemler bittikten sonra SONUÇLARI bildir ve UI'ı güncelle
+            
+            if (saveErrors > 0) {
+                 alert(`${images.length} sorudan ${saveErrors} tanesi depolama hatası nedeniyle kaydedilemedi!`);
+            }
+
+            // Formu temizle (sadece hiç hata yoksa veya kısmen başarılıysa)
+            if (saveErrors < images.length) { // En az bir soru eklendiyse
+                document.getElementById('konu').value = '';
+                document.getElementById('yorum').value = '';
+                document.getElementById('kaynak').value = '';
+            }
+            
+            fileInput.value = ''; // Dosya girişini her zaman temizle
+
+            // 4. UI güncellemesini de kendi try...catch bloğuna al
+            try {
+                updateUI(); // Arayüzü SADECE 1 KEZ güncelle
+                checkDailyStreak(true);
+                updateWeeklyGoalStatus();
+            } catch (uiError) {
+                console.error("Sorular kaydedildi, ancak arayüz güncellenirken hata oluştu:", uiError);
+                alert("Sorular başarıyla kaydedildi, ancak arayüz güncellenemedi. Sayfayı yenileyebilirsiniz.");
             }
         }
 
@@ -1960,7 +2007,8 @@
                 grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><h3>${questions.length === 0 ? 'Henüz soru eklenmedi' : 'Filtrelemeye uyan soru bulunamadı'}</h3><p>${questions.length === 0 ? 'Yukarıdan soru görseli yükleyerek başlayın!' : 'Filtreleri değiştirerek yeniden deneyin.'}</p></div>`;
                 return;
             }
-            filteredQuestions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Not: Sıralama artık renderGallery fonksiyonunda yapılıyor.
             filteredQuestions.forEach(q => {
                 const card = document.createElement('div');
                 card.className = 'question-card';
@@ -1972,7 +2020,6 @@
             });
         }
         
-        // YENİ: Top 5 Hatalı Konu panelini günceller
         function updateTopMistakeSubjects() {
             const list = document.getElementById('topSubjectsList');
             list.innerHTML = '';
@@ -2005,8 +2052,6 @@
             });
         }
         
-        // KALDIRILDI: updateRepeatQuestions() fonksiyonu
-
         function updateStats() {
             document.getElementById('totalQuestions').innerText = questions.length;
             document.getElementById('tytQuestions').innerText = questions.filter(q => q.sinav === 'TYT').length;
@@ -2015,48 +2060,42 @@
             document.getElementById('solvedQuestions').innerText = questions.filter(q => q.durum === 'cozuldu').length;
             document.getElementById('hardQuestions').innerText = questions.filter(q => q.zorluk === 'zor').length;
         }
-        function updateFilterOptions() {
-            const filterBrans = document.getElementById('filterBrans');
-            const currentFilter = filterBrans.value;
-            filterBrans.innerHTML = '<option value="">Tümü</option>';
-            const uniqueBrans = [...new Set(questions.map(q => q.brans))].sort();
-            uniqueBrans.forEach(brans => {
-                const option = document.createElement('option');
-                option.value = brans;
-                option.text = brans;
-                filterBrans.appendChild(option);
-            });
-            filterBrans.value = currentFilter;
+
+        // YENİ: Zorluk metnini sayıya çeviren yardımcı fonksiyon
+        function zorlukToNumber(zorluk) {
+            if (zorluk === 'kolay') return 1;
+            if (zorluk === 'orta') return 2;
+            if (zorluk === 'zor') return 3;
+            return 0; // Bilinmeyen veya atanmamış
         }
-        function applyFilters() {
-            const filterSinav = document.getElementById('filterSinav').value;
-            const filterBrans = document.getElementById('filterBrans').value;
-            const filterDurum = document.getElementById('filterDurum').value;
-            const filterZorluk = document.getElementById('filterZorluk').value;
-            const filterSearchText = document.getElementById('filterSearchText').value.toLowerCase();
-            const filtered = questions.filter(q => 
-                (!filterSinav || q.sinav === filterSinav) &&
-                (!filterBrans || q.brans === filterBrans) &&
-                (!filterDurum || q.durum === filterDurum) &&
-                (!filterZorluk || q.zorluk === filterZorluk) &&
-                (!filterSearchText || q.konu.toLowerCase().includes(filterSearchText) || q.yorum.toLowerCase().includes(filterSearchText) || q.kaynak.toLowerCase().includes(filterSearchText))
-            );
-            
-            // Galeri sekmelerini güncelle
-            document.querySelectorAll('.gallery-tab').forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.brans === filterBrans);
-            });
+
+        // YENİ: Galeriyi filtreleyen ve sıralayan ana fonksiyon
+        function renderGallery() {
+            const activeTab = document.querySelector('.gallery-tab.active');
+            const brans = activeTab ? activeTab.dataset.brans : '';
+            const sortOrder = document.getElementById('sortOrder').value;
+
+            let filtered = questions;
+
+            // 1. Filtrele (Sadece Branş)
+            if (brans) {
+                filtered = questions.filter(q => q.brans === brans);
+            }
+
+            // 2. Sırala
+            if (sortOrder === 'date-desc') {
+                filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else if (sortOrder === 'date-asc') {
+                filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+            } else if (sortOrder === 'zorluk-desc') {
+                filtered.sort((a, b) => zorlukToNumber(b.zorluk) - zorlukToNumber(a.zorluk));
+            } else if (sortOrder === 'zorluk-asc') {
+                filtered.sort((a, b) => zorlukToNumber(a.zorluk) - zorlukToNumber(b.zorluk));
+            }
             
             updateQuestionGrid(filtered);
         }
-        function clearFilters() {
-            document.getElementById('filterSinav').value = '';
-            document.getElementById('filterBrans').value = '';
-            document.getElementById('filterDurum').value = '';
-            document.getElementById('filterZorluk').value = '';
-            document.getElementById('filterSearchText').value = '';
-            applyFilters();
-        }
+
         function openModal(id) {
             const question = questions.find(q => q.id === id);
             if (!question) return;
@@ -2254,19 +2293,12 @@
         function openSubjectModal(lesson) {
             currentLessonForSubjects = lesson;
             
-            // Dersi için etiket adını al
             let lessonLabel = '';
-            const labelElement = document.querySelector(`.test-input-grid label[for='${lesson}Dogru']`);
-            if (labelElement) {
-                lessonLabel = labelElement.innerText;
-            } else {
-                // Yedek plan (etiket yapısı değişirse)
-                const labels = {
-                    'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
-                    'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji', 'aytEdebiyat': 'Edebiyat', 'aytCografya': 'Coğrafya'
-                };
-                lessonLabel = labels[lesson] || lesson;
-            }
+            const labels = {
+                'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
+                'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji', 'aytEdebiyat': 'Edebiyat', 'aytCografya': 'Coğrafya'
+            };
+            lessonLabel = labels[lesson] || lesson;
 
             const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${lesson}']`).value) || 0;
             const bos = parseInt(document.querySelector(`.bos-display[data-lesson='${lesson}']`).value) || 0;
@@ -2339,18 +2371,12 @@
             body.innerHTML = '';
             for (const lesson in test.results) {
                 const data = test.results[lesson];
-                // Dersi için etiket adını al
                 let lessonName = '';
-                const labelElement = document.querySelector(`.test-input-grid label[for='${lesson}Dogru']`);
-                if(labelElement) {
-                    lessonName = labelElement.innerText;
-                } else {
-                     const labels = {
-                        'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
-                        'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji', 'aytEdebiyat': 'Edebiyat', 'aytCografya': 'Coğrafya'
-                    };
-                    lessonName = labels[lesson] || lesson;
-                }
+                const labels = {
+                    'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
+                    'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji', 'aytEdebiyat': 'Edebiyat', 'aytCografya': 'Coğrafya'
+                };
+                lessonName = labels[lesson] || lesson;
 
                 let subjectsHTML = '<p><em>Hatalı konu eklenmemiş.</em></p>';
                 if (data.mistakeSubjects && data.mistakeSubjects.length > 0) {
@@ -2386,13 +2412,15 @@
             document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
             document.getElementById('btnSaveQuestions').addEventListener('click', saveQuestions);
 
-            document.getElementById('btnClearFilters').addEventListener('click', clearFilters);
+            // KALDIRILDI: Filtreleme Butonları
+            // document.getElementById('btnClearFilters').addEventListener('click', clearFilters);
             document.getElementById('btnExport').addEventListener('click', exportData);
             document.getElementById('btnImport').addEventListener('click', importData);
             document.getElementById('importFile').addEventListener('change', handleImport);
             
-            const filterInputs = ['filterSearchText', 'filterSinav', 'filterBrans', 'filterDurum', 'filterZorluk'];
-            filterInputs.forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
+            // KALDIRILDI: Filtre Inputları
+            // const filterInputs = ['filterSearchText', 'filterSinav', 'filterBrans', 'filterDurum', 'filterZorluk'];
+            // filterInputs.forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
 
             document.getElementById('btnSetGoal').addEventListener('click', setWeeklyGoal);
             document.getElementById('btnSaveTestResult').addEventListener('click', saveTestResult);
@@ -2423,11 +2451,14 @@
             // YENİ: Galeri Sekmesi Tıklamaları
             document.getElementById('galleryTabs').addEventListener('click', (e) => {
                 if (e.target.classList.contains('gallery-tab')) {
-                    const brans = e.target.dataset.brans;
-                    document.getElementById('filterBrans').value = brans;
-                    applyFilters();
+                    document.querySelectorAll('.gallery-tab').forEach(tab => tab.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderGallery();
                 }
             });
+
+            // YENİ: Sıralama Değişikliği
+            document.getElementById('sortOrder').addEventListener('change', renderGallery);
 
             // --- Deneme Sayfası Event Listeners ---
             document.querySelectorAll('.count-input, .total-q-input').forEach(input => {
@@ -2477,3 +2508,4 @@
     </script>
 </body>
 </html>
+```
