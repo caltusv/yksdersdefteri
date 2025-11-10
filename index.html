@@ -236,7 +236,7 @@
             gap: 30px;
         }
 
-        .upload-section, .filter-section, .test-section, .goals-section, .repeat-section, .gallery, .chart-container {
+        .upload-section, .filter-section, .test-section, .goals-section, .gallery, .chart-container, .top-subjects-section {
             background: var(--container-bg);
             border-radius: 20px;
             padding: 25px;
@@ -1024,6 +1024,67 @@
             transform: translateY(-50%);
             font-weight: bold;
         }
+        
+        /* YENİ: Galeri Sekmeleri CSS */
+        .gallery-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-bottom: 2px solid var(--section-border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .gallery-tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: var(--btn-secondary-bg);
+            color: var(--btn-secondary-text);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-tab:hover {
+            background: var(--nav-menu-item-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        .gallery-tab.active {
+            background: var(--btn-primary-bg);
+            color: white;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* YENİ: Top Konular Paneli CSS */
+        .top-subjects-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        .top-subjects-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: var(--upload-area-bg);
+            border-radius: 10px;
+            border-left: 4px solid var(--input-focus-border);
+        }
+
+        .top-subjects-item-name {
+            font-weight: 600;
+            color: var(--main-text-color);
+        }
+
+        .top-subjects-item-count {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--test-results-net-color);
+        }
+
 
     </style>
 </head>
@@ -1145,10 +1206,6 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="repeatDate">Tekrar Tarihi (Opsiyonel)</label>
-                            <input type="date" id="repeatDate">
-                        </div>
-                        <div class="form-group">
                             <label for="yorum">Kişisel Notlarım</label>
                             <textarea id="yorum" placeholder="Bu soruyu neden ekledim? Hangi kısmı zorlandım? Çözüm ipucu..." rows="3" style="resize: vertical;"></textarea>
                         </div>
@@ -1205,6 +1262,12 @@
                         <input type="file" id="importFile" accept=".json" style="display: none;">
                     </div>
 
+                    <div class="top-subjects-section">
+                        <h2 class="section-title">🎯 En Çok Hata Yapılan Konular</h2>
+                        <ul class="top-subjects-list" id="topSubjectsList">
+                            </ul>
+                    </div>
+
                     <div class="chart-container">
                         <h3 style="text-align: center; margin-bottom: 20px; color: var(--section-title-color);">Soru Dağılımları</h3>
                         <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
@@ -1219,18 +1282,23 @@
                 </div>
 
                 <div class="right-column">
-                    <div class="repeat-section">
-                        <h2 class="section-title">🗓️ Bugün Tekrar Etmen Gereken Sorular</h2>
-                        <div class="question-grid" id="repeatQuestionGrid">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">🎉</div>
-                                <h3>Bugün tekrar etmen gereken soru yok!</h3>
-                                <p>Tekrar tarihi belirlediğin sorular burada görünecek.</p>
-                            </div>
-                        </div>
-                    </div>
                     <div class="gallery">
                         <h2 class="section-title">📖 Soru Galerim</h2>
+                        
+                        <div class="gallery-tabs" id="galleryTabs">
+                            <span class="gallery-tab active" data-brans="">Tümü</span>
+                            <span class="gallery-tab" data-brans="Matematik">Matematik</span>
+                            <span class="gallery-tab" data-brans="Geometri">Geometri</span>
+                            <span class="gallery-tab" data-brans="Fizik">Fizik</span>
+                            <span class="gallery-tab" data-brans="Kimya">Kimya</span>
+                            <span class="gallery-tab" data-brans="Biyoloji">Biyoloji</span>
+                            <span class="gallery-tab" data-brans="Türkçe">Türkçe</span>
+                            <span class="gallery-tab" data-brans="Edebiyat">Edebiyat</span>
+                            <span class="gallery-tab" data-brans="Tarih">Tarih</span>
+                            <span class="gallery-tab" data-brans="Coğrafya">Coğrafya</span>
+                            <span class="gallery-tab" data-brans="Felsefe">Felsefe</span>
+                        </div>
+                        
                         <div class="question-grid" id="questionGrid">
                             <div class="empty-state">
                                 <div class="empty-state-icon">📝</div>
@@ -1588,7 +1656,7 @@
         let questions = [];
         let tests = [];
         let currentQuestionId = null;
-        let tempMistakeSubjects = {}; // Deneme konularını geçici olarak tutmak için
+        let tempMistakeSubjects = {}; 
         let bransChart, zorlukChart, tytTotalChart, aytTotalChart;
         let tytMatChart, tytTurkceChart, aytMatChart, aytFizikChart, aytKimyaChart, aytBiyolojiChart;
 
@@ -1609,12 +1677,12 @@
         }
 
         function updateUI() {
-            updateQuestionGrid();
+            applyFilters(); // Soru gridi, filtreler tarafından güncellenir
             updateStats();
             updateFilterOptions();
             drawCharts();
             updateTestUI();
-            updateRepeatQuestions();
+            updateTopMistakeSubjects(); // Yeni eklendi
         }
         
         async function saveQuestions() {
@@ -1639,7 +1707,6 @@
                         zorluk: document.getElementById('zorluk').value,
                         yorum: document.getElementById('yorum').value,
                         kaynak: document.getElementById('kaynak').value,
-                        repeatDate: document.getElementById('repeatDate').value,
                         date: new Date().toISOString(),
                         solution: null
                     };
@@ -1648,16 +1715,11 @@
                         await addToDB(QUESTION_STORE, newQuestion);
                         questions.push(newQuestion); 
                         
-                        updateQuestionGrid();
-                        updateStats();
-                        updateFilterOptions();
-                        drawCharts();
-                        updateRepeatQuestions();
+                        updateUI(); // Her şeyi günceller
                         
                         document.getElementById('konu').value = '';
                         document.getElementById('yorum').value = '';
                         document.getElementById('kaynak').value = '';
-                        document.getElementById('repeatDate').value = '';
                         fileInput.value = '';
 
                         checkDailyStreak(true);
@@ -1728,12 +1790,11 @@
                 tests.push(testResult);
                 updateTestUI();
 
-                // Formu temizle
                 document.getElementById('testName').value = '';
                 sections[testType].forEach(section => {
                     document.querySelector(`.dogru-input[data-lesson='${section}']`).value = '';
                     document.querySelector(`.yanlis-input[data-lesson='${section}']`).value = '';
-                    updateCounts(section); // Boş'ları da temizlemek için
+                    updateCounts(section); 
                 });
                 tempMistakeSubjects = {};
 
@@ -1905,35 +1966,47 @@
                 card.className = 'question-card';
                 card.dataset.questionId = q.id;
                 let solutionIndicator = q.solution ? `<span class="question-solution-indicator">Çözüm Var</span>` : '';
-                let repeatTag = '';
-                if (q.repeatDate) {
-                    const today = new Date().toISOString().split('T')[0];
-                    if (q.repeatDate <= today) {
-                        repeatTag = `<span class="tag tag-tekrar">Bugün Tekrar Et!</span>`;
-                    }
-                }
-                card.innerHTML = `<button class="delete-btn" data-question-id="${q.id}">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>${repeatTag}</div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
+                
+                card.innerHTML = `<button class="delete-btn" data-question-id="${q.id}">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span></div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
                 grid.appendChild(card);
             });
         }
-        function updateRepeatQuestions() {
-            const repeatGrid = document.getElementById('repeatQuestionGrid');
-            const today = new Date().toISOString().split('T')[0];
-            const repeatQuestions = questions.filter(q => q.repeatDate && q.repeatDate <= today);
-            repeatGrid.innerHTML = '';
-            if (repeatQuestions.length === 0) {
-                repeatGrid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎉</div><h3>Bugün tekrar etmen gereken soru yok!</h3><p>Tekrar tarihi belirlediğin sorular burada görünecek.</p></div>`;
+        
+        // YENİ: Top 5 Hatalı Konu panelini günceller
+        function updateTopMistakeSubjects() {
+            const list = document.getElementById('topSubjectsList');
+            list.innerHTML = '';
+            
+            const konuCounts = {};
+            questions.forEach(q => {
+                if (q.konu && q.konu.trim() !== '') {
+                    const konu = q.konu.trim();
+                    konuCounts[konu] = (konuCounts[konu] || 0) + 1;
+                }
+            });
+
+            const sortedKonular = Object.entries(konuCounts)
+                                      .sort(([,a], [,b]) => b - a)
+                                      .slice(0, 5);
+
+            if (sortedKonular.length === 0) {
+                list.innerHTML = '<p style="color: var(--empty-state-text); text-align: center;">Henüz konu bilgisi olan soru eklenmemiş.</p>';
                 return;
             }
-            repeatQuestions.forEach(q => {
-                const card = document.createElement('div');
-                card.className = 'question-card';
-                card.dataset.questionId = q.id;
-                let solutionIndicator = q.solution ? `<span class="question-solution-indicator">Çözüm Var</span>` : '';
-                card.innerHTML = `<button class="delete-btn" data-question-id="${q.id}">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span><span class="tag tag-tekrar">Bugün Tekrar Et!</span></div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
-                repeatGrid.appendChild(card);
+
+            sortedKonular.forEach(([konu, count]) => {
+                const item = document.createElement('li');
+                item.className = 'top-subjects-item';
+                item.innerHTML = `
+                    <span class="top-subjects-item-name">${konu}</span>
+                    <span class="top-subjects-item-count">${count} Soru</span>
+                `;
+                list.appendChild(item);
             });
         }
+        
+        // KALDIRILDI: updateRepeatQuestions() fonksiyonu
+
         function updateStats() {
             document.getElementById('totalQuestions').innerText = questions.length;
             document.getElementById('tytQuestions').innerText = questions.filter(q => q.sinav === 'TYT').length;
@@ -1968,6 +2041,12 @@
                 (!filterZorluk || q.zorluk === filterZorluk) &&
                 (!filterSearchText || q.konu.toLowerCase().includes(filterSearchText) || q.yorum.toLowerCase().includes(filterSearchText) || q.kaynak.toLowerCase().includes(filterSearchText))
             );
+            
+            // Galeri sekmelerini güncelle
+            document.querySelectorAll('.gallery-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.brans === filterBrans);
+            });
+            
             updateQuestionGrid(filtered);
         }
         function clearFilters() {
@@ -2000,9 +2079,7 @@
             }
             const modalTags = document.getElementById('modalTags');
             modalTags.innerHTML = `<span class="tag tag-sinav">${question.sinav}</span><span class="tag tag-brans">${question.brans}</span><span class="tag tag-zorluk ${question.zorluk}">${question.zorluk}</span><span class="tag tag-durum ${question.durum}">${question.durum === 'cozulmedi' ? 'Çözülmedi' : (question.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>`;
-            if (question.repeatDate) {
-                modalTags.innerHTML += `<span class="tag tag-tekrar">Tekrar Tarihi: ${question.repeatDate}</span>`;
-            }
+            
             document.getElementById('myModal').style.display = 'flex';
         }
         function closeModal() { document.getElementById('myModal').style.display = 'none'; }
@@ -2017,7 +2094,7 @@
             document.getElementById(pageId).classList.add('active');
             toggleMenu();
             if (pageId === 'questionPage') {
-                updateQuestionGrid(); updateStats(); updateFilterOptions(); drawCharts(); updateRepeatQuestions();
+                updateUI();
             } else if (pageId === 'testPage') {
                 updateTestUI();
             }
@@ -2151,7 +2228,7 @@
             document.getElementById('streakCounter').innerText = streak;
         }
 
-        // YENİ FONKSİYONLAR
+        // --- Deneme Sayfası Fonksiyonları ---
         function updateCounts(lesson) {
             const totalInput = document.getElementById(`${lesson}Toplam`);
             const dogruInput = document.querySelector(`.dogru-input[data-lesson='${lesson}']`);
@@ -2165,7 +2242,7 @@
             if (dogru + yanlis > total) {
                 yanlisInput.style.borderColor = 'red';
             } else {
-                yanlisInput.style.borderColor = ''; // Stili sıfırla
+                yanlisInput.style.borderColor = ''; 
             }
             
             const bos = Math.max(0, total - (dogru + yanlis));
@@ -2176,8 +2253,21 @@
 
         function openSubjectModal(lesson) {
             currentLessonForSubjects = lesson;
-            const lessonLabel = document.querySelector(`.test-input-grid label[for='${lesson}Dogru']`)?.innerText || lesson;
             
+            // Dersi için etiket adını al
+            let lessonLabel = '';
+            const labelElement = document.querySelector(`.test-input-grid label[for='${lesson}Dogru']`);
+            if (labelElement) {
+                lessonLabel = labelElement.innerText;
+            } else {
+                // Yedek plan (etiket yapısı değişirse)
+                const labels = {
+                    'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
+                    'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji', 'aytEdebiyat': 'Edebiyat', 'aytCografya': 'Coğrafya'
+                };
+                lessonLabel = labels[lesson] || lesson;
+            }
+
             const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${lesson}']`).value) || 0;
             const bos = parseInt(document.querySelector(`.bos-display[data-lesson='${lesson}']`).value) || 0;
             const totalMistakes = yanlis + bos;
@@ -2249,7 +2339,19 @@
             body.innerHTML = '';
             for (const lesson in test.results) {
                 const data = test.results[lesson];
-                const lessonName = (document.querySelector(`label[for='${lesson}Dogru']`)?.innerText || lesson.replace('tyt', 'TYT ').replace('ayt', 'AYT '));
+                // Dersi için etiket adını al
+                let lessonName = '';
+                const labelElement = document.querySelector(`.test-input-grid label[for='${lesson}Dogru']`);
+                if(labelElement) {
+                    lessonName = labelElement.innerText;
+                } else {
+                     const labels = {
+                        'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
+                        'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji', 'aytEdebiyat': 'Edebiyat', 'aytCografya': 'Coğrafya'
+                    };
+                    lessonName = labels[lesson] || lesson;
+                }
+
                 let subjectsHTML = '<p><em>Hatalı konu eklenmemiş.</em></p>';
                 if (data.mistakeSubjects && data.mistakeSubjects.length > 0) {
                     subjectsHTML = data.mistakeSubjects.map(s => `<span class="tag tag-konu">${s}</span>`).join('');
@@ -2317,18 +2419,17 @@
                     openModal(card.dataset.questionId);
                 }
             });
-            document.getElementById('repeatQuestionGrid').addEventListener('click', (e) => {
-                const card = e.target.closest('.question-card');
-                if (!card) return;
-                if (e.target.classList.contains('delete-btn')) {
-                    e.stopPropagation();
-                    deleteQuestionFromCard(e.target.dataset.questionId);
-                } else {
-                    openModal(card.dataset.questionId);
+            
+            // YENİ: Galeri Sekmesi Tıklamaları
+            document.getElementById('galleryTabs').addEventListener('click', (e) => {
+                if (e.target.classList.contains('gallery-tab')) {
+                    const brans = e.target.dataset.brans;
+                    document.getElementById('filterBrans').value = brans;
+                    applyFilters();
                 }
             });
-            
-            // YENİ Event Listeners
+
+            // --- Deneme Sayfası Event Listeners ---
             document.querySelectorAll('.count-input, .total-q-input').forEach(input => {
                 input.addEventListener('input', () => updateCounts(input.dataset.lesson));
             });
