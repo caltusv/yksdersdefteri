@@ -774,6 +774,10 @@
              .delete-btn {
                 opacity: 0.8;
             }
+            .sort-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
 
         .empty-state {
@@ -1090,11 +1094,40 @@
             margin-top: 15px;
             margin-bottom: 20px;
             display: flex;
-            align-items: center;
             gap: 10px;
             flex-wrap: wrap;
         }
-        /* .sort-btn ve .sort-btn.active stilleri kaldırıldı */
+        
+        .sort-btn {
+            margin-top: 0;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            flex-grow: 1; /* Butonların esnemesi için */
+        }
+        
+        /* Aktif sıralama butonu (Tarih veya Zorluk) */
+        .sort-btn.active {
+            background: var(--btn-primary-bg);
+            color: white;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* TYT/AYT filtresi için özel stil */
+        #btnFilterExam {
+            background: var(--tag-konu-bg);
+            color: var(--tag-konu-text);
+            min-width: 120px; /* Genişliğin sabit kalması için */
+        }
+        
+        #btnFilterExam[data-state="tyt"] {
+            background: var(--tag-sinav-bg);
+            color: var(--tag-sinav-text);
+        }
+        
+        #btnFilterExam[data-state="ayt"] {
+            background: var(--tag-brans-bg);
+            color: var(--tag-brans-text);
+        }
 
     </style>
 </head>
@@ -1277,13 +1310,15 @@
                         </div>
                         
                         <div class="sort-section">
-                            <label for="sortMethod" style="font-weight: 600; color: var(--section-title-color); margin-right: 10px;">Sırala:</label>
-                            <select id="sortMethod" style="padding: 10px; border-radius: 10px; border: 2px solid var(--input-border); font-size: 0.9rem; flex-grow: 1;">
-                                <option value="date_desc">🗓️ Ekleme Tarihi (Yeniden Eskiye)</option>
-                                <option value="date_asc">🗓️ Ekleme Tarihi (Eskiden Yeniye)</option>
-                                <option value="diff_desc">📊 Zorluk Seviyesi (Zordan Kolaya)</option>
-                                <option value="diff_asc">📊 Zorluk Seviyesi (Kolaydan Zora)</option>
-                            </select>
+                            <button class="btn btn-secondary sort-btn" id="btnFilterExam" data-state="all">
+                                Oturum: Hepsi
+                            </button>
+                            <button class="btn btn-secondary sort-btn active" id="btnSortDate" data-sort-direction="desc">
+                                🗓️ Tarih (Yeni → Eski)
+                            </button>
+                            <button class="btn btn-secondary sort-btn" id="btnSortDifficulty" data-sort-direction="desc">
+                                📊 Zorluk (Zor → Kolay)
+                            </button>
                         </div>
                         
                         <div class="question-grid" id="questionGrid">
@@ -1644,7 +1679,13 @@
         let tests = [];
         let currentQuestionId = null;
         let tempMistakeSubjects = {}; 
-        let currentSortMethod = 'date_desc'; // YENİ: 'date_desc' (default), 'date_asc', 'diff_desc', 'diff_asc'
+        
+        // YENİ: Sıralama ve Filtreleme Durumları
+        let currentSortType = 'date'; // 'date' (default) veya 'difficulty'
+        let dateSortDirection = 'desc'; // 'desc' (default) veya 'asc'
+        let difficultySortDirection = 'desc'; // 'desc' (default) veya 'asc'
+        // filterExam state'i butonda data-state olarak tutulacak.
+        
         let bransChart, zorlukChart, tytTotalChart, aytTotalChart;
         let tytMatChart, tytTurkceChart, aytMatChart, aytFizikChart, aytKimyaChart, aytBiyolojiChart;
 
@@ -1667,10 +1708,9 @@
         function updateUI() {
             updateQuestionGrid(); // Soru gridi, filtreler tarafından güncellenir
             updateStats();
-            // updateFilterOptions(); // KALDIRILDI
             drawCharts();
             updateTestUI();
-            updateTopMistakeSubjects(); // Yeni eklendi
+            updateTopMistakeSubjects(); 
         }
         
         async function saveQuestions() {
@@ -1946,54 +1986,43 @@
             const grid = document.getElementById('questionGrid');
             grid.innerHTML = '';
             
-            // 1. Aktif filtreyi al (Galeri sekmelerinden)
+            // 1. Aktif Branş Filtresini al (Galeri sekmelerinden)
             const activeTab = document.querySelector('.gallery-tab.active');
             const filterBrans = activeTab ? activeTab.dataset.brans : '';
+            
+            // 2. Aktif Oturum Filtresini al (TYT/AYT Butonundan)
+            const filterExam = document.getElementById('btnFilterExam').dataset.state; // 'all', 'tyt', 'ayt'
 
-            // 2. Soruları filtrele
+            // 3. Soruları filtrele
             let filteredQuestions = questions.filter(q => 
-                (!filterBrans || q.brans === filterBrans)
+                (!filterBrans || q.brans === filterBrans) &&
+                (filterExam === 'all' || q.sinav === filterExam)
             );
             
-            // 3. Sırala (currentSortMethod global değişkendir)
+            // 4. Sırala
             const difficultyOrder = { 'zor': 3, 'orta': 2, 'kolay': 1 };
         
             filteredQuestions.sort((a, b) => {
-                // İkincil sıralama her zaman tarihe göredir (en yeni)
                 const dateA = new Date(a.date);
                 const dateB = new Date(b.date);
-
-                switch (currentSortMethod) {
-                    case 'date_asc':
-                        // Eskiden Yeniye
-                        return dateA - dateB;
-
-                    case 'diff_desc':
-                        // Zordan Kolaya
-                        const diffB_desc = difficultyOrder[b.zorluk] || 0;
-                        const diffA_desc = difficultyOrder[a.zorluk] || 0;
-                        if (diffA_desc !== diffB_desc) {
-                            return diffB_desc - diffA_desc;
-                        }
-                        return dateB - dateA; // Eşitse yeni olan üste gelsin
-
-                    case 'diff_asc':
-                        // Kolaydan Zora
-                        const diffB_asc = difficultyOrder[b.zorluk] || 0;
-                        const diffA_asc = difficultyOrder[a.zorluk] || 0;
-                        if (diffA_asc !== diffB_asc) {
-                            return diffA_asc - diffB_asc;
-                        }
-                        return dateB - dateA; // Eşitse yeni olan üste gelsin
                 
-                    case 'date_desc': // Default case
-                    default:
-                        // Yeniden Eskiye
-                        return dateB - dateA;
+                if (currentSortType === 'date') {
+                    // Tarihe göre sırala
+                    return dateSortDirection === 'desc' ? dateB - dateA : dateA - dateB;
+                } else {
+                    // Zorluğa göre sırala
+                    const diffA = difficultyOrder[a.zorluk] || 0;
+                    const diffB = difficultyOrder[b.zorluk] || 0;
+
+                    if (diffA !== diffB) {
+                        return difficultySortDirection === 'desc' ? diffB - diffA : diffA - diffB;
+                    }
+                    // Zorluk eşitse, her zaman en yeni olan üste gelsin
+                    return dateB - dateA; 
                 }
             });
             
-            // 4. Grid'i render et
+            // 5. Grid'i render et
             if (filteredQuestions.length === 0) {
                 grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><h3>${questions.length === 0 ? 'Henüz soru eklenmedi' : 'Filtrelemeye uyan soru bulunamadı'}</h3><p>${questions.length === 0 ? 'Yukarıdan soru görseli yükleyerek başlayın!' : 'Filtreleri değiştirerek yeniden deneyin.'}</p></div>`;
                 return;
@@ -2387,13 +2416,10 @@
             document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
             document.getElementById('btnSaveQuestions').addEventListener('click', saveQuestions);
 
-            // document.getElementById('btnClearFilters').addEventListener('click', clearFilters); // KALDIRILDI
             document.getElementById('btnExport').addEventListener('click', exportData);
             document.getElementById('btnImport').addEventListener('click', importData);
             document.getElementById('importFile').addEventListener('change', handleImport);
             
-            // Filtre input event listener'ları KALDIRILDI
-
             document.getElementById('btnSetGoal').addEventListener('click', setWeeklyGoal);
             document.getElementById('btnSaveTestResult').addEventListener('click', saveTestResult);
 
@@ -2428,13 +2454,63 @@
                     updateQuestionGrid(); 
                 }
             });
+            
+            // --- YENİ FİLTRELEME BUTONLARI ---
+            
+            const btnFilterExam = document.getElementById('btnFilterExam');
+            const btnSortDate = document.getElementById('btnSortDate');
+            const btnSortDifficulty = document.getElementById('btnSortDifficulty');
 
-            // YENİ: Sıralama Dropdown'ı
-            document.getElementById('sortMethod').addEventListener('change', (e) => {
-                currentSortMethod = e.target.value;
+            // 1. TYT/AYT/Hepsi Butonu
+            btnFilterExam.addEventListener('click', () => {
+                const currentState = btnFilterExam.dataset.state;
+                if (currentState === 'all') {
+                    btnFilterExam.dataset.state = 'tyt';
+                    btnFilterExam.innerText = 'Oturum: TYT';
+                } else if (currentState === 'tyt') {
+                    btnFilterExam.dataset.state = 'ayt';
+                    btnFilterExam.innerText = 'Oturum: AYT';
+                } else {
+                    btnFilterExam.dataset.state = 'all';
+                    btnFilterExam.innerText = 'Oturum: Hepsi';
+                }
                 updateQuestionGrid();
             });
 
+            // 2. Tarih Sıralama Butonu
+            btnSortDate.addEventListener('click', () => {
+                currentSortType = 'date'; // Sıralama tipini "tarih" yap
+                
+                // Yönü değiştir (desc -> asc, asc -> desc)
+                dateSortDirection = dateSortDirection === 'desc' ? 'asc' : 'desc';
+                
+                // Buton metnini güncelle
+                btnSortDate.innerText = `🗓️ Tarih (${dateSortDirection === 'desc' ? 'Yeni → Eski' : 'Eski → Yeni'})`;
+                
+                // Aktif stilini ayarla
+                btnSortDate.classList.add('active');
+                btnSortDifficulty.classList.remove('active');
+                
+                updateQuestionGrid();
+            });
+
+            // 3. Zorluk Sıralama Butonu
+            btnSortDifficulty.addEventListener('click', () => {
+                currentSortType = 'difficulty'; // Sıralama tipini "zorluk" yap
+                
+                // Yönü değiştir (desc -> asc, asc -> desc)
+                difficultySortDirection = difficultySortDirection === 'desc' ? 'asc' : 'desc';
+                
+                // Buton metnini güncelle
+                btnSortDifficulty.innerText = `📊 Zorluk (${difficultySortDirection === 'desc' ? 'Zor → Kolay' : 'Kolay → Zor'})`;
+                
+                // Aktif stilini ayarla
+                btnSortDifficulty.classList.add('active');
+                btnSortDate.classList.remove('active');
+                
+                updateQuestionGrid();
+            });
+            
 
             // --- Deneme Sayfası Event Listeners ---
             document.querySelectorAll('.count-input, .total-q-input').forEach(input => {
