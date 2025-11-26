@@ -3,1217 +3,418 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YKS Dijital Hata Defteri & Deneme Takip</title>
+    <title>YKS Dashboard OS</title>
+    <!-- Chart.js Updated CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
-            --bg-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --header-color: white;
-            --main-text-color: #333;
-            --container-bg: rgba(255, 255, 255, 0.95);
-            --section-title-color: #4a5568;
-            --section-border-color: #e2e8f0;
-            --upload-area-bg: #f8fafc;
-            --upload-area-border: #cbd5e0;
-            --upload-area-text: #a0aec0;
-            --input-border: #e2e8f0;
-            --input-focus-border: #667eea;
-            --input-focus-shadow: rgba(102, 126, 234, 0.1);
-            --btn-primary-bg: linear-gradient(45deg, #667eea, #764ba2);
-            --btn-secondary-bg: #e2e8f0;
-            --btn-secondary-text: #4a5568;
-            --card-bg: white;
-            --card-shadow: rgba(0,0,0,0.1);
-            --tag-sinav-bg: #fed7d7;
-            --tag-sinav-text: #c53030;
-            --tag-brans-bg: #c6f6d5;
-            --tag-brans-text: #22543d;
-            --tag-konu-bg: #bee3f8;
-            --tag-konu-text: #2a69ac;
-            --tag-durum-bg: #fbb6ce;
-            --tag-durum-text: #97266d;
-            --tag-durum-cozuldu-bg: #c6f6d5;
-            --tag-durum-cozuldu-text: #22543d;
-            --tag-durum-yarim-bg: #faf089;
-            --tag-durum-yarim-text: #744210;
-            --tag-zorluk-bg: #e9d8fd;
-            --tag-zorluk-text: #553c9a;
-            --question-comment-bg: #f0f8ff;
-            --question-comment-text: #2d3748;
-            --question-comment-border: #4299e1;
-            --question-source-text: #718096;
-            --modal-bg: rgba(0,0,0,0.9);
-            --modal-content-bg: white;
-            --modal-header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --modal-header-text: white;
-            --modal-body-bg: #f8fafc;
-            --modal-details-bg: white;
-            --detail-content-bg: #f8fafc;
-            --detail-content-border: #667eea;
-            --nav-menu-bg: rgba(255, 255, 255, 0.95);
-            --nav-menu-item-bg: #e2e8f0;
-            --nav-menu-item-text: #4a5568;
-            --nav-menu-item-hover-bg: #cbd5e0;
-            --test-results-bg: #f8fafc;
-            --test-results-net-color: #667eea;
-            --test-list-item-bg: #f8fafc;
-            --test-net-color: #764ba2;
-            --empty-state-text: #718096;
-            --sun-moon-color: #FFD700;
+            /* Frutiger Aero / Wii Palette - Default Blue */
+            --hue: 200; /* Default Hue (Blue) */
+            --bg-gradient: linear-gradient(135deg, hsl(var(--hue), 60%, 92%) 0%, hsl(var(--hue), 60%, 85%) 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --glossy-gradient: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
+            --glossy-hover: linear-gradient(to bottom, #ffffff 0%, #f6f6f6 50%, #eaeaea 51%, #ffffff 100%);
+            
+            --primary-accent: hsl(var(--hue), 100%, 45%); /* Dynamic Color */
+            --primary-light: hsl(var(--hue), 100%, 65%);
+            
+            --text-main: #2d3436;
+            --text-secondary: #636e72;
+            --input-bg: #ffffff;
+            --radius-lg: 25px;
+            --radius-md: 15px;
+            --radius-pill: 50px;
+            
+            --font-family: 'Varela Round', sans-serif;
         }
 
         .dark-mode {
-            --bg-color: #1a202c;
-            --header-color: #e2e8f0;
-            --main-text-color: #e2e8f0;
-            --container-bg: #2d3748;
-            --section-title-color: #e2e8f0;
-            --section-border-color: #4a5568;
-            --upload-area-bg: #2d3748;
-            --upload-area-border: #4a5568;
-            --upload-area-text: #a0aec0;
-            --input-border: #4a5568;
-            --input-focus-border: #9f7aea;
-            --input-focus-shadow: rgba(159, 122, 234, 0.2);
-            --btn-primary-bg: linear-gradient(45deg, #9f7aea, #d6bcfa);
-            --btn-secondary-bg: #4a5568;
-            --btn-secondary-text: #e2e8f0;
-            --card-bg: #2d3748;
-            --card-shadow: rgba(0,0,0,0.4);
-            --tag-sinav-bg: #c53030;
-            --tag-sinav-text: #fed7d7;
-            --tag-brans-bg: #22543d;
-            --tag-brans-text: #c6f6d5;
-            --tag-konu-bg: #2a69ac;
-            --tag-konu-text: #bee3f8;
-            --tag-durum-bg: #97266d;
-            --tag-durum-text: #fbb6ce;
-            --tag-durum-cozuldu-bg: #22543d;
-            --tag-durum-cozuldu-text: #c6f6d5;
-            --tag-durum-yarim-bg: #744210;
-            --tag-durum-yarim-text: #faf089;
-            --tag-zorluk-bg: #553c9a;
-            --tag-zorluk-text: #e9d8fd;
-            --question-comment-bg: #2a4365;
-            --question-comment-text: #e2e8f0;
-            --question-comment-border: #4299e1;
-            --question-source-text: #a0aec0;
-            --modal-bg: rgba(0,0,0,0.9);
-            --modal-content-bg: #2d3748;
-            --modal-header-bg: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-            --modal-header-text: #e2e8f0;
-            --modal-body-bg: #1a202c;
-            --modal-details-bg: #2d3748;
-            --detail-content-bg: #4a5568;
-            --detail-content-border: #9f7aea;
-            --nav-menu-bg: #2d3748;
-            --nav-menu-item-bg: #4a5568;
-            --nav-menu-item-text: #e2e8f0;
-            --nav-menu-item-hover-bg: #6a7483;
-            --test-results-bg: #2d3748;
-            --test-results-net-color: #9f7aea;
-            --test-list-item-bg: #2d3748;
-            --test-net-color: #d6bcfa;
-            --empty-state-text: #a0aec0;
-            --sun-moon-color: #FFD700;
+            --bg-gradient: linear-gradient(135deg, #1a1a1a 0%, #2d3436 100%);
+            --glass-bg: rgba(45, 52, 54, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --glossy-gradient: linear-gradient(to bottom, #4a4a4a 0%, #3a3a3a 100%);
+            --glossy-hover: linear-gradient(to bottom, #5a5a5a 0%, #4a4a4a 100%);
+            
+            /* Dark mode accent is slightly lighter for contrast */
+            --primary-accent: hsl(var(--hue), 90%, 60%);
+            
+            --text-main: #dfe6e9;
+            --text-secondary: #b2bec3;
+            --input-bg: #2d3436;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg-color);
+            font-family: var(--font-family);
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
             min-height: 100vh;
-            color: var(--main-text-color);
+            overflow-x: hidden;
+            padding-bottom: 120px; /* Space for dock */
             transition: background 0.5s ease, color 0.5s ease;
         }
-        
-        input, select, textarea {
-            background-color: var(--card-bg);
-            color: var(--main-text-color);
+
+        /* --- Header --- */
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            position: relative;
+            z-index: 100;
         }
 
-        .container {
-            max-width: 1200px;
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--glass-bg);
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(8px);
+        }
+
+        .avatar-circle {
+            width: 40px; height: 40px;
+            background: var(--primary-accent);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: bold; font-size: 1.2rem;
+            box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2);
+        }
+
+        .system-time {
+            font-size: 1.4rem; font-weight: bold;
+            color: var(--text-main);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-controls { display: flex; gap: 15px; }
+
+        .control-btn {
+            background: var(--glossy-gradient);
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            color: #444; /* Icon color always dark on glossy btn */
+        }
+        .control-btn:active { transform: scale(0.9); }
+
+        /* --- Grid Layout --- */
+        .dashboard-container {
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--header-color);
-            position: relative;
-        }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .hamburger {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 2rem;
-            color: var(--header-color);
-            cursor: pointer;
-            z-index: 20;
-        }
-        
-        .dark-mode-toggle {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 20;
-            color: var(--sun-moon-color);
-        }
-
-        .nav-menu {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 250px;
-            height: 100%;
-            background: var(--nav-menu-bg);
-            padding: 20px;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            transition: left 0.3s ease-in-out;
-            z-index: 15;
-        }
-        
-        .nav-menu.active {
-            left: 0;
-        }
-        
-        .nav-menu a {
-            display: block;
-            padding: 15px;
-            margin-bottom: 10px;
-            background: var(--nav-menu-item-bg);
-            border-radius: 10px;
-            text-decoration: none;
-            color: var(--nav-menu-item-text);
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        
-        .nav-menu a:hover {
-            background: var(--nav-menu-item-hover-bg);
-            transform: translateX(5px);
-        }
-
-        .summary-container {
+        .tile-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
+            grid-template-columns: 350px 1fr; /* Fixed left, fluid right */
+            gap: 25px;
             margin-bottom: 30px;
         }
 
-        .main-page-content {
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 30px;
-            align-items: flex-start;
+        @media (max-width: 1024px) {
+            .tile-grid { grid-template-columns: 1fr; }
         }
 
-        .left-column, .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-
-        .upload-section, .filter-section, .test-section, .goals-section, .gallery, .chart-container, .top-subjects-section {
-            background: var(--container-bg);
-            border-radius: 20px;
+        /* --- Cards --- */
+        .console-card {
+            background: var(--glass-bg);
+            border-radius: var(--radius-lg);
             padding: 25px;
-            box-shadow: 0 10px 30px var(--card-shadow);
-            backdrop-filter: blur(10px);
-        }
-
-        .section-title {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-            color: var(--section-title-color);
-            border-bottom: 2px solid var(--section-border-color);
-            padding-bottom: 10px;
-        }
-
-        .upload-area {
-            border: 3px dashed var(--upload-area-border);
-            border-radius: 15px;
-            padding: 40px 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: var(--upload-area-bg);
-        }
-
-        .upload-area:hover {
-            border-color: var(--input-focus-border);
-            background: var(--section-border-color);
-            transform: translateY(-2px);
-        }
-        
-        .dark-mode .upload-area:hover {
-            background: var(--nav-menu-item-bg);
-        }
-
-        .upload-area.dragover {
-            border-color: var(--input-focus-border);
-            background: #e6fffa;
-            transform: scale(1.02);
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--upload-area-text);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--section-title-color);
-        }
-
-        select, input, textarea {
-            padding: 12px;
-            border: 2px solid var(--input-border);
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-            width: 100%;
-        }
-        
-        input[disabled] {
-            background-color: var(--upload-area-bg);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--input-focus-border);
-            box-shadow: 0 0 0 3px var(--input-focus-shadow);
-        }
-
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-        }
-
-        .btn-primary {
-            background: var(--btn-primary-bg);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--btn-secondary-bg);
-            color: var(--btn-secondary-text);
-        }
-
-        .btn-secondary:hover {
-            background: var(--nav-menu-item-hover-bg);
-        }
-
-        .question-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .question-card {
-            background: var(--card-bg);
-            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 5px 20px var(--card-shadow);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .question-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px var(--card-shadow);
-        }
-
-        .question-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: var(--upload-area-bg);
-        }
-
-        .question-info {
-            padding: 15px;
-            position: relative;
-        }
-
-        .question-comment {
-            background: var(--question-comment-bg);
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            color: var(--question-comment-text);
-            border-left: 4px solid var(--question-comment-border);
-            line-height: 1.4;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .question-comment::before {
-            content: "💭 ";
-            font-size: 1rem;
-        }
-
-        .question-source {
-            font-size: 0.8rem;
-            color: var(--question-source-text);
-            margin-top: 8px;
-        }
-
-        .question-source::before {
-            content: "📚 ";
-        }
-
-        .question-solution-indicator {
-            background: var(--tag-durum-cozuldu-bg);
-            color: var(--tag-durum-cozuldu-text);
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-top: 5px;
-            display: inline-block;
-        }
-
-        .question-solution-indicator::before {
-            content: "✅ ";
-        }
-
-        .question-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .tag {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .tag-sinav {
-            background: var(--tag-sinav-bg);
-            color: var(--tag-sinav-text);
-        }
-
-        .tag-brans {
-            background: var(--tag-brans-bg);
-            color: var(--tag-brans-text);
-        }
-
-        .tag-konu {
-            background: var(--tag-konu-bg);
-            color: var(--tag-konu-text);
-        }
-
-        .tag-durum {
-            background: var(--tag-durum-bg);
-            color: var(--tag-durum-text);
-        }
-
-        .tag-durum.cozuldu {
-            background: var(--tag-durum-cozuldu-bg);
-            color: var(--tag-durum-cozuldu-text);
-        }
-
-        .tag-durum.yarim {
-            background: var(--tag-durum-yarim-bg);
-            color: var(--tag-durum-yarim-text);
-        }
-
-        .tag-zorluk {
-            background: var(--tag-zorluk-bg);
-            color: var(--tag-zorluk-text);
-        }
-
-        .tag-zorluk.kolay {
-            background: var(--tag-durum-cozuldu-bg);
-            color: var(--tag-durum-cozuldu-text);
-        }
-
-        .tag-zorluk.orta {
-            background: var(--tag-durum-bg);
-            color: var(--tag-durum-text);
-        }
-
-        .tag-zorluk.zor {
-            background: var(--tag-sinav-bg);
-            color: var(--tag-sinav-text);
-        }
-        
-        .tag-tekrar {
-            background: #d4f7dc;
-            color: #2f855a;
-        }
-        .dark-mode .tag-tekrar {
-            background: #2f855a;
-            color: #d4f7dc;
-        }
-
-        .question-date {
-            font-size: 0.9rem;
-            color: var(--question-source-text);
-            margin-top: 10px;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 0, 0, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            opacity: 0;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            font-weight: bold;
-        }
-
-        .delete-btn:hover {
-            background: rgba(255, 0, 0, 1);
-            transform: scale(1.1);
-        }
-
-        .question-card:hover .delete-btn {
-            opacity: 1;
-        }
-
-        .question-card {
-            position: relative;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            background: var(--container-bg);
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px var(--card-shadow);
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 5px 15px var(--card-shadow);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--test-results-net-color);
-        }
-
-        .stat-label {
-            color: var(--question-source-text);
-            margin-top: 5px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--modal-bg);
-            backdrop-filter: blur(5px);
-            overflow-y: auto;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            position: relative;
-            margin: 20px auto;
-            width: 90vw;
-            max-width: 1400px;
-            background: var(--modal-content-bg);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            overflow: hidden;
-        }
-
-        .modal-header {
-            background: var(--modal-header-bg);
-            color: var(--modal-header-text);
-            padding: 20px;
-            position: relative;
-        }
-
-        .modal-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin: 0;
-        }
-
-        .modal-subtitle {
-            opacity: 0.9;
-            margin-top: 5px;
-            font-size: 0.9rem;
-        }
-
-        .close {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            color: var(--modal-header-text);
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .close:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.1);
-        }
-
-        .modal-body {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 0;
-            min-height: 500px;
-        }
-
-        .modal-image-container {
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--modal-body-bg);
-        }
-
-        .modal-image {
-            max-width: 100%;
-            max-height: 70vh;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            object-fit: contain;
-        }
-
-        .modal-details {
-            background: var(--modal-details-bg);
-            padding: 30px;
-            border-left: 2px solid var(--section-border-color);
-            overflow-y: auto;
-            max-height: 80vh;
-        }
-
-        .detail-section {
             margin-bottom: 25px;
         }
 
-        .detail-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--section-title-color);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .console-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary-accent);
         }
 
-        .detail-content {
-            background: var(--detail-content-bg);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            color: var(--main-text-color);
-            border-left: 4px solid var(--detail-content-border);
+        .section-title {
+            font-size: 1.3rem; margin-bottom: 15px;
+            color: var(--primary-accent);
+            display: flex; align-items: center; gap: 10px;
         }
 
-        .modal-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
+        /* --- Inputs --- */
+        .input-wrapper {
+            background: rgba(0,0,0,0.05);
+            border-radius: var(--radius-md);
+            padding: 15px; margin-bottom: 15px;
+        }
+        .dark-mode .input-wrapper { background: rgba(255,255,255,0.05); }
+
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; color: var(--text-secondary); }
+
+        input, select, textarea {
+            width: 100%; padding: 10px 15px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--glass-border);
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            outline: none; transition: 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.1);
         }
 
-        .status-changer {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
+        /* --- Buttons --- */
+        .btn {
+            padding: 10px 25px; border: none; border-radius: var(--radius-pill);
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+            background: var(--glossy-gradient);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+            color: #444; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
         }
+        .btn:hover { background: var(--glossy-hover); transform: translateY(-2px); }
+        .btn:active { transform: translateY(2px); box-shadow: none; }
 
-        .modal-btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-status {
-            background: var(--btn-primary-bg);
+        .btn-primary {
+            background: var(--primary-accent);
             color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
+        .btn-primary:hover { filter: brightness(1.1); background: var(--primary-accent); color: white; }
 
-        .btn-delete {
-            background: linear-gradient(45deg, #e53e3e, #c53030);
-            color: white;
-        }
-
-        .btn-status:hover, .btn-delete:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        
-        @media (max-width: 1024px) {
-            .summary-container, .main-page-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 1024px) {
-            .modal-body {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-details {
-                border-left: none;
-                border-top: 2px solid var(--section-border-color);
-                max-height: none;
-            }
-            
-            .modal-image-container {
-                min-height: 300px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .modal-content {
-                margin: 10px;
-                width: calc(100% - 20px);
-                max-width: none;
-            }
-            .modal-header {
-                padding: 15px;
-            }
-            .modal-details {
-                padding: 20px;
-            }
-            .header h1 {
-                font-size: 2rem;
-            }
-            .question-grid {
-                grid-template-columns: 1fr;
-            }
-             .delete-btn {
-                opacity: 0.8;
-            }
-            .sort-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--empty-state-text);
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .filter-active {
-            background: #667eea !important;
-            color: white !important;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .test-input-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr 0.5fr;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .test-input-grid label {
-            grid-column: 1 / 2;
-        }
-
-        .test-input-grid .input-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            grid-column: 2 / 3;
-        }
-
-        .test-input-grid .btn-add-subject {
-            grid-column: 3 / 4;
-            padding: 10px;
-            font-size: 0.8rem;
-            margin-top: 0;
-        }
-
-        .test-input-grid input {
-            flex-grow: 1;
-        }
-        
-        .test-results {
-            margin-top: 20px;
-            display: grid;
-            gap: 10px;
-            background: var(--test-results-bg);
-            padding: 15px;
-            border-radius: 10px;
-        }
-        
-        .test-results-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1rem;
-            font-weight: 500;
-        }
-        
-        .test-results-item span:last-child {
-            font-weight: 700;
-            color: var(--test-results-net-color);
-        }
-
-        .test-list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: var(--test-list-item-bg);
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .test-list-item:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transform: translateY(-2px);
-        }
-        
-        .test-info {
-            font-size: 1rem;
-            color: var(--section-title-color);
-        }
-        
-        .test-info .date {
-            font-size: 0.8rem;
-            color: var(--question-source-text);
-            margin-top: 5px;
-        }
-        
-        .test-net {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--test-net-color);
-        }
-        
-        #tytChartContainer, #aytChartContainer {
-            margin-top: 30px;
-            padding: 20px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 5px 15px var(--card-shadow);
-        }
-        
-        #solutionImage {
-            cursor: zoom-in;
-            transition: transform 0.3s ease;
-            max-width: 100%;
-        }
-        
-        #solutionImage:hover {
-            transform: scale(1.05);
-        }
-
-        #fullscreenModal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(5px);
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #fullscreenModalContent {
-            max-width: 90%;
-            max-height: 90%;
-            object-fit: contain;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
-            border-radius: 10px;
-        }
-        
-        .fullscreen-close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: #fff;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
+        /* --- Upload --- */
+        .upload-area {
+            border: 2px dashed var(--primary-accent);
+            border-radius: var(--radius-lg);
+            padding: 30px; text-align: center;
+            background: rgba(255,255,255,0.1); cursor: pointer;
             transition: 0.3s;
         }
+        .upload-area:hover { background: rgba(255,255,255,0.3); }
 
-        .fullscreen-close:hover,
-        .fullscreen-close:focus {
-            color: #bbb;
-            text-decoration: none;
+        /* --- Stats Widgets --- */
+        .stats-row {
+            display: flex; gap: 15px; margin-bottom: 25px;
+            overflow-x: auto; padding-bottom: 5px;
+        }
+        .stat-capsule {
+            flex: 1; min-width: 120px;
+            background: var(--glass-bg);
+            padding: 15px; border-radius: 20px; text-align: center;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+        }
+        .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--primary-accent); }
+        .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
+
+        /* --- Gallery --- */
+        .question-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;
+        }
+        .question-card {
+            background: var(--glass-bg);
+            border-radius: 15px; overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: 0.3s; position: relative;
             cursor: pointer;
         }
+        .question-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .question-image { width: 100%; height: 160px; object-fit: cover; }
+        .question-info { padding: 15px; }
 
-        .test-delete-btn {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            background: rgba(255, 0, 0, 0.7);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: bold;
-            opacity: 0;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
+        .tag-pill {
+            padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;
+            display: inline-block; margin-right: 4px; margin-bottom: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        /* Tag Colors */
+        .tag-sinav { background: #ff7675; color: white; }
+        .tag-brans { background: var(--primary-light); color: white; }
+        .tag-zorluk.zor { background: #d63031; color: white; }
+        .tag-zorluk.orta { background: #fdcb6e; color: #d35400; }
+        .tag-zorluk.kolay { background: #55efc4; color: #00b894; }
+        .tag-durum.cozuldu { background: #00b894; color: white; }
+        .tag-durum.yarim { background: #ffeaa7; color: #d35400; }
+        .tag-durum.cozulmedi { background: #b2bec3; color: white; }
 
-        .test-list-item:hover .test-delete-btn {
-            opacity: 1;
+        .delete-btn {
+            position: absolute; top: 8px; right: 8px;
+            background: #ff4757; color: white;
+            border: none; width: 28px; height: 28px; border-radius: 50%;
+            cursor: pointer; opacity: 0; transition: 0.2s;
+            font-weight: bold; z-index: 5;
+            display: flex; align-items: center; justify-content: center;
         }
+        .question-card:hover .delete-btn { opacity: 1; }
 
-        .test-delete-btn:hover {
-            background: rgba(255, 0, 0, 1);
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        /* YENİ EKLENEN CSS */
-        .total-questions-settings {
-            background: var(--test-results-bg);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        .total-questions-settings h4 {
-            margin-bottom: 15px;
-            color: var(--section-title-color);
-        }
-        .total-questions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-        .total-q-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .total-q-group label {
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-        .total-q-group input {
-            padding: 8px;
-            font-size: 0.9rem;
-        }
-
-        #subjectTagsContainer .tag {
-            cursor: pointer;
-            position: relative;
-            padding-right: 25px;
-            background-color: var(--tag-konu-bg);
-            color: var(--tag-konu-text);
-        }
-
-        #subjectTagsContainer .tag::after {
-            content: '×';
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-weight: bold;
-        }
-        
-        /* YENİ: Galeri Sekmeleri CSS */
-        .gallery-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            border-bottom: 2px solid var(--section-border-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
+        /* --- Filters & Sorting --- */
+        .gallery-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
         .gallery-tab {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: var(--btn-secondary-bg);
-            color: var(--btn-secondary-text);
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            white-space: nowrap; padding: 6px 14px; border-radius: 20px;
+            background: rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s;
+            font-size: 0.9rem; color: var(--text-secondary);
         }
+        .dark-mode .gallery-tab { background: rgba(255,255,255,0.1); }
+        .gallery-tab:hover { background: rgba(0,0,0,0.1); }
+        .gallery-tab.active { background: var(--primary-accent); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        .gallery-tab:hover {
-            background: var(--nav-menu-item-hover-bg);
-            transform: translateY(-2px);
-        }
-
-        .gallery-tab.active {
-            background: var(--btn-primary-bg);
-            color: white;
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* YENİ: Top Konular Paneli CSS */
-        .top-subjects-list {
-            list-style: none;
-            padding: 0;
-            margin-top: 15px;
-        }
-
-        .top-subjects-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: var(--upload-area-bg);
-            border-radius: 10px;
-            border-left: 4px solid var(--input-focus-border);
-        }
-
-        .top-subjects-item-name {
-            font-weight: 600;
-            color: var(--main-text-color);
-        }
-
-        .top-subjects-item-count {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: var(--test-results-net-color);
-        }
-
-        /* YENİ: Sıralama Alanı CSS */
-        .sort-section {
-            margin-top: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
+        .sort-section { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .sort-btn {
-            margin-top: 0;
-            padding: 8px 12px;
-            font-size: 0.9rem;
-            flex-grow: 1; /* Butonların esnemesi için */
+            font-size: 0.85rem; padding: 6px 15px;
         }
-        
-        /* Aktif sıralama butonu (Tarih veya Zorluk) */
         .sort-btn.active {
-            background: var(--btn-primary-bg);
+            background: var(--primary-accent);
             color: white;
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* TYT/AYT filtresi için özel stil */
-        #btnFilterExam {
-            background: var(--tag-konu-bg);
-            color: var(--tag-konu-text);
-            min-width: 120px; /* Genişliğin sabit kalması için */
-        }
-        
-        #btnFilterExam[data-state="tyt"] {
-            background: var(--tag-sinav-bg);
-            color: var(--tag-sinav-text);
-        }
-        
-        #btnFilterExam[data-state="ayt"] {
-            background: var(--tag-brans-bg);
-            color: var(--tag-brans-text);
+            border: 1px solid transparent;
         }
 
+        /* --- Dock --- */
+        .dock-container {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px);
+            padding: 10px 25px; border-radius: 50px;
+            display: flex; gap: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.5); z-index: 1000;
+        }
+        .dark-mode .dock-container { background: rgba(0, 0, 0, 0.6); border-color: rgba(255,255,255,0.1); }
+
+        .dock-item {
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; color: var(--text-secondary);
+            font-size: 0.8rem; transition: 0.3s;
+        }
+        .dock-icon {
+            width: 45px; height: 45px;
+            background: var(--glass-bg); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .dock-item:hover .dock-icon, .dock-item.active .dock-icon {
+            transform: translateY(-10px) scale(1.15);
+            background: var(--primary-accent); color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .dock-item.active { color: var(--primary-accent); font-weight: bold; }
+
+        /* --- Modals --- */
+        .modal {
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: var(--glass-bg); border-radius: 20px;
+            width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .modal-header {
+            background: var(--glossy-gradient); padding: 15px 25px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+            border-radius: 20px 20px 0 0;
+        }
+        .modal-body { padding: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .modal-body { grid-template-columns: 1fr; } }
+
+        /* Settings Modal Specific */
+        .color-options { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .color-circle {
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            border: 3px solid transparent; transition: 0.2s;
+        }
+        .color-circle:hover { transform: scale(1.1); }
+        .color-circle.active { border-color: var(--text-main); }
+
+        /* Chart Wrapper */
+        .chart-wrapper {
+            height: 250px; position: relative;
+            background: rgba(255,255,255,0.5);
+            border-radius: 15px; padding: 10px;
+        }
+        .dark-mode .chart-wrapper { background: rgba(0,0,0,0.2); }
+
+        /* Helpers */
+        #fileInput, #importFile { display: none; }
+        .test-input-grid { display: grid; grid-template-columns: 80px 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .input-group { display: flex; gap: 5px; }
+        .count-input { text-align: center; }
+        .test-list-item { 
+            background: var(--glass-bg); padding: 15px; margin-bottom: 10px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
     </style>
 </head>
 <body>
-    <div class="hamburger" id="hamburgerMenu">☰</div>
-    <div class="dark-mode-toggle" id="darkModeToggle">☀️</div>
-    <div class="nav-menu" id="navMenu">
-        <a href="#" data-page="questionPage">📚 Soru Defterim</a>
-        <a href="#" data-page="testPage">📈 Deneme Takip Sistemi</a>
+
+    <!-- Header -->
+    <div class="console-header">
+        <div class="user-profile">
+            <div class="avatar-circle">YG</div>
+            <span style="font-weight:bold;">YKS OS</span>
+        </div>
+        <div class="system-time" id="clock">12:00</div>
+        <div class="header-controls">
+            <div class="control-btn" id="darkModeToggle" title="Tema">🌙</div>
+            <div class="control-btn" id="settingsBtn" title="Ayarlar">⚙️</div>
+        </div>
     </div>
 
-    <div class="container" id="main-container">
-        <div class="header">
-            <h1>📚 YKS Dijital Hata Defteri & Deneme Takip</h1>
-            <p id="sub-header-text">Çözümünü anlayamadığınız soruları organize edin ve tekrar edin</p>
-        </div>
+    <div class="dashboard-container">
         
+        <!-- PAGE 1: SORU DEFTERİ -->
         <div id="questionPage" class="tab-content active">
-            <div class="summary-container">
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalQuestions">0</div>
-                        <div class="stat-label">Toplam Soru</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="tytQuestions">0</div>
-                        <div class="stat-label">TYT Soruları</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="aytQuestions">0</div>
-                        <div class="stat-label">AYT Soruları</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="solvedQuestions">0</div>
-                        <div class="stat-label">Çözülmüş</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="todayQuestions">0</div>
-                        <div class="stat-label">Bugün Eklenen</div>
-                    </div>
-                     <div class="stat-card">
-                        <div class="stat-number" id="hardQuestions">0</div>
-                        <div class="stat-label">Zor Sorular</div>
-                    </div>
-                </div>
-                 <div class="goals-section">
-                    <h2 class="section-title">🎯 Haftalık Hedefler & Seriler</h2>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <label for="weeklyGoalInput">Haftalık Soru Hedefi</label>
-                            <input type="number" id="weeklyGoalInput" placeholder="50" style="width: 100px;">
-                            <button class="btn btn-primary" id="btnSetGoal">Belirle</button>
-                        </div>
-                        <div>
-                            <p id="weeklyGoalStatus">Hedef: Belirlenmedi</p>
-                        </div>
-                    </div>
-                    <div class="stat-card" style="margin-top: 20px;">
-                        <div class="stat-number" id="streakCounter">0</div>
-                        <div class="stat-label">🔥 Günlük Soru Ekleme Serin</div>
-                    </div>
-                </div>
+            
+            <!-- Üst İstatistikler -->
+            <div class="stats-row">
+                <div class="stat-capsule"><div class="stat-number" id="totalQuestions">0</div><div class="stat-label">Toplam Soru</div></div>
+                <div class="stat-capsule"><div class="stat-number" id="solvedQuestions">0</div><div class="stat-label">Çözülen</div></div>
+                <div class="stat-capsule"><div class="stat-number" id="streakCounter">0</div><div class="stat-label">Günlük Seri 🔥</div></div>
+                <div class="stat-capsule"><div class="stat-number" id="hardQuestions">0</div><div class="stat-label">Zor Sorular</div></div>
             </div>
 
-            <div class="main-page-content">
+            <div class="tile-grid">
+                
+                <!-- SOL KOLON: İşlemler & Analiz -->
                 <div class="left-column">
-                    <div class="upload-section">
-                        <h2 class="section-title">➕ Yeni Soru Ekle</h2>
+                    <!-- Soru Ekle -->
+                    <div class="console-card">
+                        <h2 class="section-title">➕ Soru Ekle</h2>
                         <div class="upload-area" id="uploadArea">
-                            <div class="upload-icon">📁</div>
-                            <p>Soru görselini buraya sürükleyin veya tıklayın</p>
-                            <p style="font-size: 0.9rem; color: #718096; margin-top: 10px;">
-                                <span style="font-weight: bold;">İpucu:</span> Mobil cihazlarda bu işlem telefon kamerasını açabilir.
-                            </p>
+                            <div style="font-size: 2rem;">📷</div>
+                            <p style="margin:5px 0;">Görseli bırak veya seç</p>
                         </div>
                         <input type="file" id="fileInput" accept="image/*" multiple>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="sinavOturumu">Sınav Oturumu</label>
-                                <select id="sinavOturumu">
-                                    <option value="TYT">TYT</option>
-                                    <option value="AYT">AYT</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="brans">Branş</label>
+                        
+                        <div class="input-wrapper" style="margin-top: 15px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom:10px;">
+                                <select id="sinavOturumu"><option value="TYT">TYT</option><option value="AYT">AYT</option></select>
                                 <select id="brans">
                                     <option value="Matematik">Matematik</option>
                                     <option value="Fizik">Fizik</option>
@@ -1222,79 +423,69 @@
                                     <option value="Türkçe">Türkçe</option>
                                     <option value="Tarih">Tarih</option>
                                     <option value="Coğrafya">Coğrafya</option>
-                                    <option value="Felsefe">Felsefe</option>
-                                    <option value="Edebiyat">Edebiyat</option>
                                     <option value="Geometri">Geometri</option>
+                                    <option value="Edebiyat">Edebiyat</option>
+                                    <option value="Felsefe">Felsefe</option>
                                 </select>
                             </div>
+                            <input type="text" id="konu" placeholder="Konu (Örn: Limit)" style="margin-bottom:10px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom:10px;">
+                                <select id="durum">
+                                    <option value="cozulmedi">❌ Çözülmedi</option>
+                                    <option value="yarim">⚠️ Yarım</option>
+                                    <option value="cozuldu">✅ Çözüldü</option>
+                                </select>
+                                <select id="zorluk">
+                                    <option value="kolay">🟢 Kolay</option>
+                                    <option value="orta">🟡 Orta</option>
+                                    <option value="zor">🔴 Zor</option>
+                                </select>
+                            </div>
+                            <textarea id="yorum" rows="2" placeholder="Notların..."></textarea>
+                            <input type="text" id="kaynak" placeholder="Kaynak" style="margin-top:10px;">
                         </div>
-                        <div class="form-group">
-                            <label for="konu">Konu</label>
-                            <input type="text" id="konu" placeholder="Örn: Limit, Denge, Mol Kavramı...">
-                        </div>
-                        <div class="form-group">
-                            <label for="durum">Durum</label>
-                            <select id="durum">
-                                <option value="cozulmedi">❌ Çözülmedi</option>
-                                <option value="yarim">⚠️ Yarım Anladım</option>
-                                <option value="cozuldu">✅ Çözüldü</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="zorluk">Zorluk Seviyesi</label>
-                            <select id="zorluk">
-                                <option value="kolay">🟢 Kolay</option>
-                                <option value="orta">🟡 Orta</option>
-                                <option value="zor">🔴 Zor</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="yorum">Kişisel Notlarım</label>
-                            <textarea id="yorum" placeholder="Bu soruyu neden ekledim? Hangi kısmı zorlandım? Çözüm ipucu..." rows="3" style="resize: vertical;"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="kaynak">Kaynak (Opsiyonel)</label>
-                            <input type="text" id="kaynak" placeholder="Örn: TYT 2023 Deneme 5...">
-                        </div>
-                        <button class="btn btn-primary" id="btnSaveQuestions">💾 Soruları Kaydet</button>
+                        <button class="btn btn-primary" id="btnSaveQuestions" style="width: 100%;">Kaydet</button>
                     </div>
 
-                    <div class="upload-section">
-                        <h2 class="section-title">⚙️ Yedekleme</h2>
-                        <p style="font-size: 0.9rem; color: var(--main-text-color); margin-bottom: 15px;">
-                            Tüm verilerinizi (sorular ve denemeler) bir JSON dosyası olarak dışa aktarabilir veya daha önce dışa aktardığınız bir dosyayı içe aktarabilirsiniz.
-                        </p>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn btn-secondary" id="btnExport" style="flex-grow: 1;">📤 Dışa Aktar</button>
-                            <button class="btn btn-secondary" id="btnImport" style="flex-grow: 1;">📥 İçe Aktar</button>
-                        </div>
-                        <input type="file" id="importFile" accept=".json" style="display: none;">
-                    </div>
-
-
-                    <div class="top-subjects-section">
-                        <h2 class="section-title">🎯 En Çok Hata Yapılan Konular</h2>
-                        <ul class="top-subjects-list" id="topSubjectsList">
-                            </ul>
-                    </div>
-
-                    <div class="chart-container">
-                        <h3 style="text-align: center; margin-bottom: 20px; color: var(--section-title-color);">Soru Dağılımları</h3>
-                        <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
-                            <div style="width: 100%; max-width: 400px; height: 400px;">
+                    <!-- Analiz Grafikleri (SOLA TAŞINDI) -->
+                    <div class="console-card">
+                        <h2 class="section-title">📊 Analiz</h2>
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="margin-bottom:10px; font-size:0.9rem; color:var(--text-secondary);">Branş Dağılımı</h4>
+                            <div class="chart-wrapper">
                                 <canvas id="bransChart"></canvas>
                             </div>
-                            <div style="width: 100%; max-width: 400px; height: 400px;">
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom:10px; font-size:0.9rem; color:var(--text-secondary);">Zorluk Dağılımı</h4>
+                            <div class="chart-wrapper">
                                 <canvas id="zorlukChart"></canvas>
                             </div>
                         </div>
                     </div>
+
+                     <!-- En Çok Hata Yapılanlar -->
+                     <div class="console-card">
+                        <h2 class="section-title">🎯 Odak</h2>
+                        <ul id="topSubjectsList" style="list-style: none; padding:0; font-size:0.9rem;">
+                            <li style="color:var(--text-secondary); text-align:center;">Veri yok</li>
+                        </ul>
+                    </div>
                 </div>
 
+                <!-- SAĞ KOLON: Galeri -->
                 <div class="right-column">
-                    <div class="gallery">
-                        <h2 class="section-title">📖 Soru Galerim</h2>
-                        
+                    <div class="console-card" style="min-height: 80vh;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap:wrap; gap:10px;">
+                            <h2 class="section-title">📖 Soru Kütüphanesi</h2>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="weeklyGoalInput" placeholder="Hedef" style="width: 70px;">
+                                <button class="btn" id="btnSetGoal" style="padding: 8px;">🎯</button>
+                                <span id="weeklyGoalStatus" style="font-size: 0.8rem; margin-left:5px; font-weight:bold;"></span>
+                            </div>
+                        </div>
+
+                        <!-- Filtre Sekmeleri -->
                         <div class="gallery-tabs" id="galleryTabs">
                             <span class="gallery-tab active" data-brans="">Tümü</span>
                             <span class="gallery-tab" data-brans="Matematik">Matematik</span>
@@ -1306,300 +497,239 @@
                             <span class="gallery-tab" data-brans="Edebiyat">Edebiyat</span>
                             <span class="gallery-tab" data-brans="Tarih">Tarih</span>
                             <span class="gallery-tab" data-brans="Coğrafya">Coğrafya</span>
-                            <span class="gallery-tab" data-brans="Felsefe">Felsefe</span>
                         </div>
                         
+                        <!-- Sıralama Butonları -->
                         <div class="sort-section">
-                            <button class="btn btn-secondary sort-btn" id="btnFilterExam" data-state="all">
-                                Oturum: Hepsi
-                            </button>
-                            <button class="btn btn-secondary sort-btn active" id="btnSortDate" data-sort-direction="desc">
-                                🗓️ Tarih (Yeni → Eski)
-                            </button>
-                            <button class="btn btn-secondary sort-btn" id="btnSortDifficulty" data-sort-direction="desc">
-                                📊 Zorluk (Zor → Kolay)
-                            </button>
+                            <button class="btn sort-btn" id="btnFilterExam" data-state="all">Oturum: Hepsi</button>
+                            <button class="btn sort-btn active" id="btnSortDate">🗓️ Tarih (Y-E)</button>
+                            <button class="btn sort-btn" id="btnSortDifficulty">📊 Zorluk</button>
                         </div>
-                        
+
                         <div class="question-grid" id="questionGrid">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📝</div>
-                                <h3>Henüz soru eklenmedi</h3>
-                                <p>Yukarıdan soru görseli yükleyerek başlayın!</p>
+                            <div class="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;">
+                                <div style="font-size: 3rem; opacity: 0.5;">📭</div>
+                                <p>Henüz soru eklenmedi.</p>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Veri Yönetimi -->
+                    <div class="console-card">
+                        <h2 class="section-title">📦 Yedekleme</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn" id="btnExport" style="flex:1;">📤 Yedek İndir</button>
+                            <button class="btn" id="btnImport" style="flex:1;">📥 Yedek Yükle</button>
+                        </div>
+                        <input type="file" id="importFile" accept=".json">
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- PAGE 2: DENEME TAKİP -->
         <div id="testPage" class="tab-content">
-            <div class="test-section">
-                <h2 class="section-title">📝 Yeni Deneme Sonucu Ekle</h2>
-                <div class="form-group">
-                    <label for="testType">Sınav Oturumu</label>
-                    <select id="testType">
-                        <option value="TYT">TYT</option>
-                        <option value="AYT">AYT</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="testName">Deneme Adı</label>
-                    <input type="text" id="testName" placeholder="Örn: 3D Yayınları Deneme 5">
-                </div>
-                
-                <div class="total-questions-settings">
-                    <h4>📝 Derslerin Toplam Soru Sayıları</h4>
-                    <div id="tytTotalQuestions" class="total-questions-grid">
-                        <div class="total-q-group"><label>Matematik</label><input type="number" class="total-q-input" data-lesson="tytMat" id="tytMatToplam" value="40"></div>
-                        <div class="total-q-group"><label>Türkçe</label><input type="number" class="total-q-input" data-lesson="tytTurkce" id="tytTurkceToplam" value="40"></div>
-                        <div class="total-q-group"><label>Sosyal</label><input type="number" class="total-q-input" data-lesson="tytSosyal" id="tytSosyalToplam" value="20"></div>
-                        <div class="total-q-group"><label>Fen</label><input type="number" class="total-q-input" data-lesson="tytFen" id="tytFenToplam" value="20"></div>
+            <div class="tile-grid">
+                <div class="console-card">
+                    <h2 class="section-title">📝 Deneme Girişi</h2>
+                    <div class="input-wrapper">
+                        <div style="display: flex; gap: 10px;">
+                            <select id="testType" style="flex:1;"><option value="TYT">TYT</option><option value="AYT">AYT</option></select>
+                            <input type="text" id="testName" placeholder="Örn: 3D Yayınları Deneme 1" style="flex:3;">
+                        </div>
                     </div>
-                    <div id="aytTotalQuestions" class="total-questions-grid" style="display: none;">
-                        <div class="total-q-group"><label>Matematik</label><input type="number" class="total-q-input" data-lesson="aytMat" id="aytMatToplam" value="40"></div>
-                        <div class="total-q-group"><label>Fizik</label><input type="number" class="total-q-input" data-lesson="aytFizik" id="aytFizikToplam" value="14"></div>
-                        <div class="total-q-group"><label>Kimya</label><input type="number" class="total-q-input" data-lesson="aytKimya" id="aytKimyaToplam" value="13"></div>
-                        <div class="total-q-group"><label>Biyoloji</label><input type="number" class="total-q-input" data-lesson="aytBiyoloji" id="aytBiyolojiToplam" value="13"></div>
-                        <div class="total-q-group"><label>Edebiyat</label><input type="number" class="total-q-input" data-lesson="aytEdebiyat" id="aytEdebiyatToplam" value="24"></div>
-                        <div class="total-q-group"><label>Coğrafya</label><input type="number" class="total-q-input" data-lesson="aytCografya" id="aytCografyaToplam" value="6"></div>
+
+                    <!-- Soru Sayıları -->
+                    <div style="background: rgba(0,0,0,0.02); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+                        <h4 style="margin-bottom: 5px; color: var(--text-secondary); font-size:0.8rem;">Soru Sayıları (Toplam)</h4>
+                        <div id="tytTotalQuestions" style="display: flex; gap: 5px; flex-wrap: wrap;">
+                            <input type="number" id="tytMatToplam" value="40" class="total-q-input" data-lesson="tytMat" style="width: 50px;" title="Matematik">
+                            <input type="number" id="tytTurkceToplam" value="40" class="total-q-input" data-lesson="tytTurkce" style="width: 50px;" title="Türkçe">
+                            <input type="number" id="tytSosyalToplam" value="20" class="total-q-input" data-lesson="tytSosyal" style="width: 50px;" title="Sosyal">
+                            <input type="number" id="tytFenToplam" value="20" class="total-q-input" data-lesson="tytFen" style="width: 50px;" title="Fen">
+                        </div>
+                        <div id="aytTotalQuestions" style="display: none; gap: 5px; flex-wrap: wrap;">
+                             <input type="number" id="aytMatToplam" value="40" class="total-q-input" data-lesson="aytMat" style="width: 50px;">
+                             <input type="number" id="aytFizikToplam" value="14" class="total-q-input" data-lesson="aytFizik" style="width: 50px;">
+                             <input type="number" id="aytKimyaToplam" value="13" class="total-q-input" data-lesson="aytKimya" style="width: 50px;">
+                             <input type="number" id="aytBiyolojiToplam" value="13" class="total-q-input" data-lesson="aytBiyoloji" style="width: 50px;">
+                             <input type="number" id="aytEdebiyatToplam" value="24" class="total-q-input" data-lesson="aytEdebiyat" style="width: 50px;">
+                             <input type="number" id="aytCografyaToplam" value="6" class="total-q-input" data-lesson="aytCografya" style="width: 50px;">
+                        </div>
                     </div>
+
+                    <div id="tytTestInputs">
+                        <div class="test-input-grid"><label>Mat</label><div class="input-group"><input type="number" data-lesson="tytMat" class="dogru-input count-input" placeholder="D"><input type="number" data-lesson="tytMat" class="yanlis-input count-input" placeholder="Y"><input type="number" data-lesson="tytMat" class="bos-display" placeholder="B" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytMat" style="padding: 5px 10px; font-size: 0.7rem;">Konu</button></div>
+                        <div class="test-input-grid"><label>Tr</label><div class="input-group"><input type="number" data-lesson="tytTurkce" class="dogru-input count-input" placeholder="D"><input type="number" data-lesson="tytTurkce" class="yanlis-input count-input" placeholder="Y"><input type="number" data-lesson="tytTurkce" class="bos-display" placeholder="B" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytTurkce" style="padding: 5px 10px; font-size: 0.7rem;">Konu</button></div>
+                        <div class="test-input-grid"><label>Sos</label><div class="input-group"><input type="number" data-lesson="tytSosyal" class="dogru-input count-input" placeholder="D"><input type="number" data-lesson="tytSosyal" class="yanlis-input count-input" placeholder="Y"><input type="number" data-lesson="tytSosyal" class="bos-display" placeholder="B" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytSosyal" style="padding: 5px 10px; font-size: 0.7rem;">Konu</button></div>
+                        <div class="test-input-grid"><label>Fen</label><div class="input-group"><input type="number" data-lesson="tytFen" class="dogru-input count-input" placeholder="D"><input type="number" data-lesson="tytFen" class="yanlis-input count-input" placeholder="Y"><input type="number" data-lesson="tytFen" class="bos-display" placeholder="B" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytFen" style="padding: 5px 10px; font-size: 0.7rem;">Konu</button></div>
+                    </div>
+
+                    <div id="aytTestInputs" style="display: none;">
+                         <div class="test-input-grid"><label>Mat</label><div class="input-group"><input type="number" data-lesson="aytMat" class="dogru-input count-input"><input type="number" data-lesson="aytMat" class="yanlis-input count-input"><input type="number" data-lesson="aytMat" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytMat" style="font-size:0.7rem;">Konu</button></div>
+                         <div class="test-input-grid"><label>Fiz</label><div class="input-group"><input type="number" data-lesson="aytFizik" class="dogru-input count-input"><input type="number" data-lesson="aytFizik" class="yanlis-input count-input"><input type="number" data-lesson="aytFizik" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytFizik" style="font-size:0.7rem;">Konu</button></div>
+                         <div class="test-input-grid"><label>Kim</label><div class="input-group"><input type="number" data-lesson="aytKimya" class="dogru-input count-input"><input type="number" data-lesson="aytKimya" class="yanlis-input count-input"><input type="number" data-lesson="aytKimya" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytKimya" style="font-size:0.7rem;">Konu</button></div>
+                         <div class="test-input-grid"><label>Biyo</label><div class="input-group"><input type="number" data-lesson="aytBiyoloji" class="dogru-input count-input"><input type="number" data-lesson="aytBiyoloji" class="yanlis-input count-input"><input type="number" data-lesson="aytBiyoloji" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytBiyoloji" style="font-size:0.7rem;">Konu</button></div>
+                         <div class="test-input-grid"><label>Edb</label><div class="input-group"><input type="number" data-lesson="aytEdebiyat" class="dogru-input count-input"><input type="number" data-lesson="aytEdebiyat" class="yanlis-input count-input"><input type="number" data-lesson="aytEdebiyat" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytEdebiyat" style="font-size:0.7rem;">Konu</button></div>
+                         <div class="test-input-grid"><label>Cog</label><div class="input-group"><input type="number" data-lesson="aytCografya" class="dogru-input count-input"><input type="number" data-lesson="aytCografya" class="yanlis-input count-input"><input type="number" data-lesson="aytCografya" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytCografya" style="font-size:0.7rem;">Konu</button></div>
+                    </div>
+
+                    <button class="btn btn-primary" id="btnSaveTestResult" style="width: 100%; margin-top: 20px;">💾 Sonucu Kaydet</button>
                 </div>
 
-                <hr style="margin: 20px 0; border: none; border-top: 1px dashed var(--section-border-color);">
-
-                <div id="tytTestInputs" class="test-inputs">
-                    <h3>TYT Dersleri</h3>
-                    <div class="test-input-grid">
-                        <label>Matematik</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="tytMat" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="tytMat" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="tytMat" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="tytMat">Konu Ekle</button>
-                        
-                        <label>Türkçe</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="tytTurkce" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="tytTurkce" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="tytTurkce" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="tytTurkce">Konu Ekle</button>
-
-                        <label>Sosyal</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="tytSosyal" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="tytSosyal" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="tytSosyal" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="tytSosyal">Konu Ekle</button>
-                        
-                        <label>Fen</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="tytFen" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="tytFen" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="tytFen" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="tytFen">Konu Ekle</button>
+                <div class="right-column">
+                    <div class="console-card">
+                         <h2 class="section-title">📊 İstatistikler</h2>
+                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="stat-capsule"><div class="stat-number" id="tytAverageNet">0</div><div class="stat-label">TYT Ort.</div></div>
+                            <div class="stat-capsule"><div class="stat-number" id="tytBestNet">0</div><div class="stat-label">TYT En İyi</div></div>
+                            <div class="stat-capsule"><div class="stat-number" id="aytAverageNet">0</div><div class="stat-label">AYT Ort.</div></div>
+                            <div class="stat-capsule"><div class="stat-number" id="aytBestNet">0</div><div class="stat-label">AYT En İyi</div></div>
+                         </div>
                     </div>
-                </div>
-                <div id="aytTestInputs" class="test-inputs" style="display: none;">
-                    <h3>AYT Dersleri</h3>
-                    <div class="test-input-grid">
-                         <label>Matematik</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="aytMat" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="aytMat" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="aytMat" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytMat">Konu Ekle</button>
-                        
-                        <label>Fizik</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="aytFizik" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="aytFizik" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="aytFizik" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytFizik">Konu Ekle</button>
-                        
-                        <label>Kimya</label>
-                        <div class="input-group">
-                           <input type="number" data-lesson="aytKimya" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="aytKimya" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="aytKimya" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytKimya">Konu Ekle</button>
-                        
-                        <label>Biyoloji</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="aytBiyoloji" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="aytBiyoloji" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="aytBiyoloji" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytBiyoloji">Konu Ekle</button>
-                        
-                        <label>Edebiyat</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="aytEdebiyat" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="aytEdebiyat" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="aytEdebiyat" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytEdebiyat">Konu Ekle</button>
-                        
-                        <label>Coğrafya</label>
-                        <div class="input-group">
-                            <input type="number" data-lesson="aytCografya" class="dogru-input count-input" placeholder="Doğru">
-                            <input type="number" data-lesson="aytCografya" class="yanlis-input count-input" placeholder="Yanlış">
-                            <input type="number" data-lesson="aytCografya" class="bos-display" placeholder="Boş" disabled>
-                        </div>
-                        <button class="btn btn-secondary btn-add-subject" data-lesson="aytCografya">Konu Ekle</button>
+                    
+                    <div class="console-card">
+                        <h2 class="section-title">📜 Son Denemeler</h2>
+                        <div id="testListContainer" style="max-height: 400px; overflow-y: auto;"></div>
                     </div>
-                </div>
-                <button class="btn btn-primary" id="btnSaveTestResult">💾 Deneme Sonucunu Kaydet</button>
-            </div>
-            <div class="test-section" style="margin-top: 30px;">
-                <h2 class="section-title">📊 Deneme Sonuçlarım</h2>
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="tytAverageNet">0</div>
-                        <div class="stat-label">TYT Ortalama Net</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="tytBestNet">0</div>
-                        <div class="stat-label">TYT En İyi Net</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="aytAverageNet">0</div>
-                        <div class="stat-label">AYT Ortalama Net</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="aytBestNet">0</div>
-                        <div class="stat-label">AYT En İyi Net</div>
-                    </div>
-                </div>
-                <div class="test-list-container" id="testListContainer">
-                    </div>
-            </div>
-            <div class="chart-container" style="margin-top: 30px;">
-                <h3 style="text-align: center; margin-bottom: 20px; color: var(--section-title-color);">Deneme Netlerinin Değişimi</h3>
-                <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="tytTotalChart"></canvas>
-                    </div>
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="aytTotalChart"></canvas>
-                    </div>
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="tytMatChart"></canvas>
-                    </div>
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="tytTurkceChart"></canvas>
-                    </div>
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="aytMatChart"></canvas>
-                    </div>
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="aytFizikChart"></canvas>
-                    </div>
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="aytKimyaChart"></canvas>
-                    </div>
-                    <div style="width: 400px; height: 400px;">
-                        <canvas id="aytBiyolojiChart"></canvas>
+                    
+                    <div class="console-card">
+                         <h2 class="section-title">📈 Gelişim Grafiği</h2>
+                         <div class="chart-wrapper">
+                             <canvas id="tytTotalChart"></canvas>
+                         </div>
+                         <div class="chart-wrapper" style="margin-top: 15px;">
+                             <canvas id="aytTotalChart"></canvas>
+                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- DOCK MENU -->
+    <div class="dock-container" id="navMenu">
+        <a href="#" class="dock-item active" data-page="questionPage">
+            <div class="dock-icon">📚</div>
+            <span>Soru Defteri</span>
+        </a>
+        <a href="#" class="dock-item" data-page="testPage">
+            <div class="dock-icon">📈</div>
+            <span>Deneme Takip</span>
+        </a>
+    </div>
+
+    <!-- MODAL: Soru Detay -->
     <div id="myModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="close" id="modalCloseBtn">&times;</span>
-                <h2 class="modal-title" id="modalTitle">Soru Detayları</h2>
-                <p class="modal-subtitle" id="modalDate"></p>
+                <h2 id="modalTitle">Soru Detayı</h2>
+                <span class="close" id="modalCloseBtn" style="cursor:pointer; font-size:1.5rem;">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="modal-image-container">
-                    <img class="modal-image" id="modalImage" src="" alt="Soru Görseli">
+                <div>
+                    <img id="modalImage" src="" style="width:100%; border-radius:10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: zoom-in;">
                 </div>
-                <div class="modal-details">
-                    <div class="modal-tags" id="modalTags"></div>
-                    <div class="detail-section">
-                        <div class="detail-title">📚 Kaynak</div>
-                        <div class="detail-content" id="modalSource"></div>
+                <div>
+                    <p id="modalDate" style="color:var(--text-secondary); margin-bottom:10px; font-size:0.9rem;"></p>
+                    <div id="modalTags" style="margin-bottom:15px;"></div>
+                    <div class="input-wrapper">
+                        <label>Kaynak</label>
+                        <div id="modalSource" style="font-weight:bold;"></div>
                     </div>
-                    <div class="detail-section">
-                        <div class="detail-title">💭 Kişisel Notlarım</div>
-                        <div class="detail-content" id="modalComment"></div>
+                    <div class="input-wrapper">
+                        <label>Notlar</label>
+                        <div id="modalComment"></div>
                     </div>
-                    <div class="detail-section">
-                        <div class="detail-title">🖼️ Çözüm Görseli</div>
-                        <div class="detail-content">
-                            <img id="solutionImage" src="" alt="Çözüm Görseli">
-                            <p id="noSolutionText" style="font-style: italic; color: #718096; display: none;">Çözüm görseli eklenmemiş.</p>
-                            <input type="file" id="solutionInput" accept="image/*" style="margin-top: 10px;">
-                            <button class="btn btn-primary" id="btnSaveSolution">Çözümü Kaydet</button>
-                        </div>
+                    
+                    <div class="input-wrapper" style="margin-top: 20px;">
+                        <label>Çözüm Görseli</label>
+                        <img id="solutionImage" src="" style="width:100%; border-radius:10px; margin-bottom:10px;">
+                        <p id="noSolutionText" style="color:var(--text-secondary); font-style:italic;">Çözüm Yok</p>
+                        <input type="file" id="solutionInput" style="margin-top:10px;">
+                        <button class="btn btn-primary" id="btnSaveSolution" style="margin-top:10px; width:100%;">Çözümü Kaydet</button>
                     </div>
-                    <div class="detail-section">
-                        <div class="detail-title">🔄 Durumu Güncelle</div>
-                        <div class="status-changer">
-                            <select id="modalDurumSelect">
-                                <option value="cozulmedi">❌ Çözülmedi</option>
-                                <option value="yarim">⚠️ Yarım Anladım</option>
-                                <option value="cozuldu">✅ Çözüldü</option>
-                            </select>
-                            <button class="btn-status" id="btnUpdateStatus">Durumu Güncelle</button>
-                        </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <select id="modalDurumSelect" style="flex:1;">
+                            <option value="cozulmedi">Çözülmedi</option>
+                            <option value="yarim">Yarım</option>
+                            <option value="cozuldu">Çözüldü</option>
+                        </select>
+                        <button class="btn btn-primary" id="btnUpdateStatus">Güncelle</button>
                     </div>
-                    <div class="detail-section">
-                        <button class="btn-delete" id="btnDeleteQuestion">❌ Soruyu Sil</button>
-                    </div>
+                    <button class="btn" id="btnDeleteQuestion" style="width:100%; margin-top:10px; background: #ff4757; color: white;">Sil</button>
                 </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- MODAL: Ayarlar (Renk Teması) -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>⚙️ Ayarlar</h2>
+                <span class="close" id="settingsCloseBtn" style="cursor:pointer; font-size:1.5rem;">&times;</span>
+            </div>
+            <div style="padding: 25px;">
+                <label>Tema Rengi</label>
+                <div class="color-options">
+                    <div class="color-circle" style="background: hsl(200, 100%, 45%);" data-hue="200"></div> <!-- Mavi -->
+                    <div class="color-circle" style="background: hsl(260, 100%, 60%);" data-hue="260"></div> <!-- Mor -->
+                    <div class="color-circle" style="background: hsl(150, 100%, 40%);" data-hue="150"></div> <!-- Yeşil -->
+                    <div class="color-circle" style="background: hsl(30, 100%, 50%);" data-hue="30"></div>  <!-- Turuncu -->
+                    <div class="color-circle" style="background: hsl(340, 100%, 55%);" data-hue="340"></div> <!-- Pembe -->
+                    <div class="color-circle" style="background: hsl(0, 0%, 40%);" data-hue="0"></div>   <!-- Siyah/Gri -->
+                </div>
+                
+                <button class="btn" id="btnResetTheme" style="width:100%; margin-top:20px;">Varsayılana Dön</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Fullscreen -->
     <div id="fullscreenModal" class="modal">
-        <span class="fullscreen-close" id="fullscreenCloseBtn">&times;</span>
-        <img id="fullscreenModalContent">
+        <span id="fullscreenCloseBtn" style="position:absolute; top:20px; right:30px; color:white; font-size:3rem; cursor:pointer;">&times;</span>
+        <img id="fullscreenModalContent" style="max-height:95%; max-width:95%;">
     </div>
 
-    <div id="subjectModal" class="modal" style="align-items: flex-start; padding-top: 5%;">
-        <div class="modal-content" style="max-width: 600px;">
+    <!-- MODAL: Konu Ekle -->
+    <div id="subjectModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <span class="close" id="subjectModalCloseBtn">&times;</span>
-                <h2 class="modal-title" id="subjectModalTitle">Konu Ekle</h2>
+                <h2 id="subjectModalTitle">Konu Ekle</h2>
+                <span class="close" id="subjectModalCloseBtn" style="cursor:pointer;">&times;</span>
             </div>
-            <div class="modal-body" style="grid-template-columns: 1fr; padding: 20px;">
-                <p id="subjectModalInfo">Lütfen bu dersteki toplam <strong id="mistakeCount">0</strong> adet boş veya yanlış konunuzu girin.</p>
-                <div class="form-group">
-                    <label for="subjectInput">Konu Adı (Enter'a basarak ekleyin)</label>
-                    <input type="text" id="subjectInput" placeholder="Örn: Trigonometri, Limit, Ses Bilgisi...">
-                </div>
-                <div id="subjectTagsContainer" class="modal-tags" style="margin-top: 15px; border: 1px solid var(--input-border); padding: 10px; border-radius: 10px; min-height: 50px;">
-                    </div>
-                <button id="saveSubjectsBtn" class="btn btn-primary" style="margin-top: 20px;">Konuları Kaydet</button>
+            <div style="padding: 20px;">
+                <p id="subjectModalInfo" style="margin-bottom: 15px; color: var(--text-secondary);">Bu derste <strong id="mistakeCount">0</strong> hata için konu giriniz.</p>
+                <input type="text" id="subjectInput" placeholder="Konu adı yazıp Enter'a bas">
+                <div id="subjectTagsContainer" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:5px;"></div>
+                <button id="saveSubjectsBtn" class="btn btn-primary" style="margin-top:20px; width:100%;">Tamam</button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL: Deneme Detay -->
     <div id="testDetailModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content">
             <div class="modal-header">
-                <span class="close" id="testDetailModalCloseBtn">&times;</span>
-                <h2 class="modal-title" id="testDetailModalTitle">Deneme Detayları</h2>
-                <p class="modal-subtitle" id="testDetailModalDate"></p>
+                <h2 id="testDetailModalTitle">Deneme Detayı</h2>
+                <span class="close" id="testDetailModalCloseBtn" style="cursor:pointer;">&times;</span>
             </div>
-            <div class="modal-body" id="testDetailModalBody" style="grid-template-columns: 1fr; padding: 25px; max-height: 70vh; overflow-y: auto;">
-                </div>
+            <div class="modal-body" id="testDetailModalBody" style="display:block;"></div>
         </div>
     </div>
 
     <script>
-        // --- IndexedDB Setup ---
+        // --- Clock ---
+        setInterval(() => {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${h}:${m}`;
+        }, 1000);
+
+        // --- IndexedDB ---
         let db;
         const DB_NAME = 'YKSDefteriDB';
         const DB_VERSION = 1;
@@ -1608,124 +738,53 @@
 
         function initDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains(QUESTION_STORE)) {
-                        db.createObjectStore(QUESTION_STORE, { keyPath: 'id' });
-                    }
-                    if (!db.objectStoreNames.contains(TEST_STORE)) {
-                        db.createObjectStore(TEST_STORE, { keyPath: 'id' });
-                    }
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(QUESTION_STORE)) db.createObjectStore(QUESTION_STORE, { keyPath: 'id' });
+                    if (!db.objectStoreNames.contains(TEST_STORE)) db.createObjectStore(TEST_STORE, { keyPath: 'id' });
                 };
-
-                request.onsuccess = (event) => {
-                    db = event.target.result;
-                    console.log('Database opened successfully');
-                    resolve(db);
-                };
-
-                request.onerror = (event) => {
-                    console.error('Database error:', event.target.errorCode);
-                    reject(event.target.errorCode);
-                };
+                req.onsuccess = (e) => { db = e.target.result; resolve(db); };
+                req.onerror = (e) => reject(e.target.error);
             });
         }
 
-        function getStore(storeName, mode) {
-            const tx = db.transaction(storeName, mode);
-            return tx.objectStore(storeName);
-        }
+        function getStore(name, mode) { return db.transaction(name, mode).objectStore(name); }
+        function addToDB(name, item) { return new Promise((res, rej) => { const r = getStore(name, 'readwrite').add(item); r.onsuccess = () => res(); r.onerror = (e) => rej(e.target.error); }); }
+        function updateInDB(name, item) { return new Promise((res, rej) => { const r = getStore(name, 'readwrite').put(item); r.onsuccess = () => res(); r.onerror = (e) => rej(e.target.error); }); }
+        function deleteFromDB(name, id) { return new Promise((res, rej) => { const r = getStore(name, 'readwrite').delete(id); r.onsuccess = () => res(); r.onerror = (e) => rej(e.target.error); }); }
+        function getAllFromDB(name) { return new Promise((res, rej) => { const r = getStore(name, 'readonly').getAll(); r.onsuccess = (e) => res(e.target.result); r.onerror = (e) => rej(e.target.error); }); }
 
-        function addToDB(storeName, item) {
-            return new Promise((resolve, reject) => {
-                const store = getStore(storeName, 'readwrite');
-                const request = store.add(item);
-                request.onsuccess = () => resolve();
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
+        // --- State ---
+        let questions = [], tests = [], currentQuestionId = null, tempMistakeSubjects = {};
         
-        function updateInDB(storeName, item) {
-             return new Promise((resolve, reject) => {
-                const store = getStore(storeName, 'readwrite');
-                const request = store.put(item);
-                request.onsuccess = () => resolve();
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        function deleteFromDB(storeName, id) {
-            return new Promise((resolve, reject) => {
-                const store = getStore(storeName, 'readwrite');
-                const request = store.delete(id);
-                request.onsuccess = () => resolve();
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        function getAllFromDB(storeName) {
-            return new Promise((resolve, reject) => {
-                const store = getStore(storeName, 'readonly');
-                const request = store.getAll();
-                request.onsuccess = (event) => resolve(event.target.result);
-                request.onerror = (event) => reject(event.target.error);
-            });
-        }
-
-        // --- Application State ---
-        let questions = [];
-        let tests = [];
-        let currentQuestionId = null;
-        let tempMistakeSubjects = {}; 
-        
-        // YENİ: Sıralama ve Filtreleme Durumları
-        let currentSortType = 'date'; // 'date' (default) veya 'difficulty'
-        let dateSortDirection = 'desc'; // 'desc' (default) veya 'asc'
-        let difficultySortDirection = 'desc'; // 'desc' (default) veya 'asc'
-        // filterExam state'i butonda data-state olarak tutulacak.
-        
-        let bransChart, zorlukChart, tytTotalChart, aytTotalChart;
-        let tytMatChart, tytTurkceChart, aytMatChart, aytFizikChart, aytKimyaChart, aytBiyolojiChart;
+        // Sorting State
+        let currentSortType = 'date'; // 'date' | 'difficulty'
+        let dateSortDirection = 'desc'; 
+        let difficultySortDirection = 'desc';
+        let filterExamState = 'all'; // 'all' | 'TYT' | 'AYT'
 
         async function loadData() {
             try {
-                const [questionsData, testsData] = await Promise.all([
-                    getAllFromDB(QUESTION_STORE),
-                    getAllFromDB(TEST_STORE)
-                ]);
-                questions = questionsData;
-                tests = testsData;
-                updateUI();
-                checkDailyStreak();
-                updateWeeklyGoalStatus(); 
-            } catch (error) {
-                console.error("Failed to load data from DB:", error);
-            }
+                const [qData, tData] = await Promise.all([getAllFromDB(QUESTION_STORE), getAllFromDB(TEST_STORE)]);
+                questions = qData; tests = tData;
+                updateUI(); checkDailyStreak(); updateWeeklyGoalStatus();
+            } catch (e) { console.error(e); }
         }
 
         function updateUI() {
-            updateQuestionGrid(); // Soru gridi, filtreler tarafından güncellenir
-            updateStats();
-            drawCharts();
-            updateTestUI();
-            updateTopMistakeSubjects(); 
+            updateQuestionGrid(); updateStats(); drawCharts(); updateTestUI(); updateTopMistakeSubjects();
         }
-        
+
+        // --- Questions ---
         async function saveQuestions() {
             const fileInput = document.getElementById('fileInput');
-            const images = fileInput.files;
-
-            if (images.length === 0) {
-                alert('Lütfen bir görsel seçin.');
-                return;
-            }
-
-            for (const image of images) {
+            if (fileInput.files.length === 0) { alert('Lütfen görsel seçin.'); return; }
+            
+            for (const image of fileInput.files) {
                 const reader = new FileReader();
                 reader.onload = async function(e) {
-                    const newQuestion = {
+                    const newQ = {
                         id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
                         image: e.target.result,
                         sinav: document.getElementById('sinavOturumu').value,
@@ -1738,825 +797,496 @@
                         date: new Date().toISOString(),
                         solution: null
                     };
-
-                    try {
-                        await addToDB(QUESTION_STORE, newQuestion);
-                        questions.push(newQuestion); 
-                        
-                        updateUI(); // Her şeyi günceller
-                        
-                        document.getElementById('konu').value = '';
-                        document.getElementById('yorum').value = '';
-                        document.getElementById('kaynak').value = '';
-                        fileInput.value = '';
-
-                        checkDailyStreak(true);
-                        updateWeeklyGoalStatus();
-                    } catch (error) {
-                        console.error("Failed to save question:", error);
-                        alert("Soru kaydedilemedi. Depolama hatası.");
-                    }
+                    await addToDB(QUESTION_STORE, newQ);
+                    questions.push(newQ);
+                    updateUI();
+                    checkDailyStreak(true); updateWeeklyGoalStatus();
                 };
                 reader.readAsDataURL(image);
             }
+            // Reset Fields
+            document.getElementById('konu').value = ''; 
+            document.getElementById('yorum').value = '';
+            fileInput.value = '';
         }
 
-        async function saveTestResult() {
-            const testType = document.getElementById('testType').value;
-            const testName = document.getElementById('testName').value;
-
-            if (!testName) {
-                alert('Lütfen deneme adını girin.');
-                return;
-            }
-
-            let testResult = {
-                id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-                date: new Date().toISOString().split('T')[0],
-                type: testType,
-                name: testName,
-                results: {}
-            };
-
-            const sections = {
-                'TYT': ['tytMat', 'tytTurkce', 'tytSosyal', 'tytFen'],
-                'AYT': ['aytMat', 'aytFizik', 'aytKimya', 'aytBiyoloji', 'aytEdebiyat', 'aytCografya']
-            };
-
-            let totalNet = 0;
-            let formIsValid = true;
-            sections[testType].forEach(section => {
-                const total = parseInt(document.getElementById(`${section}Toplam`).value) || 0;
-                const dogru = parseInt(document.querySelector(`.dogru-input[data-lesson='${section}']`).value) || 0;
-                const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${section}']`).value) || 0;
-                
-                if (dogru + yanlis > total) {
-                    alert(`${section} dersi için doğru ve yanlış sayısı toplam soru sayısından fazla olamaz!`);
-                    formIsValid = false;
-                    return;
-                }
-
-                const bos = total - (dogru + yanlis);
-                const net = dogru - (yanlis / 4);
-
-                testResult.results[section] = { 
-                    dogru, 
-                    yanlis, 
-                    bos,
-                    net,
-                    mistakeSubjects: tempMistakeSubjects[section] || []
-                };
-                totalNet += net;
-            });
-
-            if (!formIsValid) return;
-
-            testResult.totalNet = totalNet;
-            
-            try {
-                await addToDB(TEST_STORE, testResult);
-                tests.push(testResult);
-                updateTestUI();
-
-                document.getElementById('testName').value = '';
-                sections[testType].forEach(section => {
-                    document.querySelector(`.dogru-input[data-lesson='${section}']`).value = '';
-                    document.querySelector(`.yanlis-input[data-lesson='${section}']`).value = '';
-                    updateCounts(section); 
-                });
-                tempMistakeSubjects = {};
-
-            } catch (error) {
-                console.error("Failed to save test result:", error);
-                alert("Deneme sonucu kaydedilemedi.");
-            }
-        }
-
-        async function updateQuestionStatus() {
-            const newStatus = document.getElementById('modalDurumSelect').value;
-            const questionIndex = questions.findIndex(q => q.id === currentQuestionId);
-            if (questionIndex === -1) return;
-
-            questions[questionIndex].durum = newStatus;
-            
-            try {
-                await updateInDB(QUESTION_STORE, questions[questionIndex]);
-                updateUI();
-                closeModal();
-            } catch (error) {
-                console.error("Failed to update status:", error);
-            }
-        }
-        
-        async function saveSolutionImage() {
-            const solutionInput = document.getElementById('solutionInput');
-            const image = solutionInput.files[0];
-            if (!image) {
-                alert('Lütfen bir çözüm görseli seçin.');
-                return;
-            }
-
-            const questionIndex = questions.findIndex(q => q.id === currentQuestionId);
-            if (questionIndex === -1) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                questions[questionIndex].solution = e.target.result;
-                try {
-                    await updateInDB(QUESTION_STORE, questions[questionIndex]);
-                    updateUI();
-                    closeModal();
-                } catch (error) {
-                    console.error("Failed to save solution image:", error);
-                }
-            };
-            reader.readAsDataURL(image);
-        }
-
-        async function deleteQuestion() {
-            if (confirm('Bu soruyu silmek istediğinizden emin misiniz?')) {
-                try {
-                    await deleteFromDB(QUESTION_STORE, currentQuestionId);
-                    questions = questions.filter(q => q.id !== currentQuestionId);
-                    updateUI();
-                    closeModal();
-                } catch (error) {
-                    console.error("Failed to delete question:", error);
-                }
-            }
-        }
-        
-        async function deleteQuestionFromCard(id) {
-            if (confirm('Bu soruyu kalıcı olarak silmek istediğinizden emin misiniz?')) {
-                 try {
-                    await deleteFromDB(QUESTION_STORE, id);
-                    questions = questions.filter(q => q.id !== id);
-                    updateUI();
-                } catch (error) {
-                    console.error("Failed to delete question from card:", error);
-                }
-            }
-        }
-
-        async function deleteTest(id) {
-            if (!confirm('Bu deneme sonucunu kalıcı olarak silmek istediğinizden emin misiniz?')) {
-                return; 
-            }
-            try {
-                await deleteFromDB(TEST_STORE, id);
-                tests = tests.filter(t => t.id !== id);
-                updateTestUI(); 
-            } catch (error) {
-                console.error("Failed to delete test:", error);
-                alert("Deneme silinirken bir hata oluştu.");
-            }
-        }
-
-        async function exportData() {
-            try {
-                const questionsData = await getAllFromDB(QUESTION_STORE);
-                const testsData = await getAllFromDB(TEST_STORE);
-
-                if (questionsData.length === 0 && testsData.length === 0) {
-                    alert('Dışa aktarılacak veri yok!');
-                    return;
-                }
-                
-                const dataToExport = { questions: questionsData, tests: testsData };
-                const dataStr = JSON.stringify(dataToExport, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(dataBlob);
-                link.download = `yks-hata-defteri-${new Date().toISOString().split('T')[0]}.json`;
-                link.click();
-                
-                alert('Veriler başarıyla JSON dosyası olarak dışa aktarıldı.');
-            } catch (error) {
-                console.error("Export failed:", error);
-                alert("Veriler dışa aktarılamadı.");
-            }
-        }
-
-        function importData() {
-            document.getElementById('importFile').click();
-        }
-
-        function handleImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    const importedQuestions = importedData.questions || [];
-                    const importedTests = importedData.tests || [];
-                    
-                    if (confirm('Mevcut tüm verileriniz silinecek ve bu dosyadaki verilerle değiştirilecek. Emin misiniz?')) {
-                        const tx = db.transaction([QUESTION_STORE, TEST_STORE], 'readwrite');
-                        const questionStore = tx.objectStore(QUESTION_STORE);
-                        const testStore = tx.objectStore(TEST_STORE);
-
-                        questionStore.clear();
-                        testStore.clear();
-
-                        importedQuestions.forEach(q => questionStore.add(q));
-                        importedTests.forEach(t => testStore.add(t));
-
-                        tx.oncomplete = () => {
-                            alert('Veriler başarıyla içe aktarıldı!');
-                            loadData(); 
-                        };
-                        tx.onerror = (event) => {
-                            console.error("Import transaction failed:", event.target.error);
-                            alert("Veriler içe aktarılırken bir hata oluştu.");
-                        };
-                    }
-                } catch (error) {
-                    console.error("Import error:", error);
-                    alert('Dosya formatı hatalı! Lütfen geçerli bir JSON dosyası seçin.');
-                }
-            };
-            reader.readAsText(file);
-        }
-        
-        // updateQuestionGrid fonksiyonu (Tümüyle Değiştirildi)
         function updateQuestionGrid() {
             const grid = document.getElementById('questionGrid');
             grid.innerHTML = '';
             
-            // 1. Aktif Branş Filtresini al (Galeri sekmelerinden)
             const activeTab = document.querySelector('.gallery-tab.active');
             const filterBrans = activeTab ? activeTab.dataset.brans : '';
             
-            // 2. Aktif Oturum Filtresini al (TYT/AYT Butonundan)
-            const filterExam = document.getElementById('btnFilterExam').dataset.state; // 'all', 'tyt', 'ayt'
-
-            // 3. Soruları filtrele
-            let filteredQuestions = questions.filter(q => 
-                (!filterBrans || q.brans === filterBrans) &&
-                (filterExam === 'all' || q.sinav === filterExam)
+            let filtered = questions.filter(q => 
+                (!filterBrans || q.brans === filterBrans) && 
+                (filterExamState === 'all' || q.sinav === filterExamState)
             );
-            
-            // 4. Sırala
-            const difficultyOrder = { 'zor': 3, 'orta': 2, 'kolay': 1 };
-        
-            filteredQuestions.sort((a, b) => {
-                const dateA = new Date(a.date);
-                const dateB = new Date(b.date);
-                
-                if (currentSortType === 'date') {
-                    // Tarihe göre sırala
-                    return dateSortDirection === 'desc' ? dateB - dateA : dateA - dateB;
-                } else {
-                    // Zorluğa göre sırala
-                    const diffA = difficultyOrder[a.zorluk] || 0;
-                    const diffB = difficultyOrder[b.zorluk] || 0;
 
-                    if (diffA !== diffB) {
-                        return difficultySortDirection === 'desc' ? diffB - diffA : diffA - diffB;
-                    }
-                    // Zorluk eşitse, her zaman en yeni olan üste gelsin
-                    return dateB - dateA; 
+            const diffOrder = { 'zor': 3, 'orta': 2, 'kolay': 1 };
+            
+            filtered.sort((a, b) => {
+                if (currentSortType === 'date') {
+                    return dateSortDirection === 'desc' 
+                        ? new Date(b.date) - new Date(a.date) 
+                        : new Date(a.date) - new Date(b.date);
+                } else {
+                    const dA = diffOrder[a.zorluk] || 0;
+                    const dB = diffOrder[b.zorluk] || 0;
+                    return difficultySortDirection === 'desc' ? dB - dA : dA - dB;
                 }
             });
-            
-            // 5. Grid'i render et
-            if (filteredQuestions.length === 0) {
-                grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><h3>${questions.length === 0 ? 'Henüz soru eklenmedi' : 'Filtrelemeye uyan soru bulunamadı'}</h3><p>${questions.length === 0 ? 'Yukarıdan soru görseli yükleyerek başlayın!' : 'Filtreleri değiştirerek yeniden deneyin.'}</p></div>`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;"><div style="font-size: 3rem; opacity: 0.5;">📭</div><p>Soru bulunamadı.</p></div>`;
                 return;
             }
-            
-            filteredQuestions.forEach(q => {
+
+            filtered.forEach(q => {
                 const card = document.createElement('div');
                 card.className = 'question-card';
                 card.dataset.questionId = q.id;
-                let solutionIndicator = q.solution ? `<span class="question-solution-indicator">Çözüm Var</span>` : '';
-                
-                card.innerHTML = `<button class="delete-btn" data-question-id="${q.id}">&times;</button><img src="${q.image}" alt="Soru görseli" class="question-image"><div class="question-info"><div class="question-tags"><span class="tag tag-sinav">${q.sinav}</span><span class="tag tag-brans">${q.brans}</span><span class="tag tag-zorluk ${q.zorluk}">${q.zorluk}</span><span class="tag tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'Çözülmedi' : (q.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span></div><p class="question-date">Eklenme Tarihi: ${new Date(q.date).toLocaleDateString()}</p>${solutionIndicator}<div class="question-comment">${q.yorum || 'Not yok.'}</div></div>`;
+                card.innerHTML = `
+                    <button class="delete-btn" data-question-id="${q.id}">&times;</button>
+                    <img src="${q.image}" class="question-image">
+                    <div class="question-info">
+                        <div style="margin-bottom:5px;">
+                            <span class="tag-pill tag-brans">${q.brans}</span>
+                            <span class="tag-pill tag-zorluk ${q.zorluk}">${q.zorluk}</span>
+                            <span class="tag-pill tag-durum ${q.durum}">${q.durum === 'cozulmedi' ? 'X' : (q.durum === 'yarim' ? '!' : 'OK')}</span>
+                        </div>
+                        <div style="font-size:0.9rem; font-weight:bold; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${q.konu || 'Konu Yok'}</div>
+                        <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">${new Date(q.date).toLocaleDateString()}</div>
+                    </div>
+                `;
                 grid.appendChild(card);
             });
         }
-        
-        // YENİ: Top 5 Hatalı Konu panelini günceller
-        function updateTopMistakeSubjects() {
-            const list = document.getElementById('topSubjectsList');
-            list.innerHTML = '';
-            
-            const konuCounts = {};
-            questions.forEach(q => {
-                if (q.konu && q.konu.trim() !== '') {
-                    const konu = q.konu.trim();
-                    konuCounts[konu] = (konuCounts[konu] || 0) + 1;
-                }
-            });
 
-            const sortedKonular = Object.entries(konuCounts)
-                                      .sort(([,a], [,b]) => b - a)
-                                      .slice(0, 5);
+        // --- Tests ---
+        async function saveTestResult() {
+            const testType = document.getElementById('testType').value;
+            const testName = document.getElementById('testName').value;
+            if (!testName) { alert('Deneme adı giriniz.'); return; }
 
-            if (sortedKonular.length === 0) {
-                list.innerHTML = '<p style="color: var(--empty-state-text); text-align: center;">Henüz konu bilgisi olan soru eklenmemiş.</p>';
-                return;
+            let result = {
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                date: new Date().toISOString().split('T')[0],
+                type: testType, name: testName, results: {}
+            };
+
+            const sections = testType === 'TYT' ? ['tytMat', 'tytTurkce', 'tytSosyal', 'tytFen'] : ['aytMat', 'aytFizik', 'aytKimya', 'aytBiyoloji', 'aytEdebiyat', 'aytCografya'];
+            let totalNet = 0;
+
+            for (const sec of sections) {
+                const total = parseInt(document.getElementById(`${sec}Toplam`).value) || 0;
+                const d = parseInt(document.querySelector(`.dogru-input[data-lesson='${sec}']`).value) || 0;
+                const y = parseInt(document.querySelector(`.yanlis-input[data-lesson='${sec}']`).value) || 0;
+                
+                if (d + y > total) { alert('Hatalı soru sayısı!'); return; }
+                const net = d - (y / 4);
+                result.results[sec] = { dogru: d, yanlis: y, bos: total - d - y, net: net, mistakeSubjects: tempMistakeSubjects[sec] || [] };
+                totalNet += net;
             }
-
-            sortedKonular.forEach(([konu, count]) => {
-                const item = document.createElement('li');
-                item.className = 'top-subjects-item';
-                item.innerHTML = `
-                    <span class="top-subjects-item-name">${konu}</span>
-                    <span class="top-subjects-item-count">${count} Soru</span>
-                `;
-                list.appendChild(item);
-            });
-        }
-        
-        // KALDIRILDI: updateRepeatQuestions() fonksiyonu
-
-        function updateStats() {
-            document.getElementById('totalQuestions').innerText = questions.length;
-            document.getElementById('tytQuestions').innerText = questions.filter(q => q.sinav === 'TYT').length;
-            document.getElementById('aytQuestions').innerText = questions.filter(q => q.sinav === 'AYT').length;
-            document.getElementById('todayQuestions').innerText = questions.filter(q => q.date.split('T')[0] === new Date().toISOString().split('T')[0]).length;
-            document.getElementById('solvedQuestions').innerText = questions.filter(q => q.durum === 'cozuldu').length;
-            document.getElementById('hardQuestions').innerText = questions.filter(q => q.zorluk === 'zor').length;
+            result.totalNet = totalNet;
+            await addToDB(TEST_STORE, result);
+            tests.push(result);
+            updateTestUI();
+            tempMistakeSubjects = {};
+            document.querySelectorAll('.count-input').forEach(i => i.value = '');
+            document.getElementById('testName').value = '';
         }
 
-        // updateFilterOptions() fonksiyonu KALDIRILDI
-        // applyFilters() fonksiyonu KALDIRILDI
-        // clearFilters() fonksiyonu KALDIRILDI
-
-        function openModal(id) {
-            const question = questions.find(q => q.id === id);
-            if (!question) return;
-            currentQuestionId = id;
-            document.getElementById('modalTitle').innerText = `${question.brans} - ${question.konu}`;
-            document.getElementById('modalDate').innerText = `Eklenme Tarihi: ${new Date(question.date).toLocaleDateString()}`;
-            document.getElementById('modalImage').src = question.image;
-            document.getElementById('modalSource').innerText = question.kaynak || 'Belirtilmemiş';
-            document.getElementById('modalComment').innerText = question.yorum || 'Not yok.';
-            document.getElementById('modalDurumSelect').value = question.durum;
-            const solutionImage = document.getElementById('solutionImage');
-            const noSolutionText = document.getElementById('noSolutionText');
-            if (question.solution) {
-                solutionImage.src = question.solution;
-                solutionImage.style.display = 'block';
-                noSolutionText.style.display = 'none';
-            } else {
-                solutionImage.style.display = 'none';
-                noSolutionText.style.display = 'block';
-            }
-            const modalTags = document.getElementById('modalTags');
-            modalTags.innerHTML = `<span class="tag tag-sinav">${question.sinav}</span><span class="tag tag-brans">${question.brans}</span><span class="tag tag-zorluk ${question.zorluk}">${question.zorluk}</span><span class="tag tag-durum ${question.durum}">${question.durum === 'cozulmedi' ? 'Çözülmedi' : (question.durum === 'yarim' ? 'Yarım' : 'Çözüldü')}</span>`;
-            
-            document.getElementById('myModal').style.display = 'flex';
-        }
-        function closeModal() { document.getElementById('myModal').style.display = 'none'; }
-        function openFullscreenModal(imageSrc) {
-            document.getElementById('fullscreenModalContent').src = imageSrc;
-            document.getElementById('fullscreenModal').style.display = 'flex';
-        }
-        function closeFullscreenModal() { document.getElementById('fullscreenModal').style.display = 'none'; }
-        function toggleMenu() { document.getElementById('navMenu').classList.toggle('active'); }
-        function showPage(pageId) {
-            document.querySelectorAll('.tab-content').forEach(page => page.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            toggleMenu();
-            if (pageId === 'questionPage') {
-                updateUI();
-            } else if (pageId === 'testPage') {
-                updateTestUI();
-            }
-        }
-        
         function updateTestUI() {
-            const testListContainer = document.getElementById('testListContainer');
-            testListContainer.innerHTML = '';
-            if (tests.length === 0) {
-                 testListContainer.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📊</div><h3>Henüz deneme sonucu eklenmedi</h3><p>Yukarıdan deneme sonucunu ekleyerek başlayın!</p></div>`;
-            } else {
-                 tests.sort((a,b) => new Date(b.date) - new Date(a.date));
-                 tests.forEach(test => {
-                    const listItem = document.createElement('div');
-                    listItem.className = 'test-list-item';
-                    listItem.dataset.testid = test.id;
-                    listItem.innerHTML = `
-                        <button class="test-delete-btn" data-testid="${test.id}">&times;</button>
-                        <div class="test-info">
-                            <strong>${test.name}</strong> (${test.type})
-                            <div class="date">${new Date(test.date).toLocaleDateString()}</div>
-                        </div>
-                        <div class="test-net">${test.totalNet.toFixed(2)} Net</div>
-                    `;
-                    testListContainer.appendChild(listItem);
-                 });
-            }
-            drawTestCharts();
-            updateTestStats();
+            const cont = document.getElementById('testListContainer');
+            cont.innerHTML = '';
+            tests.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'test-list-item';
+                div.dataset.testid = t.id;
+                div.innerHTML = `
+                    <div><strong>${t.name}</strong> <small style="color:var(--text-secondary);">(${t.type})</small></div>
+                    <div style="font-weight:bold; color:var(--primary-accent); display:flex; align-items:center; gap:10px;">
+                        ${t.totalNet.toFixed(2)} Net 
+                        <span class="test-delete-btn" data-testid="${t.id}" style="color:#ff4757; font-size:1.2rem;">&times;</span>
+                    </div>`;
+                cont.appendChild(div);
+            });
+            drawTestCharts(); updateTestStats();
         }
 
-        function updateTestStats() {
-            const tytTests = tests.filter(t => t.type === 'TYT');
-            const aytTests = tests.filter(t => t.type === 'AYT');
-            const tytNets = tytTests.map(t => t.totalNet);
-            const aytNets = aytTests.map(t => t.totalNet);
-            document.getElementById('tytAverageNet').innerText = tytNets.length > 0 ? (tytNets.reduce((a, b) => a + b, 0) / tytNets.length).toFixed(2) : 0;
-            document.getElementById('tytBestNet').innerText = tytNets.length > 0 ? Math.max(...tytNets).toFixed(2) : 0;
-            document.getElementById('aytAverageNet').innerText = aytNets.length > 0 ? (aytNets.reduce((a, b) => a + b, 0) / aytNets.length).toFixed(2) : 0;
-            document.getElementById('aytBestNet').innerText = aytNets.length > 0 ? Math.max(...aytNets).toFixed(2) : 0;
+        // --- Charts ---
+        function getChartTextColor() {
+            return document.body.classList.contains('dark-mode') ? '#dfe6e9' : '#2d3436';
         }
+
         function drawCharts() {
             const bransData = {}, zorlukData = {};
             questions.forEach(q => {
                 bransData[q.brans] = (bransData[q.brans] || 0) + 1;
                 zorlukData[q.zorluk] = (zorlukData[q.zorluk] || 0) + 1;
             });
-            const commonOptions = { responsive: true, maintainAspectRatio: false };
-            if (bransChart) bransChart.destroy();
-            bransChart = new Chart(document.getElementById('bransChart').getContext('2d'), { type: 'pie', data: { labels: Object.keys(bransData), datasets: [{ data: Object.values(bransData), backgroundColor: ['#4299e1', '#48bb78', '#f6ad55', '#e53e3e', '#ecc94b', '#9f7aea', '#ed64a6'] }] }, options: commonOptions });
-            if (zorlukChart) zorlukChart.destroy();
-            zorlukChart = new Chart(document.getElementById('zorlukChart').getContext('2d'), { type: 'pie', data: { labels: Object.keys(zorlukData), datasets: [{ data: Object.values(zorlukData), backgroundColor: ['#48bb78', '#f6ad55', '#e53e3e'] }] }, options: commonOptions });
-        }
-        function drawTestCharts() {
-            const chartConfigs = {
-                tytTotalChart: { type: 'TYT', dataKey: 'totalNet', label: 'TYT Toplam Net', color: '#667eea' },
-                aytTotalChart: { type: 'AYT', dataKey: 'totalNet', label: 'AYT Toplam Net', color: '#764ba2' },
-                tytMatChart: { type: 'TYT', dataKey: 'results.tytMat.net', label: 'TYT Mat Net', color: '#4a5568' },
-                tytTurkceChart: { type: 'TYT', dataKey: 'results.tytTurkce.net', label: 'TYT Türkçe Net', color: '#e53e3e' },
-                aytMatChart: { type: 'AYT', dataKey: 'results.aytMat.net', label: 'AYT Mat Net', color: '#4a5568' },
-                aytFizikChart: { type: 'AYT', dataKey: 'results.aytFizik.net', label: 'AYT Fizik Net', color: '#4299e1' },
-                aytKimyaChart: { type: 'AYT', dataKey: 'results.aytKimya.net', label: 'AYT Kimya Net', color: '#f6ad55' },
-                aytBiyolojiChart: { type: 'AYT', dataKey: 'results.aytBiyoloji.net', label: 'AYT Biyoloji Net', color: '#48bb78' },
+            
+            const commonOpts = { 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { legend: { labels: { color: getChartTextColor() }, position: 'bottom' } } 
             };
-            const allCharts = { tytTotalChart, aytTotalChart, tytMatChart, tytTurkceChart, aytMatChart, aytFizikChart, aytKimyaChart, aytBiyolojiChart };
 
-            for (const [chartId, config] of Object.entries(chartConfigs)) {
-                const relevantTests = tests.filter(t => t.type === config.type).sort((a, b) => new Date(a.date) - new Date(b.date));
-                const labels = relevantTests.map(t => t.name);
-                const data = relevantTests.map(t => {
-                    const keys = config.dataKey.split('.');
-                    let value = t;
-                    for (const key of keys) { value = value ? value[key] : undefined; }
-                    return (value !== undefined ? value.toFixed(2) : 0);
+            const config = (id, type, labels, data, colors) => {
+                const ctx = document.getElementById(id).getContext('2d');
+                if(window[id] instanceof Chart) window[id].destroy();
+                window[id] = new Chart(ctx, {
+                    type: type,
+                    data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] },
+                    options: commonOpts
                 });
+            };
+            
+            // Generate distinct colors based on hue
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent').trim();
+            const colors = [accent, '#55efc4', '#fab1a0', '#ffeaa7', '#a29bfe', '#fd79a8', '#636e72'];
+            
+            config('bransChart', 'doughnut', Object.keys(bransData), Object.values(bransData), colors);
+            config('zorlukChart', 'pie', Object.keys(zorlukData), Object.values(zorlukData), ['#55efc4', '#fdcb6e', '#ff7675']);
+        }
 
-                if (allCharts[chartId]) allCharts[chartId].destroy();
-                allCharts[chartId] = new Chart(document.getElementById(chartId).getContext('2d'), {
+        function drawTestCharts() {
+            const tyt = tests.filter(t => t.type === 'TYT').sort((a, b) => new Date(a.date) - new Date(b.date));
+            const ayt = tests.filter(t => t.type === 'AYT').sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            const textColor = getChartTextColor();
+            const accent = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent').trim();
+
+            const lineConfig = (id, label, data, labels, color) => {
+                const ctx = document.getElementById(id).getContext('2d');
+                if(window[id] instanceof Chart) window[id].destroy();
+                window[id] = new Chart(ctx, {
                     type: 'line',
-                    data: { labels: labels, datasets: [{ label: config.label, data: data, borderColor: config.color, tension: 0.3 }] },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    data: { labels: labels, datasets: [{ label: label, data: data, borderColor: color, tension: 0.4, fill: true, backgroundColor: color + '20' }] },
+                    options: { 
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { 
+                            y: { ticks: { color: textColor }, grid: { color: textColor + '20' } },
+                            x: { ticks: { color: textColor }, grid: { display: false } }
+                        },
+                        plugins: { legend: { labels: { color: textColor } } }
+                    }
                 });
-            }
+            };
+            
+            lineConfig('tytTotalChart', 'TYT Net', tyt.map(t=>t.totalNet), tyt.map(t=>t.name), accent);
+            lineConfig('aytTotalChart', 'AYT Net', ayt.map(t=>t.totalNet), ayt.map(t=>t.name), '#a29bfe');
         }
-        document.getElementById('testType').addEventListener('change', (e) => {
-            const isTYT = e.target.value === 'TYT';
-            document.getElementById('tytTestInputs').style.display = isTYT ? 'block' : 'none';
-            document.getElementById('aytTestInputs').style.display = isTYT ? 'none' : 'block';
-            document.getElementById('tytTotalQuestions').style.display = isTYT ? 'grid' : 'none';
-            document.getElementById('aytTotalQuestions').style.display = isTYT ? 'none' : 'grid';
-        });
-        function loadTheme() {
-            if (localStorage.getItem('darkMode') === 'true') {
-                document.body.classList.add('dark-mode');
-                document.getElementById('darkModeToggle').innerText = '🌙';
-            }
+
+        // --- Logic ---
+        function updateStats() {
+            document.getElementById('totalQuestions').innerText = questions.length;
+            document.getElementById('solvedQuestions').innerText = questions.filter(q => q.durum === 'cozuldu').length;
+            document.getElementById('hardQuestions').innerText = questions.filter(q => q.zorluk === 'zor').length;
         }
-        function setWeeklyGoal() {
-            const goal = parseInt(document.getElementById('weeklyGoalInput').value);
-            if (isNaN(goal) || goal <= 0) { alert('Lütfen geçerli bir hedef girin.'); return; }
-            localStorage.setItem('weeklyQuestionGoal', goal);
-            alert(`Haftalık soru hedefiniz ${goal} olarak belirlendi!`);
-            updateWeeklyGoalStatus();
-        }
-        function updateWeeklyGoalStatus() {
-            const goal = parseInt(localStorage.getItem('weeklyQuestionGoal') || 0);
-            const startOfWeek = new Date();
-            startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() + 6) % 7);
-            startOfWeek.setHours(0, 0, 0, 0);
-            const weeklyQuestions = questions.filter(q => new Date(q.date) >= startOfWeek).length;
-            const statusText = document.getElementById('weeklyGoalStatus');
-            if (goal > 0) {
-                statusText.innerHTML = `Hedef: ${goal} | Bu Hafta: ${weeklyQuestions} <br><progress value="${weeklyQuestions}" max="${goal}" style="width: 100%; margin-top: 5px;"></progress>`;
-            } else {
-                statusText.innerText = 'Henüz haftalık hedef belirlenmedi.';
-            }
-        }
-        function checkDailyStreak(questionAdded = false) {
+
+        function checkDailyStreak(increment = false) {
             const today = new Date().toISOString().split('T')[0];
             let streak = parseInt(localStorage.getItem('streak') || 0);
-            const lastActiveDay = localStorage.getItem('lastActiveDay');
-            if (questionAdded) {
-                if (lastActiveDay !== today) {
-                    const yesterday = new Date();
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    streak = (lastActiveDay === yesterday.toISOString().split('T')[0]) ? streak + 1 : 1;
-                    localStorage.setItem('lastActiveDay', today);
-                    localStorage.setItem('streak', streak);
-                }
+            const last = localStorage.getItem('lastActiveDay');
+            if (increment && last !== today) {
+                const yest = new Date(); yest.setDate(yest.getDate()-1);
+                streak = (last === yest.toISOString().split('T')[0]) ? streak + 1 : 1;
+                localStorage.setItem('lastActiveDay', today); localStorage.setItem('streak', streak);
             }
             document.getElementById('streakCounter').innerText = streak;
         }
 
-        // --- Deneme Sayfası Fonksiyonları ---
-        function updateCounts(lesson) {
-            const totalInput = document.getElementById(`${lesson}Toplam`);
-            const dogruInput = document.querySelector(`.dogru-input[data-lesson='${lesson}']`);
-            const yanlisInput = document.querySelector(`.yanlis-input[data-lesson='${lesson}']`);
-            const bosDisplay = document.querySelector(`.bos-display[data-lesson='${lesson}']`);
-
-            const total = parseInt(totalInput.value) || 0;
-            const dogru = parseInt(dogruInput.value) || 0;
-            const yanlis = parseInt(yanlisInput.value) || 0;
-
-            if (dogru + yanlis > total) {
-                yanlisInput.style.borderColor = 'red';
-            } else {
-                yanlisInput.style.borderColor = ''; 
-            }
-            
-            const bos = Math.max(0, total - (dogru + yanlis));
-            bosDisplay.value = bos;
+        function updateWeeklyGoalStatus() {
+            const goal = parseInt(localStorage.getItem('weeklyQuestionGoal') || 0);
+            const start = new Date(); start.setDate(start.getDate() - (start.getDay() + 6) % 7); start.setHours(0,0,0,0);
+            const count = questions.filter(q => new Date(q.date) >= start).length;
+            document.getElementById('weeklyGoalStatus').innerText = goal > 0 ? `${count}/${goal}` : '';
         }
 
-        let currentLessonForSubjects = null; 
-
-        function openSubjectModal(lesson) {
-            currentLessonForSubjects = lesson;
-            
-            // Dersi için etiket adını al
-            let lessonLabel = '';
-            const labelElement = document.querySelector(`.test-input-grid label[for='${lesson}Dogru']`);
-            if (labelElement) {
-                lessonLabel = labelElement.innerText;
-            } else {
-                // Yedek plan (etiket yapısı değişirse)
-                const labels = {
-                    'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
-                    'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji', 'aytEdebiyat': 'Edebiyat', 'aytCografya': 'Coğrafya'
-                };
-                lessonLabel = labels[lesson] || lesson;
-            }
-
-            const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${lesson}']`).value) || 0;
-            const bos = parseInt(document.querySelector(`.bos-display[data-lesson='${lesson}']`).value) || 0;
-            const totalMistakes = yanlis + bos;
-
-            if (totalMistakes === 0) {
-                alert("Bu derste boş veya yanlışınız bulunmuyor. Konu ekleyemezsiniz.");
-                return;
-            }
-
-            document.getElementById('subjectModalTitle').innerText = `${lessonLabel} - Hatalı Konular`;
-            document.getElementById('mistakeCount').innerText = totalMistakes;
-            
-            updateSubjectTags();
-            
-            document.getElementById('subjectModal').style.display = 'flex';
-            document.getElementById('subjectInput').focus();
-        }
-
-        function closeSubjectModal() {
-            document.getElementById('subjectModal').style.display = 'none';
-        }
-
-        function updateSubjectTags() {
-            const container = document.getElementById('subjectTagsContainer');
-            container.innerHTML = '';
-            const subjects = tempMistakeSubjects[currentLessonForSubjects] || [];
-            subjects.forEach(subject => {
-                const tag = document.createElement('span');
-                tag.className = 'tag';
-                tag.innerText = subject;
-                tag.onclick = () => removeSubject(subject);
-                container.appendChild(tag);
+        function updateTopMistakeSubjects() {
+            const list = document.getElementById('topSubjectsList'); list.innerHTML = '';
+            const counts = {};
+            questions.forEach(q => { if(q.konu) counts[q.konu] = (counts[q.konu]||0)+1; });
+            const sorted = Object.entries(counts).sort(([,a],[,b])=>b-a).slice(0,5);
+            if(sorted.length === 0) { list.innerHTML = '<li style="text-align:center;color:var(--text-secondary);">Veri yok</li>'; return; }
+            sorted.forEach(([k,c]) => {
+                list.innerHTML += `<li style="padding:8px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between;"><span>${k}</span><b>${c}</b></li>`;
             });
         }
 
-        function addSubject(subject) {
-            if (!subject.trim()) return;
-            if (!tempMistakeSubjects[currentLessonForSubjects]) {
-                tempMistakeSubjects[currentLessonForSubjects] = [];
-            }
-            const subjects = tempMistakeSubjects[currentLessonForSubjects];
-            const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${currentLessonForSubjects}']`).value) || 0;
-            const bos = parseInt(document.querySelector(`.bos-display[data-lesson='${currentLessonForSubjects}']`).value) || 0;
-            const totalMistakes = yanlis + bos;
-
-            if (subjects.length >= totalMistakes) {
-                alert(`Maksimum ${totalMistakes} konu ekleyebilirsiniz.`);
-                return;
-            }
-            if (!subjects.includes(subject.trim())) {
-                subjects.push(subject.trim());
-            }
-            updateSubjectTags();
+        function updateTestStats() {
+             const calc = (type, fn) => { const arr = tests.filter(t=>t.type===type).map(t=>t.totalNet); return arr.length ? fn(...arr).toFixed(2) : 0; };
+             document.getElementById('tytAverageNet').innerText = calc('TYT', (...a)=>a.reduce((x,y)=>x+y,0)/a.length);
+             document.getElementById('tytBestNet').innerText = calc('TYT', Math.max);
+             document.getElementById('aytAverageNet').innerText = calc('AYT', (...a)=>a.reduce((x,y)=>x+y,0)/a.length);
+             document.getElementById('aytBestNet').innerText = calc('AYT', Math.max);
         }
 
-        function removeSubject(subject) {
-            const subjects = tempMistakeSubjects[currentLessonForSubjects] || [];
-            const index = subjects.indexOf(subject);
-            if (index > -1) subjects.splice(index, 1);
-            updateSubjectTags();
+        // --- Theme Color Settings ---
+        function applyTheme(hue) {
+            document.documentElement.style.setProperty('--hue', hue);
+            localStorage.setItem('themeHue', hue);
+            
+            document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('active'));
+            const activeCircle = document.querySelector(`.color-circle[data-hue="${hue}"]`);
+            if(activeCircle) activeCircle.classList.add('active');
+            
+            drawCharts(); drawTestCharts();
         }
 
-        function openTestDetailModal(testId) {
-            const test = tests.find(t => t.id === testId);
-            if (!test) return;
-            document.getElementById('testDetailModalTitle').innerText = test.name;
-            document.getElementById('testDetailModalDate').innerText = `Tarih: ${new Date(test.date).toLocaleDateString()}`;
-            const body = document.getElementById('testDetailModalBody');
-            body.innerHTML = '';
-            for (const lesson in test.results) {
-                const data = test.results[lesson];
-                // Dersi için etiket adını al
-                let lessonName = '';
-                const labelElement = document.querySelector(`.test-input-grid label[for='${lesson}Dogru']`);
-                if(labelElement) {
-                    lessonName = labelElement.innerText;
-                } else {
-                     const labels = {
-                        'tytMat': 'Matematik', 'tytTurkce': 'Türkçe', 'tytSosyal': 'Sosyal', 'tytFen': 'Fen',
-                        'aytMat': 'Matematik', 'aytFizik': 'Fizik', 'aytKimya': 'Kimya', 'aytBiyoloji': 'Biyoloji', 'aytEdebiyat': 'Edebiyat', 'aytCografya': 'Coğrafya'
-                    };
-                    lessonName = labels[lesson] || lesson;
-                }
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initDB(); loadData();
+            
+            // Theme Init
+            const savedHue = localStorage.getItem('themeHue') || '200';
+            applyTheme(savedHue);
+            if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
 
-                let subjectsHTML = '<p><em>Hatalı konu eklenmemiş.</em></p>';
-                if (data.mistakeSubjects && data.mistakeSubjects.length > 0) {
-                    subjectsHTML = data.mistakeSubjects.map(s => `<span class="tag tag-konu">${s}</span>`).join('');
-                }
-                const detailHTML = `<div class="detail-section"><div class="detail-title">${lessonName}</div><div class="detail-content" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;"><div><strong>Doğru:</strong> ${data.dogru}</div><div><strong>Yanlış:</strong> ${data.yanlis}</div><div><strong>Boş:</strong> ${data.bos}</div><div><strong>Net:</strong> ${data.net.toFixed(2)}</div></div><h4 style="margin-top: 15px; margin-bottom: 10px; color: var(--section-title-color);">Boş/Yanlış Konuları</h4><div class="modal-tags">${subjectsHTML}</div></div><hr style="border-top: 1px dashed var(--section-border-color); margin: 20px 0;">`;
-                body.innerHTML += detailHTML;
-            }
-            document.getElementById('testDetailModal').style.display = 'flex';
-        }
-
-        function closeTestDetailModal() {
-            document.getElementById('testDetailModal').style.display = 'none';
-        }
-
-        // --- Add Event Listeners ---
-        function addEventListeners() {
-            document.getElementById('hamburgerMenu').addEventListener('click', toggleMenu);
-            document.getElementById('darkModeToggle').addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                const isDarkMode = document.body.classList.contains('dark-mode');
-                localStorage.setItem('darkMode', isDarkMode);
-                document.getElementById('darkModeToggle').innerText = isDarkMode ? '🌙' : '☀️';
-                drawCharts(); drawTestCharts();
-            });
-            document.querySelectorAll('.nav-menu a').forEach(link => {
+            // Navigation
+            document.querySelectorAll('.dock-item').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    showPage(link.dataset.page);
+                    document.querySelectorAll('.dock-item').forEach(i => i.classList.remove('active'));
+                    link.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(link.dataset.page).classList.add('active');
+                    if(link.dataset.page === 'testPage') updateTestUI();
                 });
             });
-
-            document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
-            document.getElementById('btnSaveQuestions').addEventListener('click', saveQuestions);
-
-            document.getElementById('btnExport').addEventListener('click', exportData);
-            document.getElementById('btnImport').addEventListener('click', importData);
-            document.getElementById('importFile').addEventListener('change', handleImport);
             
-            document.getElementById('btnSetGoal').addEventListener('click', setWeeklyGoal);
-            document.getElementById('btnSaveTestResult').addEventListener('click', saveTestResult);
+            // Buttons
+            document.getElementById('uploadArea').onclick = () => document.getElementById('fileInput').click();
+            document.getElementById('btnSaveQuestions').onclick = saveQuestions;
+            document.getElementById('btnSaveTestResult').onclick = saveTestResult;
 
-            document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
-            document.getElementById('btnSaveSolution').addEventListener('click', saveSolutionImage);
-            document.getElementById('btnUpdateStatus').addEventListener('click', updateQuestionStatus);
-            document.getElementById('btnDeleteQuestion').addEventListener('click', deleteQuestion);
-            
-            document.getElementById('fullscreenCloseBtn').addEventListener('click', closeFullscreenModal);
-            document.getElementById('modalImage').addEventListener('click', () => openFullscreenModal(document.getElementById('modalImage').src));
-            document.getElementById('solutionImage').addEventListener('click', () => {
-                const imgSrc = document.getElementById('solutionImage').src;
-                if (imgSrc) openFullscreenModal(imgSrc);
-            });
+            document.getElementById('testType').onchange = (e) => {
+                const isTYT = e.target.value === 'TYT';
+                document.getElementById('tytTestInputs').style.display = isTYT ? 'block' : 'none';
+                document.getElementById('aytTestInputs').style.display = isTYT ? 'none' : 'block';
+                document.getElementById('tytTotalQuestions').style.display = isTYT ? 'flex' : 'none';
+                document.getElementById('aytTotalQuestions').style.display = isTYT ? 'none' : 'flex';
+            };
 
-            document.getElementById('questionGrid').addEventListener('click', (e) => {
-                const card = e.target.closest('.question-card');
-                if (!card) return;
-                if (e.target.classList.contains('delete-btn')) {
-                    e.stopPropagation();
-                    deleteQuestionFromCard(e.target.dataset.questionId);
-                } else {
-                    openModal(card.dataset.questionId);
+            // Dynamic Inputs
+            document.addEventListener('input', (e) => {
+                if(e.target.classList.contains('count-input')) {
+                    const l = e.target.dataset.lesson;
+                    const total = parseInt(document.getElementById(`${l}Toplam`).value)||0;
+                    const d = parseInt(document.querySelector(`.dogru-input[data-lesson='${l}']`).value)||0;
+                    const y = parseInt(document.querySelector(`.yanlis-input[data-lesson='${l}']`).value)||0;
+                    document.querySelector(`.bos-display[data-lesson='${l}']`).value = Math.max(0, total-d-y);
                 }
             });
-            
-            // YENİ: Galeri Sekmesi Tıklamaları (Güncellendi)
-            document.getElementById('galleryTabs').addEventListener('click', (e) => {
-                if (e.target.classList.contains('gallery-tab')) {
-                    document.querySelectorAll('.gallery-tab').forEach(tab => tab.classList.remove('active'));
+
+            // Filtering & Sorting
+            document.getElementById('galleryTabs').onclick = (e) => {
+                if(e.target.classList.contains('gallery-tab')) {
+                    document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
                     e.target.classList.add('active');
-                    updateQuestionGrid(); 
+                    updateQuestionGrid();
                 }
-            });
+            };
             
-            // --- YENİ FİLTRELEME BUTONLARI ---
-            
-            const btnFilterExam = document.getElementById('btnFilterExam');
-            const btnSortDate = document.getElementById('btnSortDate');
-            const btnSortDifficulty = document.getElementById('btnSortDifficulty');
-
-            // 1. TYT/AYT/Hepsi Butonu
-            btnFilterExam.addEventListener('click', () => {
-                const currentState = btnFilterExam.dataset.state;
-                if (currentState === 'all') {
-                    btnFilterExam.dataset.state = 'tyt';
-                    btnFilterExam.innerText = 'Oturum: TYT';
-                } else if (currentState === 'tyt') {
-                    btnFilterExam.dataset.state = 'ayt';
-                    btnFilterExam.innerText = 'Oturum: AYT';
-                } else {
-                    btnFilterExam.dataset.state = 'all';
-                    btnFilterExam.innerText = 'Oturum: Hepsi';
-                }
+            // Explicit Sorting Listeners
+            document.getElementById('btnFilterExam').onclick = (e) => {
+                const btn = e.target;
+                if(filterExamState === 'all') { filterExamState='TYT'; btn.innerText='Oturum: TYT'; }
+                else if(filterExamState === 'TYT') { filterExamState='AYT'; btn.innerText='Oturum: AYT'; }
+                else { filterExamState='all'; btn.innerText='Oturum: Hepsi'; }
                 updateQuestionGrid();
-            });
+            };
 
-            // 2. Tarih Sıralama Butonu
-            btnSortDate.addEventListener('click', () => {
-                currentSortType = 'date'; // Sıralama tipini "tarih" yap
-                
-                // Yönü değiştir (desc -> asc, asc -> desc)
+            document.getElementById('btnSortDate').onclick = (e) => {
+                currentSortType = 'date';
                 dateSortDirection = dateSortDirection === 'desc' ? 'asc' : 'desc';
-                
-                // Buton metnini güncelle
-                btnSortDate.innerText = `🗓️ Tarih (${dateSortDirection === 'desc' ? 'Yeni → Eski' : 'Eski → Yeni'})`;
-                
-                // Aktif stilini ayarla
-                btnSortDate.classList.add('active');
-                btnSortDifficulty.classList.remove('active');
-                
+                e.target.innerText = `🗓️ Tarih (${dateSortDirection === 'desc' ? 'Y-E' : 'E-Y'})`;
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
                 updateQuestionGrid();
-            });
+            };
 
-            // 3. Zorluk Sıralama Butonu
-            btnSortDifficulty.addEventListener('click', () => {
-                currentSortType = 'difficulty'; // Sıralama tipini "zorluk" yap
-                
-                // Yönü değiştir (desc -> asc, asc -> desc)
+            document.getElementById('btnSortDifficulty').onclick = (e) => {
+                currentSortType = 'difficulty';
                 difficultySortDirection = difficultySortDirection === 'desc' ? 'asc' : 'desc';
-                
-                // Buton metnini güncelle
-                btnSortDifficulty.innerText = `📊 Zorluk (${difficultySortDirection === 'desc' ? 'Zor → Kolay' : 'Kolay → Zor'})`;
-                
-                // Aktif stilini ayarla
-                btnSortDifficulty.classList.add('active');
-                btnSortDate.classList.remove('active');
-                
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
                 updateQuestionGrid();
-            });
-            
+            };
 
-            // --- Deneme Sayfası Event Listeners ---
-            document.querySelectorAll('.count-input, .total-q-input').forEach(input => {
-                input.addEventListener('input', () => updateCounts(input.dataset.lesson));
-            });
-            document.getElementById('testPage').addEventListener('click', (e) => {
-                if (e.target.classList.contains('btn-add-subject')) {
-                    openSubjectModal(e.target.dataset.lesson);
+            // Card Interactions (Fix for q is undefined)
+            const modal = document.getElementById('myModal');
+            document.getElementById('questionGrid').onclick = (e) => {
+                const card = e.target.closest('.question-card');
+                if(!card) return;
+                
+                const id = card.dataset.questionId;
+                
+                if(e.target.classList.contains('delete-btn')) {
+                    e.stopPropagation();
+                    if(confirm('Soruyu silmek istediğine emin misin?')) { 
+                        deleteFromDB(QUESTION_STORE, id).then(() => { 
+                            questions = questions.filter(q => q.id !== id); 
+                            updateUI(); 
+                        }); 
+                    }
+                } else {
+                    const q = questions.find(x => x.id === id);
+                    if(!q) return; // FIX
+                    
+                    currentQuestionId = q.id;
+                    document.getElementById('modalImage').src = q.image;
+                    document.getElementById('modalDate').innerText = new Date(q.date).toLocaleDateString();
+                    document.getElementById('modalSource').innerText = q.kaynak || '-';
+                    document.getElementById('modalComment').innerText = q.yorum || '-';
+                    document.getElementById('modalDurumSelect').value = q.durum;
+                    
+                    document.getElementById('modalTags').innerHTML = `
+                        <span class="tag-pill tag-sinav">${q.sinav}</span>
+                        <span class="tag-pill tag-brans">${q.brans}</span>
+                        <span class="tag-pill tag-zorluk ${q.zorluk}">${q.zorluk}</span>
+                    `;
+
+                    const solImg = document.getElementById('solutionImage');
+                    solImg.src = q.solution || '';
+                    solImg.style.display = q.solution ? 'block' : 'none';
+                    document.getElementById('noSolutionText').style.display = q.solution ? 'none' : 'block';
+                    
+                    modal.style.display = 'flex';
                 }
+            };
+            
+            // Modal Actions
+            document.getElementById('modalCloseBtn').onclick = () => modal.style.display = 'none';
+            document.getElementById('btnUpdateStatus').onclick = async () => {
+                const q = questions.find(x => x.id === currentQuestionId);
+                q.durum = document.getElementById('modalDurumSelect').value;
+                await updateInDB(QUESTION_STORE, q); updateUI(); modal.style.display = 'none';
+            };
+            document.getElementById('btnSaveSolution').onclick = () => {
+                const f = document.getElementById('solutionInput').files[0];
+                if(f) {
+                    const r = new FileReader();
+                    r.onload = async(ev) => {
+                        const q = questions.find(x => x.id === currentQuestionId);
+                        q.solution = ev.target.result;
+                        await updateInDB(QUESTION_STORE, q); updateUI(); modal.style.display = 'none';
+                    };
+                    r.readAsDataURL(f);
+                }
+            };
+            
+            // Deletion inside modal
+            document.getElementById('btnDeleteQuestion').onclick = () => {
+                if(confirm('Silinsin mi?')) {
+                    deleteFromDB(QUESTION_STORE, currentQuestionId).then(() => {
+                        questions = questions.filter(q => q.id !== currentQuestionId);
+                        updateUI();
+                        modal.style.display = 'none';
+                    });
+                }
+            };
+
+            // Fullscreen
+            document.getElementById('modalImage').onclick = () => { document.getElementById('fullscreenModalContent').src=document.getElementById('modalImage').src; document.getElementById('fullscreenModal').style.display='flex'; };
+            document.getElementById('solutionImage').onclick = () => { document.getElementById('fullscreenModalContent').src=document.getElementById('solutionImage').src; document.getElementById('fullscreenModal').style.display='flex'; };
+            document.getElementById('fullscreenCloseBtn').onclick = () => document.getElementById('fullscreenModal').style.display='none';
+
+            // Weekly Goal
+            document.getElementById('btnSetGoal').onclick = () => {
+                localStorage.setItem('weeklyQuestionGoal', document.getElementById('weeklyGoalInput').value);
+                updateWeeklyGoalStatus();
+            };
+
+            // Backup
+            document.getElementById('btnExport').onclick = async () => {
+               const data = { questions: await getAllFromDB(QUESTION_STORE), tests: await getAllFromDB(TEST_STORE) };
+               const a = document.createElement('a');
+               a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'}));
+               a.download = 'yks_yedek.json'; a.click();
+            };
+            document.getElementById('btnImport').onclick = () => document.getElementById('importFile').click();
+            document.getElementById('importFile').onchange = (e) => {
+                const r = new FileReader();
+                r.onload = async (ev) => {
+                    const d = JSON.parse(ev.target.result);
+                    if(confirm('Mevcut veriler silinip yedek yüklenecek. Onaylıyor musunuz?')) {
+                        const tx = db.transaction([QUESTION_STORE, TEST_STORE], 'readwrite');
+                        tx.objectStore(QUESTION_STORE).clear(); tx.objectStore(TEST_STORE).clear();
+                        d.questions.forEach(q=>tx.objectStore(QUESTION_STORE).add(q));
+                        d.tests.forEach(t=>tx.objectStore(TEST_STORE).add(t));
+                        tx.oncomplete = () => location.reload();
+                    }
+                };
+                r.readAsText(e.target.files[0]);
+            };
+
+            // Dark Mode
+            document.getElementById('darkModeToggle').onclick = () => {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+                drawCharts(); drawTestCharts();
+            };
+
+            // Settings Modal
+            const setModal = document.getElementById('settingsModal');
+            document.getElementById('settingsBtn').onclick = () => setModal.style.display = 'flex';
+            document.getElementById('settingsCloseBtn').onclick = () => setModal.style.display = 'none';
+            
+            document.querySelectorAll('.color-circle').forEach(circle => {
+                circle.onclick = (e) => {
+                    applyTheme(e.target.dataset.hue);
+                };
             });
-            document.getElementById('subjectModalCloseBtn').addEventListener('click', closeSubjectModal);
-            document.getElementById('saveSubjectsBtn').addEventListener('click', closeSubjectModal);
-            document.getElementById('subjectInput').addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addSubject(e.target.value);
+            document.getElementById('btnResetTheme').onclick = () => applyTheme('200');
+
+            // Subject Modal Logic
+            let currentLessonForSub = null;
+            document.querySelectorAll('.btn-add-subject').forEach(btn => {
+                btn.onclick = (e) => {
+                    currentLessonForSub = e.target.dataset.lesson;
+                    const yanlis = parseInt(document.querySelector(`.yanlis-input[data-lesson='${currentLessonForSub}']`).value)||0;
+                    const bos = parseInt(document.querySelector(`.bos-display[data-lesson='${currentLessonForSub}']`).value)||0;
+                    document.getElementById('mistakeCount').innerText = yanlis + bos;
+                    document.getElementById('subjectTagsContainer').innerHTML = (tempMistakeSubjects[currentLessonForSub]||[]).map(s=>`<span class="tag-pill" style="background:var(--glass-bg);">${s}</span>`).join('');
+                    document.getElementById('subjectModal').style.display = 'flex';
+                };
+            });
+            document.getElementById('saveSubjectsBtn').onclick = () => document.getElementById('subjectModal').style.display='none';
+            document.getElementById('subjectInput').onkeydown = (e) => {
+                if(e.key === 'Enter') {
+                    if(!tempMistakeSubjects[currentLessonForSub]) tempMistakeSubjects[currentLessonForSub] = [];
+                    tempMistakeSubjects[currentLessonForSub].push(e.target.value);
+                    document.getElementById('subjectTagsContainer').innerHTML += `<span class="tag-pill" style="background:var(--glass-bg);">${e.target.value}</span>`;
                     e.target.value = '';
                 }
-            });
-            document.getElementById('testDetailModalCloseBtn').addEventListener('click', closeTestDetailModal);
+            };
+            document.getElementById('subjectModalCloseBtn').onclick = () => document.getElementById('subjectModal').style.display='none';
 
-            document.getElementById('testListContainer').addEventListener('click', (e) => {
-                const deleteBtn = e.target.closest('.test-delete-btn');
-                if (deleteBtn) {
-                    deleteTest(deleteBtn.dataset.testid);
-                    return;
+            // Test Details
+             document.getElementById('testListContainer').onclick = (e) => {
+                if(e.target.classList.contains('test-delete-btn')) {
+                     e.stopPropagation();
+                     deleteFromDB(TEST_STORE, e.target.dataset.testid).then(() => { tests = tests.filter(t=>t.id!==e.target.dataset.testid); updateTestUI(); });
+                     return;
                 }
-                const testItem = e.target.closest('.test-list-item');
-                if (testItem) {
-                    openTestDetailModal(testItem.dataset.testid);
+                const item = e.target.closest('.test-list-item');
+                if(item) {
+                    const t = tests.find(x=>x.id===item.dataset.testid);
+                    document.getElementById('testDetailModalTitle').innerText = t.name;
+                    let html = '';
+                    for(const [l, res] of Object.entries(t.results)) {
+                        html += `<div style="margin-bottom:10px; border-bottom:1px solid rgba(0,0,0,0.1); padding-bottom:5px;">
+                        <span style="font-weight:bold; color:var(--primary-accent); text-transform:uppercase;">${l.replace('tyt','').replace('ayt','')}</span>: 
+                        D:${res.dogru} Y:${res.yanlis} Net:${res.net} <br> 
+                        <small style="color:var(--text-secondary);">${(res.mistakeSubjects||[]).join(', ')}</small></div>`;
+                    }
+                    document.getElementById('testDetailModalBody').innerHTML = html;
+                    document.getElementById('testDetailModal').style.display='flex';
                 }
-            });
-        }
-
-        window.addEventListener('load', async function() {
-            try {
-                await initDB();
-                addEventListeners();
-                loadTheme();
-                await loadData();
-            } catch (error) {
-                console.error("Initialization failed:", error);
-                alert("Uygulama başlatılamadı. Veritabanı hatası.");
-            }
+            };
+            document.getElementById('testDetailModalCloseBtn').onclick = () => document.getElementById('testDetailModal').style.display='none';
         });
-
     </script>
 </body>
 </html>
