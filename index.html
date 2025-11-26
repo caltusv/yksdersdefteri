@@ -4,30 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YKS Dashboard OS</title>
-    <!-- Chart.js Updated CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Frutiger Aero / Wii Palette - Default Blue */
-            --hue: 200; /* Default Hue (Blue) */
+            --hue: 200;
             --bg-gradient: linear-gradient(135deg, hsl(var(--hue), 60%, 92%) 0%, hsl(var(--hue), 60%, 85%) 100%);
             --glass-bg: rgba(255, 255, 255, 0.85);
             --glass-border: rgba(255, 255, 255, 0.9);
             --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
             --glossy-gradient: linear-gradient(to bottom, #ffffff 0%, #f1f1f1 50%, #e1e1e1 51%, #f6f6f6 100%);
             --glossy-hover: linear-gradient(to bottom, #ffffff 0%, #f6f6f6 50%, #eaeaea 51%, #ffffff 100%);
-            
-            --primary-accent: hsl(var(--hue), 100%, 45%); /* Dynamic Color */
+            --primary-accent: hsl(var(--hue), 100%, 45%);
             --primary-light: hsl(var(--hue), 100%, 65%);
-            
             --text-main: #2d3436;
             --text-secondary: #636e72;
             --input-bg: #ffffff;
             --radius-lg: 25px;
             --radius-md: 15px;
             --radius-pill: 50px;
-            
             --font-family: 'Varela Round', sans-serif;
         }
 
@@ -38,10 +33,7 @@
             --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
             --glossy-gradient: linear-gradient(to bottom, #4a4a4a 0%, #3a3a3a 100%);
             --glossy-hover: linear-gradient(to bottom, #5a5a5a 0%, #4a4a4a 100%);
-            
-            /* Dark mode accent is slightly lighter for contrast */
             --primary-accent: hsl(var(--hue), 90%, 60%);
-            
             --text-main: #dfe6e9;
             --text-secondary: #b2bec3;
             --input-bg: #2d3436;
@@ -56,197 +48,97 @@
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
-            padding-bottom: 120px; /* Space for dock */
+            padding-bottom: 120px;
             transition: background 0.5s ease, color 0.5s ease;
         }
 
         /* --- Header --- */
         .console-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            position: relative;
-            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 40px; position: relative; z-index: 100;
         }
-
         .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: var(--glass-bg);
-            padding: 10px 20px;
-            border-radius: var(--radius-pill);
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--glass-border);
-            backdrop-filter: blur(8px);
+            display: flex; align-items: center; gap: 15px; background: var(--glass-bg);
+            padding: 10px 20px; border-radius: var(--radius-pill); box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border); backdrop-filter: blur(8px);
         }
-
         .avatar-circle {
-            width: 40px; height: 40px;
-            background: var(--primary-accent);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; font-size: 1.2rem;
-            box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2);
+            width: 40px; height: 40px; background: var(--primary-accent); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;
+            font-size: 1.2rem; box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2);
         }
-
-        .system-time {
-            font-size: 1.4rem; font-weight: bold;
-            color: var(--text-main);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
+        .system-time { font-size: 1.4rem; font-weight: bold; color: var(--text-main); text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header-controls { display: flex; gap: 15px; }
-
         .control-btn {
-            background: var(--glossy-gradient);
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            color: #444; /* Icon color always dark on glossy btn */
+            background: var(--glossy-gradient); width: 45px; height: 45px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-size: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; color: #444;
         }
         .control-btn:active { transform: scale(0.9); }
 
         /* --- Grid Layout --- */
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
+        .dashboard-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         .tab-content { display: none; animation: fadeIn 0.4s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .tile-grid {
-            display: grid;
-            grid-template-columns: 350px 1fr; /* Fixed left, fluid right */
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        @media (max-width: 1024px) {
-            .tile-grid { grid-template-columns: 1fr; }
-        }
+        .tile-grid { display: grid; grid-template-columns: 350px 1fr; gap: 25px; margin-bottom: 30px; }
+        @media (max-width: 1024px) { .tile-grid { grid-template-columns: 1fr; } }
 
         /* --- Cards --- */
         .console-card {
-            background: var(--glass-bg);
-            border-radius: var(--radius-lg);
-            padding: 25px;
-            box-shadow: var(--card-shadow);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 25px;
+            background: var(--glass-bg); border-radius: var(--radius-lg); padding: 25px;
+            box-shadow: var(--card-shadow); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; margin-bottom: 25px;
         }
-
-        .console-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--primary-accent);
-        }
-
-        .section-title {
-            font-size: 1.3rem; margin-bottom: 15px;
-            color: var(--primary-accent);
-            display: flex; align-items: center; gap: 10px;
-        }
+        .console-card:hover { transform: translateY(-3px); border-color: var(--primary-accent); }
+        .section-title { font-size: 1.3rem; margin-bottom: 15px; color: var(--primary-accent); display: flex; align-items: center; gap: 10px; }
 
         /* --- Inputs --- */
-        .input-wrapper {
-            background: rgba(0,0,0,0.05);
-            border-radius: var(--radius-md);
-            padding: 15px; margin-bottom: 15px;
-        }
+        .input-wrapper { background: rgba(0,0,0,0.05); border-radius: var(--radius-md); padding: 15px; margin-bottom: 15px; }
         .dark-mode .input-wrapper { background: rgba(255,255,255,0.05); }
-
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; color: var(--text-secondary); }
-
         input, select, textarea {
-            width: 100%; padding: 10px 15px;
-            border-radius: var(--radius-pill);
-            border: 1px solid var(--glass-border);
-            background: var(--input-bg);
-            color: var(--text-main);
-            font-family: var(--font-family);
-            outline: none; transition: 0.3s;
+            width: 100%; padding: 10px 15px; border-radius: var(--radius-pill); border: 1px solid var(--glass-border);
+            background: var(--input-bg); color: var(--text-main); font-family: var(--font-family); outline: none; transition: 0.3s;
         }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary-accent);
-            box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.1);
-        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary-accent); box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.1); }
 
         /* --- Buttons --- */
         .btn {
-            padding: 10px 25px; border: none; border-radius: var(--radius-pill);
-            font-weight: bold; cursor: pointer; transition: 0.2s;
-            background: var(--glossy-gradient);
-            box-shadow: 0 3px 0 rgba(0,0,0,0.1);
-            color: #444; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 10px 25px; border: none; border-radius: var(--radius-pill); font-weight: bold; cursor: pointer; transition: 0.2s;
+            background: var(--glossy-gradient); box-shadow: 0 3px 0 rgba(0,0,0,0.1); color: #444; display: inline-flex; align-items: center; justify-content: center; gap: 5px;
         }
         .btn:hover { background: var(--glossy-hover); transform: translateY(-2px); }
         .btn:active { transform: translateY(2px); box-shadow: none; }
-
-        .btn-primary {
-            background: var(--primary-accent);
-            color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
+        .btn-primary { background: var(--primary-accent); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .btn-primary:hover { filter: brightness(1.1); background: var(--primary-accent); color: white; }
 
         /* --- Upload --- */
-        .upload-area {
-            border: 2px dashed var(--primary-accent);
-            border-radius: var(--radius-lg);
-            padding: 30px; text-align: center;
-            background: rgba(255,255,255,0.1); cursor: pointer;
-            transition: 0.3s;
-        }
+        .upload-area { border: 2px dashed var(--primary-accent); border-radius: var(--radius-lg); padding: 30px; text-align: center; background: rgba(255,255,255,0.1); cursor: pointer; transition: 0.3s; }
         .upload-area:hover { background: rgba(255,255,255,0.3); }
 
         /* --- Stats Widgets --- */
-        .stats-row {
-            display: flex; gap: 15px; margin-bottom: 25px;
-            overflow-x: auto; padding-bottom: 5px;
-        }
+        .stats-row { display: flex; gap: 15px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
         .stat-capsule {
-            flex: 1; min-width: 120px;
-            background: var(--glass-bg);
-            padding: 15px; border-radius: 20px; text-align: center;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--glass-border);
+            flex: 1; min-width: 120px; background: var(--glass-bg); padding: 15px; border-radius: 20px; text-align: center;
+            box-shadow: var(--card-shadow); border: 1px solid var(--glass-border);
         }
         .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--primary-accent); }
         .stat-label { font-size: 0.8rem; color: var(--text-secondary); }
 
         /* --- Gallery --- */
-        .question-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;
-        }
+        .question-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .question-card {
-            background: var(--glass-bg);
-            border-radius: 15px; overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: 0.3s; position: relative;
-            cursor: pointer;
+            background: var(--glass-bg); border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: 0.3s; position: relative; cursor: pointer;
         }
         .question-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .question-image { width: 100%; height: 160px; object-fit: cover; }
         .question-info { padding: 15px; }
-
         .tag-pill {
-            padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;
-            display: inline-block; margin-right: 4px; margin-bottom: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; display: inline-block; margin-right: 4px; margin-bottom: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        /* Tag Colors */
         .tag-sinav { background: #ff7675; color: white; }
         .tag-brans { background: var(--primary-light); color: white; }
         .tag-zorluk.zor { background: #d63031; color: white; }
@@ -255,13 +147,9 @@
         .tag-durum.cozuldu { background: #00b894; color: white; }
         .tag-durum.yarim { background: #ffeaa7; color: #d35400; }
         .tag-durum.cozulmedi { background: #b2bec3; color: white; }
-
         .delete-btn {
-            position: absolute; top: 8px; right: 8px;
-            background: #ff4757; color: white;
-            border: none; width: 28px; height: 28px; border-radius: 50%;
-            cursor: pointer; opacity: 0; transition: 0.2s;
-            font-weight: bold; z-index: 5;
+            position: absolute; top: 8px; right: 8px; background: #ff4757; color: white; border: none; width: 28px; height: 28px;
+            border-radius: 50%; cursor: pointer; opacity: 0; transition: 0.2s; font-weight: bold; z-index: 5;
             display: flex; align-items: center; justify-content: center;
         }
         .question-card:hover .delete-btn { opacity: 1; }
@@ -269,106 +157,107 @@
         /* --- Filters & Sorting --- */
         .gallery-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
         .gallery-tab {
-            white-space: nowrap; padding: 6px 14px; border-radius: 20px;
-            background: rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s;
+            white-space: nowrap; padding: 6px 14px; border-radius: 20px; background: rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s;
             font-size: 0.9rem; color: var(--text-secondary);
         }
         .dark-mode .gallery-tab { background: rgba(255,255,255,0.1); }
         .gallery-tab:hover { background: rgba(0,0,0,0.1); }
         .gallery-tab.active { background: var(--primary-accent); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-
         .sort-section { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .sort-btn {
-            font-size: 0.85rem; padding: 6px 15px;
-        }
-        .sort-btn.active {
-            background: var(--primary-accent);
-            color: white;
-            border: 1px solid transparent;
-        }
+        .sort-btn { font-size: 0.85rem; padding: 6px 15px; }
+        .sort-btn.active { background: var(--primary-accent); color: white; border: 1px solid transparent; }
 
         /* --- Dock --- */
         .dock-container {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px);
-            padding: 10px 25px; border-radius: 50px;
-            display: flex; gap: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.5); z-index: 1000;
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px); padding: 10px 25px; border-radius: 50px; display: flex; gap: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.5); z-index: 1000;
         }
         .dark-mode .dock-container { background: rgba(0, 0, 0, 0.6); border-color: rgba(255,255,255,0.1); }
-
         .dock-item {
-            display: flex; flex-direction: column; align-items: center;
-            text-decoration: none; color: var(--text-secondary);
+            display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--text-secondary);
             font-size: 0.8rem; transition: 0.3s;
         }
         .dock-icon {
-            width: 45px; height: 45px;
-            background: var(--glass-bg); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; margin-bottom: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 45px; height: 45px; background: var(--glass-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .dock-item:hover .dock-icon, .dock-item.active .dock-icon {
-            transform: translateY(-10px) scale(1.15);
-            background: var(--primary-accent); color: white;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transform: translateY(-10px) scale(1.15); background: var(--primary-accent); color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
         .dock-item.active { color: var(--primary-accent); font-weight: bold; }
 
         /* --- Modals --- */
         .modal {
-            display: none; position: fixed; z-index: 2000; left: 0; top: 0;
-            width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
-            align-items: center; justify-content: center;
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); align-items: center; justify-content: center;
         }
         .modal-content {
-            background: var(--glass-bg); border-radius: 20px;
-            width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--glass-bg); border-radius: 20px; width: 90%; max-width: 900px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
         .modal-header {
-            background: var(--glossy-gradient); padding: 15px 25px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            display: flex; justify-content: space-between; align-items: center;
-            border-radius: 20px 20px 0 0;
+            background: var(--glossy-gradient); padding: 15px 25px; border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between; align-items: center; border-radius: 20px 20px 0 0;
         }
         .modal-body { padding: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media (max-width: 768px) { .modal-body { grid-template-columns: 1fr; } }
 
-        /* Settings Modal Specific */
+        /* Settings Modal */
         .color-options { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-        .color-circle {
-            width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
-            border: 3px solid transparent; transition: 0.2s;
-        }
+        .color-circle { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
         .color-circle:hover { transform: scale(1.1); }
         .color-circle.active { border-color: var(--text-main); }
 
         /* Chart Wrapper */
-        .chart-wrapper {
-            height: 250px; position: relative;
-            background: rgba(255,255,255,0.5);
-            border-radius: 15px; padding: 10px;
-        }
+        .chart-wrapper { height: 250px; position: relative; background: rgba(255,255,255,0.5); border-radius: 15px; padding: 10px; }
         .dark-mode .chart-wrapper { background: rgba(0,0,0,0.2); }
 
-        /* Helpers */
+        /* --- TEST INPUT STYLES (UPDATED FOR CLARITY & WIDTH) --- */
         #fileInput, #importFile { display: none; }
-        .test-input-grid { display: grid; grid-template-columns: 80px 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
-        .input-group { display: flex; gap: 5px; }
-        .count-input { text-align: center; }
+        
+        /* Headers for inputs */
+        .input-header-row {
+            display: grid;
+            grid-template-columns: 90px 1fr auto;
+            gap: 15px;
+            margin-bottom: 10px;
+            padding: 0 10px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .test-input-grid { 
+            display: grid; 
+            grid-template-columns: 90px 1fr auto; 
+            gap: 15px; 
+            align-items: center; 
+            margin-bottom: 12px;
+            background: var(--glass-bg);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+        .test-input-grid:hover { border-color: var(--primary-accent); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+
+        .input-group { display: flex; gap: 10px; }
+        
+        .count-input, .bos-display { 
+            text-align: center; 
+            padding: 10px 5px; 
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
         .test-list-item { 
             background: var(--glass-bg); padding: 15px; margin-bottom: 10px; border-radius: 12px;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        
     </style>
 </head>
 <body>
@@ -391,7 +280,6 @@
         <!-- PAGE 1: SORU DEFTERİ -->
         <div id="questionPage" class="tab-content active">
             
-            <!-- Üst İstatistikler -->
             <div class="stats-row">
                 <div class="stat-capsule"><div class="stat-number" id="totalQuestions">0</div><div class="stat-label">Toplam Soru</div></div>
                 <div class="stat-capsule"><div class="stat-number" id="solvedQuestions">0</div><div class="stat-label">Çözülen</div></div>
@@ -401,9 +289,7 @@
 
             <div class="tile-grid">
                 
-                <!-- SOL KOLON: İşlemler & Analiz -->
                 <div class="left-column">
-                    <!-- Soru Ekle -->
                     <div class="console-card">
                         <h2 class="section-title">➕ Soru Ekle</h2>
                         <div class="upload-area" id="uploadArea">
@@ -447,7 +333,6 @@
                         <button class="btn btn-primary" id="btnSaveQuestions" style="width: 100%;">Kaydet</button>
                     </div>
 
-                    <!-- Analiz Grafikleri (SOLA TAŞINDI) -->
                     <div class="console-card">
                         <h2 class="section-title">📊 Analiz</h2>
                         <div style="margin-bottom: 20px;">
@@ -464,7 +349,6 @@
                         </div>
                     </div>
 
-                     <!-- En Çok Hata Yapılanlar -->
                      <div class="console-card">
                         <h2 class="section-title">🎯 Odak</h2>
                         <ul id="topSubjectsList" style="list-style: none; padding:0; font-size:0.9rem;">
@@ -473,7 +357,6 @@
                     </div>
                 </div>
 
-                <!-- SAĞ KOLON: Galeri -->
                 <div class="right-column">
                     <div class="console-card" style="min-height: 80vh;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap:wrap; gap:10px;">
@@ -485,7 +368,6 @@
                             </div>
                         </div>
 
-                        <!-- Filtre Sekmeleri -->
                         <div class="gallery-tabs" id="galleryTabs">
                             <span class="gallery-tab active" data-brans="">Tümü</span>
                             <span class="gallery-tab" data-brans="Matematik">Matematik</span>
@@ -499,7 +381,6 @@
                             <span class="gallery-tab" data-brans="Coğrafya">Coğrafya</span>
                         </div>
                         
-                        <!-- Sıralama Butonları -->
                         <div class="sort-section">
                             <button class="btn sort-btn" id="btnFilterExam" data-state="all">Oturum: Hepsi</button>
                             <button class="btn sort-btn active" id="btnSortDate">🗓️ Tarih (Y-E)</button>
@@ -514,7 +395,6 @@
                         </div>
                     </div>
                     
-                    <!-- Veri Yönetimi -->
                     <div class="console-card">
                         <h2 class="section-title">📦 Yedekleme</h2>
                         <div style="display: flex; gap: 10px;">
@@ -539,8 +419,7 @@
                         </div>
                     </div>
 
-                    <!-- Soru Sayıları -->
-                    <div style="background: rgba(0,0,0,0.02); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+                    <div style="background: rgba(0,0,0,0.02); padding: 10px; border-radius: 10px; margin-bottom: 20px;">
                         <h4 style="margin-bottom: 5px; color: var(--text-secondary); font-size:0.8rem;">Soru Sayıları (Toplam)</h4>
                         <div id="tytTotalQuestions" style="display: flex; gap: 5px; flex-wrap: wrap;">
                             <input type="number" id="tytMatToplam" value="40" class="total-q-input" data-lesson="tytMat" style="width: 50px;" title="Matematik">
@@ -558,20 +437,43 @@
                         </div>
                     </div>
 
+                    <!-- GÜNCELLENMİŞ INPUT ALANLARI -->
                     <div id="tytTestInputs">
-                        <div class="test-input-grid"><label>Mat</label><div class="input-group"><input type="number" data-lesson="tytMat" class="dogru-input count-input" placeholder="D"><input type="number" data-lesson="tytMat" class="yanlis-input count-input" placeholder="Y"><input type="number" data-lesson="tytMat" class="bos-display" placeholder="B" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytMat" style="padding: 5px 10px; font-size: 0.7rem;">Konu</button></div>
-                        <div class="test-input-grid"><label>Tr</label><div class="input-group"><input type="number" data-lesson="tytTurkce" class="dogru-input count-input" placeholder="D"><input type="number" data-lesson="tytTurkce" class="yanlis-input count-input" placeholder="Y"><input type="number" data-lesson="tytTurkce" class="bos-display" placeholder="B" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytTurkce" style="padding: 5px 10px; font-size: 0.7rem;">Konu</button></div>
-                        <div class="test-input-grid"><label>Sos</label><div class="input-group"><input type="number" data-lesson="tytSosyal" class="dogru-input count-input" placeholder="D"><input type="number" data-lesson="tytSosyal" class="yanlis-input count-input" placeholder="Y"><input type="number" data-lesson="tytSosyal" class="bos-display" placeholder="B" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytSosyal" style="padding: 5px 10px; font-size: 0.7rem;">Konu</button></div>
-                        <div class="test-input-grid"><label>Fen</label><div class="input-group"><input type="number" data-lesson="tytFen" class="dogru-input count-input" placeholder="D"><input type="number" data-lesson="tytFen" class="yanlis-input count-input" placeholder="Y"><input type="number" data-lesson="tytFen" class="bos-display" placeholder="B" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytFen" style="padding: 5px 10px; font-size: 0.7rem;">Konu</button></div>
+                        <!-- Başlık Satırı -->
+                        <div class="input-header-row">
+                            <span style="text-align: left;">Ders</span>
+                            <div style="display:flex; gap:10px; flex:1; text-align:center;">
+                                <span style="flex:1; color:#00b894;">Doğru</span>
+                                <span style="flex:1; color:#ff7675;">Yanlış</span>
+                                <span style="flex:1; color:#a29bfe;">Boş</span>
+                            </div>
+                            <span style="width: 60px;">Konu</span>
+                        </div>
+
+                        <div class="test-input-grid"><label>Matematik</label><div class="input-group"><input type="number" data-lesson="tytMat" class="dogru-input count-input"><input type="number" data-lesson="tytMat" class="yanlis-input count-input"><input type="number" data-lesson="tytMat" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytMat" style="padding: 5px 10px; font-size: 0.7rem;">Ekle</button></div>
+                        <div class="test-input-grid"><label>Türkçe</label><div class="input-group"><input type="number" data-lesson="tytTurkce" class="dogru-input count-input"><input type="number" data-lesson="tytTurkce" class="yanlis-input count-input"><input type="number" data-lesson="tytTurkce" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytTurkce" style="padding: 5px 10px; font-size: 0.7rem;">Ekle</button></div>
+                        <div class="test-input-grid"><label>Sosyal</label><div class="input-group"><input type="number" data-lesson="tytSosyal" class="dogru-input count-input"><input type="number" data-lesson="tytSosyal" class="yanlis-input count-input"><input type="number" data-lesson="tytSosyal" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytSosyal" style="padding: 5px 10px; font-size: 0.7rem;">Ekle</button></div>
+                        <div class="test-input-grid"><label>Fen</label><div class="input-group"><input type="number" data-lesson="tytFen" class="dogru-input count-input"><input type="number" data-lesson="tytFen" class="yanlis-input count-input"><input type="number" data-lesson="tytFen" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="tytFen" style="padding: 5px 10px; font-size: 0.7rem;">Ekle</button></div>
                     </div>
 
                     <div id="aytTestInputs" style="display: none;">
-                         <div class="test-input-grid"><label>Mat</label><div class="input-group"><input type="number" data-lesson="aytMat" class="dogru-input count-input"><input type="number" data-lesson="aytMat" class="yanlis-input count-input"><input type="number" data-lesson="aytMat" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytMat" style="font-size:0.7rem;">Konu</button></div>
-                         <div class="test-input-grid"><label>Fiz</label><div class="input-group"><input type="number" data-lesson="aytFizik" class="dogru-input count-input"><input type="number" data-lesson="aytFizik" class="yanlis-input count-input"><input type="number" data-lesson="aytFizik" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytFizik" style="font-size:0.7rem;">Konu</button></div>
-                         <div class="test-input-grid"><label>Kim</label><div class="input-group"><input type="number" data-lesson="aytKimya" class="dogru-input count-input"><input type="number" data-lesson="aytKimya" class="yanlis-input count-input"><input type="number" data-lesson="aytKimya" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytKimya" style="font-size:0.7rem;">Konu</button></div>
-                         <div class="test-input-grid"><label>Biyo</label><div class="input-group"><input type="number" data-lesson="aytBiyoloji" class="dogru-input count-input"><input type="number" data-lesson="aytBiyoloji" class="yanlis-input count-input"><input type="number" data-lesson="aytBiyoloji" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytBiyoloji" style="font-size:0.7rem;">Konu</button></div>
-                         <div class="test-input-grid"><label>Edb</label><div class="input-group"><input type="number" data-lesson="aytEdebiyat" class="dogru-input count-input"><input type="number" data-lesson="aytEdebiyat" class="yanlis-input count-input"><input type="number" data-lesson="aytEdebiyat" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytEdebiyat" style="font-size:0.7rem;">Konu</button></div>
-                         <div class="test-input-grid"><label>Cog</label><div class="input-group"><input type="number" data-lesson="aytCografya" class="dogru-input count-input"><input type="number" data-lesson="aytCografya" class="yanlis-input count-input"><input type="number" data-lesson="aytCografya" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytCografya" style="font-size:0.7rem;">Konu</button></div>
+                         <!-- Başlık Satırı AYT -->
+                        <div class="input-header-row">
+                            <span style="text-align: left;">Ders</span>
+                            <div style="display:flex; gap:10px; flex:1; text-align:center;">
+                                <span style="flex:1; color:#00b894;">Doğru</span>
+                                <span style="flex:1; color:#ff7675;">Yanlış</span>
+                                <span style="flex:1; color:#a29bfe;">Boş</span>
+                            </div>
+                            <span style="width: 60px;">Konu</span>
+                        </div>
+
+                         <div class="test-input-grid"><label>Matematik</label><div class="input-group"><input type="number" data-lesson="aytMat" class="dogru-input count-input"><input type="number" data-lesson="aytMat" class="yanlis-input count-input"><input type="number" data-lesson="aytMat" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytMat" style="font-size:0.7rem;">Ekle</button></div>
+                         <div class="test-input-grid"><label>Fizik</label><div class="input-group"><input type="number" data-lesson="aytFizik" class="dogru-input count-input"><input type="number" data-lesson="aytFizik" class="yanlis-input count-input"><input type="number" data-lesson="aytFizik" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytFizik" style="font-size:0.7rem;">Ekle</button></div>
+                         <div class="test-input-grid"><label>Kimya</label><div class="input-group"><input type="number" data-lesson="aytKimya" class="dogru-input count-input"><input type="number" data-lesson="aytKimya" class="yanlis-input count-input"><input type="number" data-lesson="aytKimya" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytKimya" style="font-size:0.7rem;">Ekle</button></div>
+                         <div class="test-input-grid"><label>Biyoloji</label><div class="input-group"><input type="number" data-lesson="aytBiyoloji" class="dogru-input count-input"><input type="number" data-lesson="aytBiyoloji" class="yanlis-input count-input"><input type="number" data-lesson="aytBiyoloji" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytBiyoloji" style="font-size:0.7rem;">Ekle</button></div>
+                         <div class="test-input-grid"><label>Edebiyat</label><div class="input-group"><input type="number" data-lesson="aytEdebiyat" class="dogru-input count-input"><input type="number" data-lesson="aytEdebiyat" class="yanlis-input count-input"><input type="number" data-lesson="aytEdebiyat" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytEdebiyat" style="font-size:0.7rem;">Ekle</button></div>
+                         <div class="test-input-grid"><label>Coğrafya</label><div class="input-group"><input type="number" data-lesson="aytCografya" class="dogru-input count-input"><input type="number" data-lesson="aytCografya" class="yanlis-input count-input"><input type="number" data-lesson="aytCografya" class="bos-display" disabled></div><button class="btn btn-primary btn-add-subject" data-lesson="aytCografya" style="font-size:0.7rem;">Ekle</button></div>
                     </div>
 
                     <button class="btn btn-primary" id="btnSaveTestResult" style="width: 100%; margin-top: 20px;">💾 Sonucu Kaydet</button>
@@ -664,7 +566,7 @@
         </div>
     </div>
 
-    <!-- MODAL: Ayarlar (Renk Teması) -->
+    <!-- MODAL: Ayarlar -->
     <div id="settingsModal" class="modal">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
@@ -674,14 +576,13 @@
             <div style="padding: 25px;">
                 <label>Tema Rengi</label>
                 <div class="color-options">
-                    <div class="color-circle" style="background: hsl(200, 100%, 45%);" data-hue="200"></div> <!-- Mavi -->
-                    <div class="color-circle" style="background: hsl(260, 100%, 60%);" data-hue="260"></div> <!-- Mor -->
-                    <div class="color-circle" style="background: hsl(150, 100%, 40%);" data-hue="150"></div> <!-- Yeşil -->
-                    <div class="color-circle" style="background: hsl(30, 100%, 50%);" data-hue="30"></div>  <!-- Turuncu -->
-                    <div class="color-circle" style="background: hsl(340, 100%, 55%);" data-hue="340"></div> <!-- Pembe -->
-                    <div class="color-circle" style="background: hsl(0, 0%, 40%);" data-hue="0"></div>   <!-- Siyah/Gri -->
+                    <div class="color-circle" style="background: hsl(200, 100%, 45%);" data-hue="200"></div>
+                    <div class="color-circle" style="background: hsl(260, 100%, 60%);" data-hue="260"></div>
+                    <div class="color-circle" style="background: hsl(150, 100%, 40%);" data-hue="150"></div>
+                    <div class="color-circle" style="background: hsl(30, 100%, 50%);" data-hue="30"></div>
+                    <div class="color-circle" style="background: hsl(340, 100%, 55%);" data-hue="340"></div>
+                    <div class="color-circle" style="background: hsl(0, 0%, 40%);" data-hue="0"></div>
                 </div>
-                
                 <button class="btn" id="btnResetTheme" style="width:100%; margin-top:20px;">Varsayılana Dön</button>
             </div>
         </div>
@@ -721,7 +622,6 @@
     </div>
 
     <script>
-        // --- Clock ---
         setInterval(() => {
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
@@ -729,7 +629,6 @@
             document.getElementById('clock').innerText = `${h}:${m}`;
         }, 1000);
 
-        // --- IndexedDB ---
         let db;
         const DB_NAME = 'YKSDefteriDB';
         const DB_VERSION = 1;
@@ -755,14 +654,11 @@
         function deleteFromDB(name, id) { return new Promise((res, rej) => { const r = getStore(name, 'readwrite').delete(id); r.onsuccess = () => res(); r.onerror = (e) => rej(e.target.error); }); }
         function getAllFromDB(name) { return new Promise((res, rej) => { const r = getStore(name, 'readonly').getAll(); r.onsuccess = (e) => res(e.target.result); r.onerror = (e) => rej(e.target.error); }); }
 
-        // --- State ---
         let questions = [], tests = [], currentQuestionId = null, tempMistakeSubjects = {};
-        
-        // Sorting State
-        let currentSortType = 'date'; // 'date' | 'difficulty'
+        let currentSortType = 'date';
         let dateSortDirection = 'desc'; 
         let difficultySortDirection = 'desc';
-        let filterExamState = 'all'; // 'all' | 'TYT' | 'AYT'
+        let filterExamState = 'all';
 
         async function loadData() {
             try {
@@ -776,11 +672,9 @@
             updateQuestionGrid(); updateStats(); drawCharts(); updateTestUI(); updateTopMistakeSubjects();
         }
 
-        // --- Questions ---
         async function saveQuestions() {
             const fileInput = document.getElementById('fileInput');
             if (fileInput.files.length === 0) { alert('Lütfen görsel seçin.'); return; }
-            
             for (const image of fileInput.files) {
                 const reader = new FileReader();
                 reader.onload = async function(e) {
@@ -804,7 +698,6 @@
                 };
                 reader.readAsDataURL(image);
             }
-            // Reset Fields
             document.getElementById('konu').value = ''; 
             document.getElementById('yorum').value = '';
             fileInput.value = '';
@@ -813,25 +706,16 @@
         function updateQuestionGrid() {
             const grid = document.getElementById('questionGrid');
             grid.innerHTML = '';
-            
             const activeTab = document.querySelector('.gallery-tab.active');
             const filterBrans = activeTab ? activeTab.dataset.brans : '';
-            
-            let filtered = questions.filter(q => 
-                (!filterBrans || q.brans === filterBrans) && 
-                (filterExamState === 'all' || q.sinav === filterExamState)
-            );
-
+            let filtered = questions.filter(q => (!filterBrans || q.brans === filterBrans) && (filterExamState === 'all' || q.sinav === filterExamState));
             const diffOrder = { 'zor': 3, 'orta': 2, 'kolay': 1 };
             
             filtered.sort((a, b) => {
                 if (currentSortType === 'date') {
-                    return dateSortDirection === 'desc' 
-                        ? new Date(b.date) - new Date(a.date) 
-                        : new Date(a.date) - new Date(b.date);
+                    return dateSortDirection === 'desc' ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date);
                 } else {
-                    const dA = diffOrder[a.zorluk] || 0;
-                    const dB = diffOrder[b.zorluk] || 0;
+                    const dA = diffOrder[a.zorluk] || 0, dB = diffOrder[b.zorluk] || 0;
                     return difficultySortDirection === 'desc' ? dB - dA : dA - dB;
                 }
             });
@@ -862,7 +746,6 @@
             });
         }
 
-        // --- Tests ---
         async function saveTestResult() {
             const testType = document.getElementById('testType').value;
             const testName = document.getElementById('testName').value;
@@ -881,7 +764,6 @@
                 const total = parseInt(document.getElementById(`${sec}Toplam`).value) || 0;
                 const d = parseInt(document.querySelector(`.dogru-input[data-lesson='${sec}']`).value) || 0;
                 const y = parseInt(document.querySelector(`.yanlis-input[data-lesson='${sec}']`).value) || 0;
-                
                 if (d + y > total) { alert('Hatalı soru sayısı!'); return; }
                 const net = d - (y / 4);
                 result.results[sec] = { dogru: d, yanlis: y, bos: total - d - y, net: net, mistakeSubjects: tempMistakeSubjects[sec] || [] };
@@ -914,10 +796,7 @@
             drawTestCharts(); updateTestStats();
         }
 
-        // --- Charts ---
-        function getChartTextColor() {
-            return document.body.classList.contains('dark-mode') ? '#dfe6e9' : '#2d3436';
-        }
+        function getChartTextColor() { return document.body.classList.contains('dark-mode') ? '#dfe6e9' : '#2d3436'; }
 
         function drawCharts() {
             const bransData = {}, zorlukData = {};
@@ -925,26 +804,14 @@
                 bransData[q.brans] = (bransData[q.brans] || 0) + 1;
                 zorlukData[q.zorluk] = (zorlukData[q.zorluk] || 0) + 1;
             });
-            
-            const commonOpts = { 
-                responsive: true, maintainAspectRatio: false, 
-                plugins: { legend: { labels: { color: getChartTextColor() }, position: 'bottom' } } 
-            };
-
+            const commonOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: getChartTextColor() }, position: 'bottom' } } };
             const config = (id, type, labels, data, colors) => {
                 const ctx = document.getElementById(id).getContext('2d');
                 if(window[id] instanceof Chart) window[id].destroy();
-                window[id] = new Chart(ctx, {
-                    type: type,
-                    data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] },
-                    options: commonOpts
-                });
+                window[id] = new Chart(ctx, { type: type, data: { labels: labels, datasets: [{ data: data, backgroundColor: colors, borderWidth: 0 }] }, options: commonOpts });
             };
-            
-            // Generate distinct colors based on hue
             const accent = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent').trim();
             const colors = [accent, '#55efc4', '#fab1a0', '#ffeaa7', '#a29bfe', '#fd79a8', '#636e72'];
-            
             config('bransChart', 'doughnut', Object.keys(bransData), Object.values(bransData), colors);
             config('zorlukChart', 'pie', Object.keys(zorlukData), Object.values(zorlukData), ['#55efc4', '#fdcb6e', '#ff7675']);
         }
@@ -952,32 +819,21 @@
         function drawTestCharts() {
             const tyt = tests.filter(t => t.type === 'TYT').sort((a, b) => new Date(a.date) - new Date(b.date));
             const ayt = tests.filter(t => t.type === 'AYT').sort((a, b) => new Date(a.date) - new Date(b.date));
-            
             const textColor = getChartTextColor();
             const accent = getComputedStyle(document.documentElement).getPropertyValue('--primary-accent').trim();
-
             const lineConfig = (id, label, data, labels, color) => {
                 const ctx = document.getElementById(id).getContext('2d');
                 if(window[id] instanceof Chart) window[id].destroy();
                 window[id] = new Chart(ctx, {
                     type: 'line',
                     data: { labels: labels, datasets: [{ label: label, data: data, borderColor: color, tension: 0.4, fill: true, backgroundColor: color + '20' }] },
-                    options: { 
-                        responsive: true, maintainAspectRatio: false,
-                        scales: { 
-                            y: { ticks: { color: textColor }, grid: { color: textColor + '20' } },
-                            x: { ticks: { color: textColor }, grid: { display: false } }
-                        },
-                        plugins: { legend: { labels: { color: textColor } } }
-                    }
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: textColor }, grid: { color: textColor + '20' } }, x: { ticks: { color: textColor }, grid: { display: false } } }, plugins: { legend: { labels: { color: textColor } } } }
                 });
             };
-            
             lineConfig('tytTotalChart', 'TYT Net', tyt.map(t=>t.totalNet), tyt.map(t=>t.name), accent);
             lineConfig('aytTotalChart', 'AYT Net', ayt.map(t=>t.totalNet), ayt.map(t=>t.name), '#a29bfe');
         }
 
-        // --- Logic ---
         function updateStats() {
             document.getElementById('totalQuestions').innerText = questions.length;
             document.getElementById('solvedQuestions').innerText = questions.filter(q => q.durum === 'cozuldu').length;
@@ -1009,9 +865,7 @@
             questions.forEach(q => { if(q.konu) counts[q.konu] = (counts[q.konu]||0)+1; });
             const sorted = Object.entries(counts).sort(([,a],[,b])=>b-a).slice(0,5);
             if(sorted.length === 0) { list.innerHTML = '<li style="text-align:center;color:var(--text-secondary);">Veri yok</li>'; return; }
-            sorted.forEach(([k,c]) => {
-                list.innerHTML += `<li style="padding:8px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between;"><span>${k}</span><b>${c}</b></li>`;
-            });
+            sorted.forEach(([k,c]) => { list.innerHTML += `<li style="padding:8px; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between;"><span>${k}</span><b>${c}</b></li>`; });
         }
 
         function updateTestStats() {
@@ -1022,28 +876,20 @@
              document.getElementById('aytBestNet').innerText = calc('AYT', Math.max);
         }
 
-        // --- Theme Color Settings ---
         function applyTheme(hue) {
             document.documentElement.style.setProperty('--hue', hue);
             localStorage.setItem('themeHue', hue);
-            
             document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('active'));
             const activeCircle = document.querySelector(`.color-circle[data-hue="${hue}"]`);
             if(activeCircle) activeCircle.classList.add('active');
-            
             drawCharts(); drawTestCharts();
         }
 
-        // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', async () => {
             await initDB(); loadData();
-            
-            // Theme Init
-            const savedHue = localStorage.getItem('themeHue') || '200';
-            applyTheme(savedHue);
+            const savedHue = localStorage.getItem('themeHue') || '200'; applyTheme(savedHue);
             if(localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
 
-            // Navigation
             document.querySelectorAll('.dock-item').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1054,8 +900,7 @@
                     if(link.dataset.page === 'testPage') updateTestUI();
                 });
             });
-            
-            // Buttons
+
             document.getElementById('uploadArea').onclick = () => document.getElementById('fileInput').click();
             document.getElementById('btnSaveQuestions').onclick = saveQuestions;
             document.getElementById('btnSaveTestResult').onclick = saveTestResult;
@@ -1068,7 +913,6 @@
                 document.getElementById('aytTotalQuestions').style.display = isTYT ? 'none' : 'flex';
             };
 
-            // Dynamic Inputs
             document.addEventListener('input', (e) => {
                 if(e.target.classList.contains('count-input')) {
                     const l = e.target.dataset.lesson;
@@ -1079,7 +923,6 @@
                 }
             });
 
-            // Filtering & Sorting
             document.getElementById('galleryTabs').onclick = (e) => {
                 if(e.target.classList.contains('gallery-tab')) {
                     document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
@@ -1088,7 +931,6 @@
                 }
             };
             
-            // Explicit Sorting Listeners
             document.getElementById('btnFilterExam').onclick = (e) => {
                 const btn = e.target;
                 if(filterExamState === 'all') { filterExamState='TYT'; btn.innerText='Oturum: TYT'; }
@@ -1098,65 +940,45 @@
             };
 
             document.getElementById('btnSortDate').onclick = (e) => {
-                currentSortType = 'date';
-                dateSortDirection = dateSortDirection === 'desc' ? 'asc' : 'desc';
+                currentSortType = 'date'; dateSortDirection = dateSortDirection === 'desc' ? 'asc' : 'desc';
                 e.target.innerText = `🗓️ Tarih (${dateSortDirection === 'desc' ? 'Y-E' : 'E-Y'})`;
-                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active')); e.target.classList.add('active');
                 updateQuestionGrid();
             };
 
             document.getElementById('btnSortDifficulty').onclick = (e) => {
-                currentSortType = 'difficulty';
-                difficultySortDirection = difficultySortDirection === 'desc' ? 'asc' : 'desc';
-                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
+                currentSortType = 'difficulty'; difficultySortDirection = difficultySortDirection === 'desc' ? 'asc' : 'desc';
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active')); e.target.classList.add('active');
                 updateQuestionGrid();
             };
 
-            // Card Interactions (Fix for q is undefined)
             const modal = document.getElementById('myModal');
             document.getElementById('questionGrid').onclick = (e) => {
                 const card = e.target.closest('.question-card');
                 if(!card) return;
-                
                 const id = card.dataset.questionId;
-                
                 if(e.target.classList.contains('delete-btn')) {
                     e.stopPropagation();
                     if(confirm('Soruyu silmek istediğine emin misin?')) { 
-                        deleteFromDB(QUESTION_STORE, id).then(() => { 
-                            questions = questions.filter(q => q.id !== id); 
-                            updateUI(); 
-                        }); 
+                        deleteFromDB(QUESTION_STORE, id).then(() => { questions = questions.filter(q => q.id !== id); updateUI(); }); 
                     }
                 } else {
                     const q = questions.find(x => x.id === id);
-                    if(!q) return; // FIX
-                    
+                    if(!q) return;
                     currentQuestionId = q.id;
                     document.getElementById('modalImage').src = q.image;
                     document.getElementById('modalDate').innerText = new Date(q.date).toLocaleDateString();
                     document.getElementById('modalSource').innerText = q.kaynak || '-';
                     document.getElementById('modalComment').innerText = q.yorum || '-';
                     document.getElementById('modalDurumSelect').value = q.durum;
-                    
-                    document.getElementById('modalTags').innerHTML = `
-                        <span class="tag-pill tag-sinav">${q.sinav}</span>
-                        <span class="tag-pill tag-brans">${q.brans}</span>
-                        <span class="tag-pill tag-zorluk ${q.zorluk}">${q.zorluk}</span>
-                    `;
-
+                    document.getElementById('modalTags').innerHTML = `<span class="tag-pill tag-sinav">${q.sinav}</span><span class="tag-pill tag-brans">${q.brans}</span><span class="tag-pill tag-zorluk ${q.zorluk}">${q.zorluk}</span>`;
                     const solImg = document.getElementById('solutionImage');
-                    solImg.src = q.solution || '';
-                    solImg.style.display = q.solution ? 'block' : 'none';
+                    solImg.src = q.solution || ''; solImg.style.display = q.solution ? 'block' : 'none';
                     document.getElementById('noSolutionText').style.display = q.solution ? 'none' : 'block';
-                    
                     modal.style.display = 'flex';
                 }
             };
             
-            // Modal Actions
             document.getElementById('modalCloseBtn').onclick = () => modal.style.display = 'none';
             document.getElementById('btnUpdateStatus').onclick = async () => {
                 const q = questions.find(x => x.id === currentQuestionId);
@@ -1175,30 +997,22 @@
                     r.readAsDataURL(f);
                 }
             };
-            
-            // Deletion inside modal
             document.getElementById('btnDeleteQuestion').onclick = () => {
                 if(confirm('Silinsin mi?')) {
                     deleteFromDB(QUESTION_STORE, currentQuestionId).then(() => {
-                        questions = questions.filter(q => q.id !== currentQuestionId);
-                        updateUI();
-                        modal.style.display = 'none';
+                        questions = questions.filter(q => q.id !== currentQuestionId); updateUI(); modal.style.display = 'none';
                     });
                 }
             };
 
-            // Fullscreen
             document.getElementById('modalImage').onclick = () => { document.getElementById('fullscreenModalContent').src=document.getElementById('modalImage').src; document.getElementById('fullscreenModal').style.display='flex'; };
             document.getElementById('solutionImage').onclick = () => { document.getElementById('fullscreenModalContent').src=document.getElementById('solutionImage').src; document.getElementById('fullscreenModal').style.display='flex'; };
             document.getElementById('fullscreenCloseBtn').onclick = () => document.getElementById('fullscreenModal').style.display='none';
 
-            // Weekly Goal
             document.getElementById('btnSetGoal').onclick = () => {
-                localStorage.setItem('weeklyQuestionGoal', document.getElementById('weeklyGoalInput').value);
-                updateWeeklyGoalStatus();
+                localStorage.setItem('weeklyQuestionGoal', document.getElementById('weeklyGoalInput').value); updateWeeklyGoalStatus();
             };
 
-            // Backup
             document.getElementById('btnExport').onclick = async () => {
                const data = { questions: await getAllFromDB(QUESTION_STORE), tests: await getAllFromDB(TEST_STORE) };
                const a = document.createElement('a');
@@ -1221,26 +1035,18 @@
                 r.readAsText(e.target.files[0]);
             };
 
-            // Dark Mode
             document.getElementById('darkModeToggle').onclick = () => {
                 document.body.classList.toggle('dark-mode');
                 localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
                 drawCharts(); drawTestCharts();
             };
 
-            // Settings Modal
             const setModal = document.getElementById('settingsModal');
             document.getElementById('settingsBtn').onclick = () => setModal.style.display = 'flex';
             document.getElementById('settingsCloseBtn').onclick = () => setModal.style.display = 'none';
-            
-            document.querySelectorAll('.color-circle').forEach(circle => {
-                circle.onclick = (e) => {
-                    applyTheme(e.target.dataset.hue);
-                };
-            });
+            document.querySelectorAll('.color-circle').forEach(circle => { circle.onclick = (e) => applyTheme(e.target.dataset.hue); });
             document.getElementById('btnResetTheme').onclick = () => applyTheme('200');
 
-            // Subject Modal Logic
             let currentLessonForSub = null;
             document.querySelectorAll('.btn-add-subject').forEach(btn => {
                 btn.onclick = (e) => {
@@ -1263,7 +1069,6 @@
             };
             document.getElementById('subjectModalCloseBtn').onclick = () => document.getElementById('subjectModal').style.display='none';
 
-            // Test Details
              document.getElementById('testListContainer').onclick = (e) => {
                 if(e.target.classList.contains('test-delete-btn')) {
                      e.stopPropagation();
